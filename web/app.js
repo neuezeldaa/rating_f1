@@ -99,7 +99,10 @@
     { id: "only", name: "Только результаты", w: { ...ZERO, results: 100 } },
   ];
 
-  const state = { scope: PERIOD, showAll: false, driver: null, sort: "score", preset: "default", custom: null };
+  const TOP_N = 15;  // столько строк показывать в свёрнутой таблице
+  const state = {
+    scope: PERIOD, showAll: false, driver: null, sort: "score", preset: "default", custom: null, expanded: false,
+  };
 
   function weightsFor(isPeriod) {
     if (state.custom) return state.custom;
@@ -311,9 +314,26 @@
       tops[g.id] = values[2] ?? Infinity;
     }
 
+    // Свёрнутая таблица: первые TOP_N строк; выбранный пилот остаётся виден, даже если он ниже.
+    let shown = rows;
+    let pinned = null;
+    if (!state.expanded && rows.length > TOP_N) {
+      shown = rows.slice(0, TOP_N);
+      pinned = rows.slice(TOP_N).find((e) => e.id === state.driver) || null;
+    }
+
     const tbody = $("#ranking tbody");
     tbody.replaceChildren();
-    for (const e of rows) {
+    const columnsCount = 3 + groups.length + stats.length;
+    for (const e of pinned ? [...shown, null, pinned] : shown) {
+      if (e === null) {
+        const gap = el("tr", "gap");
+        const cell = el("td", null, "…");
+        cell.colSpan = columnsCount;
+        gap.append(cell);
+        tbody.append(gap);
+        continue;
+      }
       const tr = el("tr");
       tr.dataset.id = e.id;
       if (!e.eligible) tr.classList.add("ineligible");
@@ -338,14 +358,32 @@
       tr.addEventListener("click", () => selectDriver(e.id));
       tbody.append(tr);
     }
+
+    const more = $("#table-more");
+    more.replaceChildren();
+    if (rows.length > TOP_N) {
+      const button = el("button", null, state.expanded
+        ? `Свернуть до топ-${TOP_N}`
+        : `Показать всех: ${rows.length} ${plural(rows.length, "пилот", "пилота", "пилотов")}`);
+      button.type = "button";
+      button.setAttribute("aria-expanded", String(state.expanded));
+      button.addEventListener("click", () => {
+        state.expanded = !state.expanded;
+        renderTable();
+        if (!state.expanded) $("#ranking-title").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+      more.append(button);
+    }
   }
 
-  function selectDriver(id) {
+  // options.scroll = false — не прокручивать к карточке (клик по графу не должен уводить страницу вверх).
+  function selectDriver(id, options = {}) {
     state.driver = id;
-    for (const tr of document.querySelectorAll("#ranking tbody tr")) tr.classList.toggle("selected", tr.dataset.id === id);
+    renderTable();  // в свёрнутой таблице выбранный пилот может быть ниже топ-15 — дорисуем его строку
     renderDriver();
     writeHash();
-    if (SINGLE_COLUMN.matches) $("#driver").scrollIntoView({ behavior: "smooth", block: "start" });
+    syncGraph(id);
+    if (options.scroll !== false && SINGLE_COLUMN.matches) $("#driver").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // ---------- карточка пилота ----------
@@ -373,8 +411,14 @@
     const id = state.driver;
     const driver = drivers[id];
     const current = computeScope(state.scope).byId.get(id);
-    if (!driver || !current) {
+    if (!driver) {
       box.append(el("p", "empty", "Выберите пилота в таблице."));
+      return;
+    }
+    if (!current) {
+      box.append(el("h2", null, driver.name),
+        el("p", "empty", `В сезоне ${state.scope} пилот не выступал. Выберите «Все сезоны» в поле «Охват», ` +
+          "чтобы открыть его полную карточку."));
       return;
     }
     const isPeriod = state.scope === PERIOD;
@@ -399,6 +443,12 @@
     stats.append(stat("Победы / подиумы", `${int(current.stats.wins)} / ${int(current.stats.podiums)}`,
       `${current.starts} ${plural(current.starts, "гонка", "гонки", "гонок")}`));
     box.append(stats);
+    const gn = gNodes.get(id);
+    if (gn) {
+      box.append(el("p", "hint",
+        `Надёжность сравнения с остальными пилотами: ${reliabilityLabel(gn.reliability)} (${int(gn.reliability)} из 100) · ` +
+        `напарников ${gn.teammates}` + (gn.bridge_cut ? ` · «мост»: без него от сети отрываются пилотов — ${gn.bridge_cut}` : "")));
+    }
 
     const groups = GROUPS.filter((g) => isPeriod || g.id !== "career");
     box.append(el("h3", null, "Профиль по группам"));
@@ -569,6 +619,344 @@
     });
   }
 
+  // ---------- граф напарников ----------
+  const GRAPH = DATA.graph || null;
+  const graphState = { from: null, to: null, ready: false };
+  let graphChart = null;
+  const gNodes = new Map((GRAPH ? GRAPH.nodes : []).map((n) => [n.id, n]));
+  const gAdj = new Map();
+  for (const e of GRAPH ? GRAPH.edges : []) {
+    for (const [u, v] of [[e.a, e.b], [e.b, e.a]]) {
+      if (!gAdj.has(u)) gAdj.set(u, []);
+      gAdj.get(u).push({ to: v, edge: e });
+    }
+  }
+  const edgeKey = (e) => `${e.a}|${e.b}`;
+  const surname = (id) => (drivers[id] ? drivers[id].name.split(" ").slice(-1)[0] : id);
+  const reliabilityLabel = (score) => (score >= 80 ? "высокая" : score >= 50 ? "средняя" : "низкая");
+
+  function eqRaces(a, b) {
+    const i = GRAPH.order.indexOf(a);
+    const j = GRAPH.order.indexOf(b);
+    return i < 0 || j < 0 ? null : GRAPH.eq_races[i][j];
+  }
+
+  // Самый сильный путь: длина звена = 1 / сила связи (как сопротивление проводника), алгоритм Дейкстры.
+  function strongestPath(a, b) {
+    if (!a || !b || a === b) return [];
+    const dist = new Map([[a, 0]]);
+    const prev = new Map();
+    const done = new Set();
+    for (;;) {
+      let u = null;
+      let best = Infinity;
+      for (const [k, v] of dist) if (!done.has(k) && v < best) { best = v; u = k; }
+      if (u === null || u === b) break;
+      done.add(u);
+      for (const { to, edge } of gAdj.get(u) || []) {
+        const d = best + 1 / edge.strength;
+        if (d < (dist.get(to) ?? Infinity)) { dist.set(to, d); prev.set(to, { from: u, edge }); }
+      }
+    }
+    if (!prev.has(b)) return null;
+    const steps = [];
+    for (let cur = b; cur !== a;) {
+      const p = prev.get(cur);
+      steps.unshift({ from: p.from, to: cur, edge: p.edge });
+      cur = p.from;
+    }
+    return steps;
+  }
+
+  // Счёт пары глазами пилота who: [победы, поражения]; темп — гэп в %, минус значит who быстрее.
+  function oriented(edge, who) {
+    const flip = edge.a !== who;
+    const turn = (pair) => (pair ? (flip ? [pair[1], pair[0]] : pair) : null);
+    return { quali: turn(edge.quali), race: turn(edge.race), pace: edge.pace ? (flip ? -edge.pace[0] : edge.pace[0]) : null };
+  }
+
+  function linkText(edge, who, other) {
+    const o = oriented(edge, who);
+    const parts = [`${edge.races} ${plural(edge.races, "гонка", "гонки", "гонок")} вместе (${edge.seasons.join(", ")}, ${edge.teams.join(" → ")})`];
+    if (o.quali) parts.push(`квала ${o.quali[0]}:${o.quali[1]}`);
+    if (o.race) parts.push(`гонки ${o.race[0]}:${o.race[1]}`);
+    if (o.pace != null) {
+      parts.push(Math.abs(o.pace) < 0.005 ? "темп равный"
+        : `темп: ${surname(o.pace < 0 ? who : other)} быстрее на ${num(Math.abs(o.pace), 2)}%`);
+    }
+    return parts.join(" · ");
+  }
+
+  function mix(hexA, hexB, t) {
+    const parse = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const [a, b] = [parse(hexA), parse(hexB)];
+    const k = Math.max(0, Math.min(1, t));
+    return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(",")})`;
+  }
+
+  function drawGraph() {
+    const node = $("#graph");
+    if (!node) return;
+    if (!window.echarts) {
+      node.replaceWith(el("p", "empty", "Граф не загрузился (нет доступа к ECharts) — путь и напарники ниже."));
+      return;
+    }
+    const c = palette();
+    const low = cssVar("--ramp-low");
+    const high = cssVar("--ramp-high");
+    const accent = cssVar("--series-2");
+    const sel = graphState.from;
+    const focus = Boolean($("#graph-focus").checked && sel);
+    const path = strongestPath(graphState.from, graphState.to) || [];
+    const pathEdges = new Set(path.map((s) => edgeKey(s.edge)));
+    const pathNodes = new Set([graphState.from, graphState.to, ...path.map((s) => s.to)]);
+    const near = new Set([sel, ...(gAdj.get(sel) || []).map((x) => x.to), ...pathNodes]);
+    const ratings = GRAPH.nodes.map((n) => n.rating ?? 50);
+    const rMin = Math.min(...ratings);
+    const rMax = Math.max(...ratings);
+    const data = GRAPH.nodes.map((n) => {
+      const inPath = pathNodes.has(n.id);
+      const strong = inPath || n.id === sel;
+      const shown = !focus || near.has(n.id);
+      return {
+        id: n.id,
+        name: drivers[n.id] ? drivers[n.id].code || n.id : n.id,
+        x: n.x * 1000,
+        y: n.y * 700,
+        symbolSize: n.size + (n.id === sel ? 6 : 0),
+        itemStyle: {
+          color: mix(low, high, ((n.rating ?? 50) - rMin) / (rMax - rMin || 1)),
+          borderColor: inPath ? accent : n.bridge_cut ? c.text1 : c.surface,
+          borderWidth: inPath ? 3 : n.bridge_cut ? 2 : 1,
+          opacity: shown ? 1 : 0.25,
+        },
+        label: {
+          show: true, position: "right", fontSize: 11, opacity: shown ? 1 : 0.35,
+          color: strong ? c.text1 : c.text2, fontWeight: strong ? 600 : 400,
+        },
+      };
+    });
+    const links = GRAPH.edges.map((e) => {
+      const onPath = pathEdges.has(edgeKey(e));
+      const incident = e.a === sel || e.b === sel;
+      const faded = focus && !incident && !onPath;
+      return {
+        source: e.a,
+        target: e.b,
+        edge: e,
+        lineStyle: {
+          color: onPath ? accent : focus && incident ? c.text2 : c.axis,
+          width: onPath ? 4 : 0.6 + 1.1 * Math.log1p(e.races / 4),
+          opacity: onPath ? 1 : faded ? 0.08 : e.weak ? 0.35 : 0.9,
+        },
+      };
+    });
+    const view = graphView();
+    if (!graphChart) {
+      graphChart = window.echarts.init(node, null, { renderer: "svg" });
+      graphChart.on("click", (p) => { if (p.dataType === "node") selectDriver(p.data.id, { scroll: false }); });
+    }
+    graphChart.setOption({
+      animation: false,
+      textStyle: { fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' },
+      tooltip: {
+        backgroundColor: c.surface, borderColor: c.border, textStyle: { color: c.text1, fontSize: 13 },
+        formatter: (p) => {
+          if (p.dataType === "edge") {
+            const e = p.data.edge;
+            return `<b>${esc(name(e.a))} — ${esc(name(e.b))}</b><br>${esc(linkText(e, e.a, e.b))}` +
+              (e.strength < e.races ? "<br>подменное выступление: вес связи вполовину" : "");
+          }
+          const n = gNodes.get(p.data.id);
+          return `<b>${esc(name(n.id))}</b> · рейтинг ${int(n.rating)}${n.rank ? `, ${n.rank}-е место` : ""}` +
+            `<br>напарников ${n.teammates}, гонок с ними ${n.races_with_mates}` +
+            `<br>надёжность сравнения: ${reliabilityLabel(n.reliability)} (${int(n.reliability)} из 100)` +
+            (n.bridge_cut ? `<br>мост: без него от сети отрываются пилотов — ${n.bridge_cut}` : "");
+        },
+      },
+      series: [{
+        type: "graph", layout: "none", roam: true, data, links,
+        zoom: view.zoom || 1,
+        ...(view.center ? { center: view.center } : {}),
+        emphasis: { focus: "adjacency", lineStyle: { width: 3 } },
+        labelLayout: { hideOverlap: false },
+      }],
+    }, true);
+  }
+
+  // Текущий масштаб и центр: пользователь мог приблизить или сдвинуть граф мышью — не сбрасываем.
+  function graphView() {
+    if (!graphChart) return {};
+    const series = (graphChart.getOption().series || [])[0] || {};
+    return { zoom: series.zoom, center: series.center };
+  }
+
+  function zoomGraph(factor) {
+    if (!graphChart) return;
+    const zoom = Math.min(8, Math.max(0.5, (graphView().zoom || 1) * factor));
+    graphChart.setOption({ series: [{ zoom }] });
+  }
+
+  function resetGraph() {
+    if (!graphChart) return;
+    const xs = GRAPH.nodes.map((n) => n.x * 1000);
+    const ys = GRAPH.nodes.map((n) => n.y * 700);
+    const center = [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+    graphChart.setOption({ series: [{ zoom: 1, center }] });
+  }
+
+  function centerGraph() {
+    const n = gNodes.get(graphState.from);
+    if (!graphChart || !n) return;
+    graphChart.setOption({ series: [{ center: [n.x * 1000, n.y * 700], zoom: Math.max(graphView().zoom || 1, 2.2) }] });
+  }
+
+  function renderGraphDriver() {
+    const box = $("#graph-driver");
+    box.replaceChildren();
+    const id = graphState.from;
+    const n = gNodes.get(id);
+    if (!n) return;
+    const period = computeScope(PERIOD).byId.get(id);
+    box.append(el("h3", null, name(id)));
+    if (period) {
+      box.append(el("p", null, `Рейтинг ${int(period.score)}` +
+        (period.rankNow ? `, ${period.rankNow}-е место за ${meta.period[0]}–${meta.period[1]}` : "") +
+        ` · титулов ${(period.titles || []).length}, побед ${int(period.stats.wins)}, гонок ${period.starts}`));
+    }
+    box.append(el("p", null, `Напарников ${n.teammates}, гонок с ними ${n.races_with_mates} · надёжность сравнения: ` +
+      `${reliabilityLabel(n.reliability)} (${int(n.reliability)} из 100)`));
+    if (n.bridge_cut) box.append(el("p", null, `«Мост»: без него от сети отрываются пилотов — ${n.bridge_cut}.`));
+    const button = el("button", null, "Открыть полную карточку ↑");
+    button.type = "button";
+    button.addEventListener("click", () => $("#driver").scrollIntoView({ behavior: "smooth", block: "start" }));
+    box.append(button);
+  }
+
+  function renderPath() {
+    const list = $("#graph-path");
+    list.replaceChildren();
+    const summary = $("#graph-summary");
+    const { from, to } = graphState;
+    if (!from || !to || from === to) {
+      summary.textContent = "Выберите двух разных пилотов.";
+      return;
+    }
+    const path = strongestPath(from, to);
+    if (!path) {
+      summary.textContent = "Эти пилоты не связаны через напарников.";
+      return;
+    }
+    const eq = eqRaces(from, to);
+    const eqText = eq == null ? "" : ` Через все пути сети сразу это сравнение стоит примерно ${Math.round(eq)} ` +
+      `${plural(Math.round(eq), "гонку", "гонки", "гонок")} прямой дуэли.`;
+    summary.textContent = `${name(from)} и ${name(to)}: самый сильный путь — ${path.length} ` +
+      `${plural(path.length, "звено", "звена", "звеньев")}.${eqText}`;
+    for (const step of path) {
+      const li = el("li");
+      li.append(el("strong", null, `${surname(step.from)} → ${surname(step.to)}`),
+        document.createTextNode(` · ${linkText(step.edge, step.from, step.to)}`));
+      if (step.edge.weak) li.append(el("span", "badge", "слабое звено"));
+      if (step.edge.strength < step.edge.races) li.append(el("span", "badge", "подмена, вес ½"));
+      list.append(li);
+    }
+  }
+
+  function renderMates() {
+    const who = graphState.from;
+    $("#graph-mates-title").textContent = who ? `Напарники: ${name(who)}` : "Напарники";
+    const table = $("#graph-mates");
+    table.replaceChildren();
+    if (!who) return;
+    const head = el("tr");
+    for (const [title, cls] of [["Напарник", ""], ["Сезоны", ""], ["Гонок", "num"], ["Квала", "num"], ["Гонки", "num"], ["Темп", ""]]) {
+      const th = el("th", cls, title);
+      th.scope = "col";
+      head.append(th);
+    }
+    const thead = el("thead");
+    thead.append(head);
+    const tbody = el("tbody");
+    for (const { to, edge } of (gAdj.get(who) || []).slice().sort((x, y) => y.edge.races - x.edge.races)) {
+      const o = oriented(edge, who);
+      const tr = el("tr");
+      const mate = el("td", null, name(to));
+      if (edge.weak) mate.append(el("span", "badge", "слабая связь"));
+      tr.append(mate, el("td", null, edge.seasons.join(", ")), el("td", "num", String(edge.races)),
+        el("td", "num", o.quali ? `${o.quali[0]}:${o.quali[1]}` : "—"),
+        el("td", "num", o.race ? `${o.race[0]}:${o.race[1]}` : "—"),
+        el("td", null, o.pace == null ? "—" : Math.abs(o.pace) < 0.005 ? "равный"
+          : `${o.pace < 0 ? "быстрее" : "медленнее"} на ${num(Math.abs(o.pace), 2)}%`));
+      tbody.append(tr);
+    }
+    table.append(thead, tbody);
+  }
+
+  function updateGraph() {
+    $("#graph-from").value = graphState.from;
+    $("#graph-to").value = graphState.to;
+    drawGraph();
+    renderGraphDriver();
+    renderPath();
+    renderMates();
+  }
+
+  function syncGraph(id) {
+    if (!graphState.ready || !gNodes.has(id)) return;
+    graphState.from = id;
+    if (graphState.to === id) {
+      const top = GRAPH.nodes.filter((n) => n.rank && n.id !== id).sort((a, b) => a.rank - b.rank)[0];
+      graphState.to = top ? top.id : graphState.to;
+    }
+    updateGraph();
+  }
+
+  function initGraph() {
+    if (!GRAPH) {
+      $("#graph-card").hidden = true;
+      return;
+    }
+    const s = GRAPH.stats;
+    $("#graph-title").textContent = `Граф напарников ${meta.period[0]}–${meta.period[1]}`;
+    $("#graph-hint").textContent =
+      `${s.drivers} пилотов и ${s.pairs} пар напарников связаны в одну сеть, в среднем ${num(s.mean_hops, 1)} шага между пилотами. ` +
+      "Модель сравнивает пилотов через все цепочки сразу: связи с большим числом совместных гонок весят больше, " +
+      `подменные выступления (до ${s.weak_races} гонок за команду в сезоне) — вполовину. ` +
+      "Выберите двух пилотов или нажмите на узел.";
+    const legend = $("#graph-legend");
+    const ramp = el("span", "legend-ramp");
+    const ratings = GRAPH.nodes.map((n) => n.rating ?? 50);
+    ramp.append(el("span", null, `рейтинг ${Math.round(Math.min(...ratings))}`), el("span", "bar"),
+      el("span", null, String(Math.round(Math.max(...ratings)))));
+    legend.append(ramp);
+    for (const text of ["размер узла — число гонок", "толщина линии — гонок вместе",
+      `бледная линия — слабая связь (до ${s.weak_races} гонок)`, "тёмная обводка — «мост»: без него сеть распадается",
+      "оранжевым — самый сильный путь сравнения"]) legend.append(el("span", null, text));
+
+    const ids = GRAPH.nodes.map((n) => n.id).sort((a, b) => name(a).localeCompare(name(b), "ru"));
+    for (const select of [$("#graph-from"), $("#graph-to")]) {
+      for (const id of ids) {
+        const option = el("option", null, name(id));
+        option.value = id;
+        select.append(option);
+      }
+    }
+    const byRank = GRAPH.nodes.filter((n) => n.rank).sort((a, b) => a.rank - b.rank);
+    graphState.from = gNodes.has(state.driver) ? state.driver : byRank[0].id;
+    graphState.to = byRank[0].id === graphState.from ? byRank[1].id : byRank[0].id;
+    $("#graph-from").addEventListener("change", (event) => selectDriver(event.target.value, { scroll: false }));
+    $("#graph-to").addEventListener("change", (event) => { graphState.to = event.target.value; updateGraph(); });
+    $("#graph-focus").addEventListener("change", drawGraph);
+    $("#graph-zoom-in").addEventListener("click", () => zoomGraph(1.4));
+    $("#graph-zoom-out").addEventListener("click", () => zoomGraph(1 / 1.4));
+    $("#graph-center").addEventListener("click", centerGraph);
+    $("#graph-reset").addEventListener("click", resetGraph);
+    $("#graph").setAttribute("aria-label", "Граф напарников: узлы — пилоты, линии — пары напарников. " +
+      "Путь сравнения и список напарников — в тексте рядом.");
+    graphState.ready = true;
+    updateGraph();
+  }
+
   // ---------- методика ----------
   function renderMethod() {
     const body = $("#method-body");
@@ -617,7 +1005,12 @@
           текущего, а ни один из них не заезжал в боксы (всего ${meta.counts.overtakes || "—"} обгонов).</li>
         <li><strong>Против напарника</strong> — три модели сети напарников (квалификация, темп на общих
           чистых кругах, кто выше на финише): регрессия Ridge с цепочкой сезонов и кривой опыта новичков.
-          Плюс доля очков команды, которую привёз пилот.</li>
+          Плюс доля очков команды, которую привёз пилот. Подменные выступления (до 3 гонок за команду
+          в сезоне) идут с половинным весом: без подготовки в чужой машине пилот обычно ниже своего уровня.</li>
+        <li><strong>Граф напарников и надёжность.</strong> В модели на разницах с напарником погрешность
+          сравнения двух пилотов пропорциональна эффективному сопротивлению между ними в сети, где каждая
+          совместная гонка — проводник. Отсюда «надёжность сравнения» каждого пилота и оценка «сколько гонок
+          прямой дуэли стоит это сравнение» для любой пары.</li>
         <li><strong>Сходы</strong> классифицируются по причинам из F1DB: авария или разворот — ошибка пилота,
           поломка — не его вина. Столкновения без разбора виновника не засчитываются никому
           (${unclear} ${plural(unclear, "гоночная дуэль", "гоночные дуэли", "гоночных дуэлей")}).</li>
@@ -678,13 +1071,21 @@
     renderScopeNote();
     renderAll();
     writeHash();
+    syncGraph(state.driver);
   }
 
   readHash();
   renderHeader();
   renderMethod();
   render();
+  initGraph();
 
-  window.addEventListener("resize", () => charts.forEach((c) => c.resize()));
-  DARK.addEventListener("change", () => renderDriver());
+  window.addEventListener("resize", () => {
+    charts.forEach((c) => c.resize());
+    if (graphChart) graphChart.resize();
+  });
+  DARK.addEventListener("change", () => {
+    renderDriver();
+    if (graphState.ready) drawGraph();
+  });
 })();

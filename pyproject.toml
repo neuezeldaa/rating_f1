@@ -16,6 +16,7 @@ dependencies = [
     "duckdb",
     "pyyaml",
     "fastf1",
+    "networkx",
 ]
 
 [tool.setuptools.packages.find]

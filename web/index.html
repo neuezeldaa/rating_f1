@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Рейтинг пилотов F1</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header class="page-header">
@@ -43,11 +43,47 @@
             <tbody></tbody>
           </table>
         </div>
+        <div class="table-more" id="table-more"></div>
         <p class="season-note" id="scope-note"></p>
       </section>
 
       <aside class="card driver" id="driver" aria-live="polite"></aside>
     </div>
+
+    <section class="card graph-card" id="graph-card" aria-labelledby="graph-title">
+      <div class="card-head">
+        <h2 id="graph-title">Граф напарников</h2>
+        <p class="hint" id="graph-hint"></p>
+      </div>
+      <div class="filters graph-controls" role="group" aria-label="Пилот и путь сравнения">
+        <label class="field">Пилот <select id="graph-from"></select></label>
+        <label class="field">Путь до <select id="graph-to"></select></label>
+        <label class="check">
+          <input type="checkbox" id="graph-focus" checked>
+          <span>Подсветить окружение пилота</span>
+        </label>
+      </div>
+      <div class="graph-wrap">
+        <div class="graph-stage">
+          <div class="zoom" role="group" aria-label="Масштаб графа">
+            <button type="button" id="graph-zoom-in" aria-label="Увеличить" title="Увеличить">+</button>
+            <button type="button" id="graph-zoom-out" aria-label="Уменьшить" title="Уменьшить">−</button>
+            <button type="button" id="graph-center" title="Приблизить выбранного пилота">К пилоту</button>
+            <button type="button" id="graph-reset" title="Показать граф целиком">Весь граф</button>
+          </div>
+          <div id="graph" class="graph-chart" role="img"></div>
+          <p class="hint">Колесо мыши — масштаб, перетаскивание — сдвиг, клик по узлу — выбрать пилота.</p>
+        </div>
+        <div class="graph-side">
+          <div class="graph-driver" id="graph-driver"></div>
+          <p class="graph-summary" id="graph-summary"></p>
+          <ol class="path" id="graph-path"></ol>
+        </div>
+      </div>
+      <div class="graph-legend" id="graph-legend"></div>
+      <h3 id="graph-mates-title">Напарники</h3>
+      <div class="table-wrap"><table class="mini" id="graph-mates"></table></div>
+    </section>
 
     <section class="card method" aria-labelledby="method-title">
       <h2 id="method-title">Как это посчитано</h2>
@@ -59,6 +95,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
   <script src="data/data.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

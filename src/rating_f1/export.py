@@ -91,7 +91,7 @@ def _entries(table: pd.DataFrame, teams: dict, extra: dict) -> list:
 
 
 def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, context: pd.DataFrame,
-               models: dict, backtest, expert: dict, counts: dict, expectations: dict) -> dict:
+               models: dict, backtest, expert: dict, counts: dict, expectations: dict, graph: dict) -> dict:
     races = tables["races"]
     done = races[races["completed"]].sort_values(["season", "round"])
     last = done.iloc[-1]
@@ -184,11 +184,11 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         ],
     }
 
-    payload = _clean({"meta": meta, "drivers": drivers, "scopes": scope_json})
+    payload = _clean({"meta": meta, "drivers": drivers, "scopes": scope_json, "graph": graph})
     WEB_DATA.mkdir(parents=True, exist_ok=True)
     for old in ("seasons.json",):
         (WEB_DATA / old).unlink(missing_ok=True)
-    for name in ("meta", "drivers", "scopes"):
+    for name in ("meta", "drivers", "scopes", "graph"):
         (WEB_DATA / f"{name}.json").write_text(
             json.dumps(payload[name], ensure_ascii=False, indent=1), encoding="utf-8")
     (WEB_DATA / "data.js").write_text(

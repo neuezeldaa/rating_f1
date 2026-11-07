@@ -298,11 +298,15 @@ def fit_bradley_terry(index: SkillIndex, debut: dict, x: np.ndarray, y: np.ndarr
 
 
 def fit_quali(pairs: pd.DataFrame, index: SkillIndex, debut: dict) -> tuple[Posterior, np.ndarray]:
-    """Квалификация: y > 0 — пилот A быстрее напарника (в % от времени круга)."""
+    """Гэпы к напарнику (квала или темп): y > 0 — пилот A быстрее (в % от времени круга).
+
+    Столбец weight (если есть) — вес сравнения, например половинный для подменных выступлений.
+    """
     valid = pairs[pairs["valid"]]
     x = pair_design(index, valid)
     y = -valid["gap_pct"].to_numpy(dtype=float)
-    return fit_gaussian(index, debut, x, y, np.ones(len(valid)))
+    weights = valid["weight"].to_numpy(dtype=float) if "weight" in valid else np.ones(len(valid))
+    return fit_gaussian(index, debut, x, y, weights)
 
 
 def fit_race(duels: pd.DataFrame, index: SkillIndex, debut: dict) -> Posterior:

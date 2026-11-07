@@ -1,0 +1,4529 @@
+{
+ "nodes": [
+  {
+   "id": "aitken",
+   "x": 0.4488,
+   "y": 0.7997,
+   "size": 11.4,
+   "teammates": 1,
+   "races_with_mates": 1,
+   "strength": 0.5,
+   "reliability": 7.6858,
+   "bridge_cut": 0,
+   "rating": 46.3252,
+   "rank": null,
+   "starts": 1
+  },
+  {
+   "id": "albon",
+   "x": 0.5668,
+   "y": 0.7908,
+   "size": 27.6,
+   "teammates": 6,
+   "races_with_mates": 147,
+   "strength": 147.0,
+   "reliability": 98.5389,
+   "bridge_cut": 1,
+   "rating": 48.6222,
+   "rank": 22,
+   "starts": 148
+  },
+  {
+   "id": "alonso",
+   "x": 0.2681,
+   "y": 0.8975,
+   "size": 27.9,
+   "teammates": 3,
+   "races_with_mates": 153,
+   "strength": 153.0,
+   "reliability": 96.2978,
+   "bridge_cut": 1,
+   "rating": 59.6262,
+   "rank": 9,
+   "starts": 154
+  },
+  {
+   "id": "antonelli",
+   "x": 0.1575,
+   "y": 0.7854,
+   "size": 19.5,
+   "teammates": 1,
+   "races_with_mates": 43,
+   "strength": 43.0,
+   "reliability": 82.6929,
+   "bridge_cut": 0,
+   "rating": 68.2721,
+   "rank": 5,
+   "starts": 43
+  },
+  {
+   "id": "arvid_lindblad",
+   "x": 0.4457,
+   "y": 0.6999,
+   "size": 16.3,
+   "teammates": 2,
+   "races_with_mates": 19,
+   "strength": 17.5,
+   "reliability": 65.8346,
+   "bridge_cut": 0,
+   "rating": 48.2159,
+   "rank": null,
+   "starts": 19
+  },
+  {
+   "id": "bearman",
+   "x": 0.3958,
+   "y": 0.5445,
+   "size": 19.8,
+   "teammates": 4,
+   "races_with_mates": 46,
+   "strength": 44.0,
+   "reliability": 87.8539,
+   "bridge_cut": 1,
+   "rating": 51.1793,
+   "rank": 17,
+   "starts": 46
+  },
+  {
+   "id": "bortoleto",
+   "x": 0.1638,
+   "y": 0.5424,
+   "size": 19.5,
+   "teammates": 1,
+   "races_with_mates": 43,
+   "strength": 43.0,
+   "reliability": 82.9779,
+   "bridge_cut": 0,
+   "rating": 42.3594,
+   "rank": 24,
+   "starts": 43
+  },
+  {
+   "id": "bottas",
+   "x": 0.2965,
+   "y": 0.618,
+   "size": 28.7,
+   "teammates": 4,
+   "races_with_mates": 168,
+   "strength": 167.5,
+   "reliability": 93.9439,
+   "bridge_cut": 1,
+   "rating": 49.474,
+   "rank": 19,
+   "starts": 168
+  },
+  {
+   "id": "brendon_hartley",
+   "x": 0.6856,
+   "y": 0.6478,
+   "size": 16.6,
+   "teammates": 1,
+   "races_with_mates": 21,
+   "strength": 21.0,
+   "reliability": 76.9264,
+   "bridge_cut": 0,
+   "rating": 37.0091,
+   "rank": 34,
+   "starts": 21
+  },
+  {
+   "id": "colapinto",
+   "x": 0.5648,
+   "y": 0.8686,
+   "size": 19.8,
+   "teammates": 2,
+   "races_with_mates": 46,
+   "strength": 46.0,
+   "reliability": 88.9809,
+   "bridge_cut": 0,
+   "rating": 39.0903,
+   "rank": 29,
+   "starts": 46
+  },
+  {
+   "id": "de_vries",
+   "x": 0.474,
+   "y": 0.7504,
+   "size": 14.8,
+   "teammates": 2,
+   "races_with_mates": 11,
+   "strength": 10.5,
+   "reliability": 63.0598,
+   "bridge_cut": 0,
+   "rating": 36.6859,
+   "rank": null,
+   "starts": 11
+  },
+  {
+   "id": "doohan",
+   "x": 0.6141,
+   "y": 0.6189,
+   "size": 13.8,
+   "teammates": 1,
+   "races_with_mates": 7,
+   "strength": 6.5,
+   "reliability": 51.7483,
+   "bridge_cut": 0,
+   "rating": 36.0568,
+   "rank": null,
+   "starts": 7
+  },
+  {
+   "id": "ericsson",
+   "x": 0.3608,
+   "y": 0.4139,
+   "size": 16.6,
+   "teammates": 1,
+   "races_with_mates": 21,
+   "strength": 21.0,
+   "reliability": 77.4104,
+   "bridge_cut": 0,
+   "rating": 39.7655,
+   "rank": 28,
+   "starts": 21
+  },
+  {
+   "id": "gasly",
+   "x": 0.6043,
+   "y": 0.6922,
+   "size": 30.0,
+   "teammates": 7,
+   "races_with_mates": 192,
+   "strength": 191.5,
+   "reliability": 98.3849,
+   "bridge_cut": 2,
+   "rating": 54.0521,
+   "rank": 13,
+   "starts": 192
+  },
+  {
+   "id": "giovinazzi",
+   "x": 0.2208,
+   "y": 0.672,
+   "size": 21.2,
+   "teammates": 2,
+   "races_with_mates": 60,
+   "strength": 59.0,
+   "reliability": 72.1335,
+   "bridge_cut": 0,
+   "rating": 41.2232,
+   "rank": 26,
+   "starts": 60
+  },
+  {
+   "id": "grosjean",
+   "x": 0.2504,
+   "y": -0.0,
+   "size": 20.9,
+   "teammates": 1,
+   "races_with_mates": 57,
+   "strength": 57.0,
+   "reliability": 78.0473,
+   "bridge_cut": 0,
+   "rating": 38.9041,
+   "rank": 30,
+   "starts": 57
+  },
+  {
+   "id": "hadjar",
+   "x": 0.5208,
+   "y": 0.7492,
+   "size": 19.1,
+   "teammates": 3,
+   "races_with_mates": 40,
+   "strength": 39.0,
+   "reliability": 82.9801,
+   "bridge_cut": 0,
+   "rating": 52.0733,
+   "rank": 16,
+   "starts": 40
+  },
+  {
+   "id": "hamilton",
+   "x": 0.1767,
+   "y": 0.4572,
+   "size": 29.9,
+   "teammates": 3,
+   "races_with_mates": 191,
+   "strength": 191.0,
+   "reliability": 96.3519,
+   "bridge_cut": 0,
+   "rating": 82.6581,
+   "rank": 2,
+   "starts": 191
+  },
+  {
+   "id": "hulkenberg",
+   "x": 0.3486,
+   "y": 0.5796,
+   "size": 26.8,
+   "teammates": 7,
+   "races_with_mates": 136,
+   "strength": 132.5,
+   "reliability": 93.7495,
+   "bridge_cut": 6,
+   "rating": 50.1984,
+   "rank": 18,
+   "starts": 136
+  },
+  {
+   "id": "kevin_magnussen",
+   "x": 0.4214,
+   "y": 0.2998,
+   "size": 26.1,
+   "teammates": 4,
+   "races_with_mates": 125,
+   "strength": 124.0,
+   "reliability": 84.975,
+   "bridge_cut": 4,
+   "rating": 43.7479,
+   "rank": 23,
+   "starts": 125
+  },
+  {
+   "id": "kubica",
+   "x": 0.2691,
+   "y": 0.6856,
+   "size": 16.9,
+   "teammates": 2,
+   "races_with_mates": 23,
+   "strength": 22.0,
+   "reliability": 75.1758,
+   "bridge_cut": 0,
+   "rating": 29.0013,
+   "rank": 38,
+   "starts": 23
+  },
+  {
+   "id": "kvyat",
+   "x": 0.6215,
+   "y": 0.7968,
+   "size": 18.9,
+   "teammates": 2,
+   "races_with_mates": 38,
+   "strength": 38.0,
+   "reliability": 87.5043,
+   "bridge_cut": 0,
+   "rating": 48.7073,
+   "rank": 21,
+   "starts": 38
+  },
+  {
+   "id": "latifi",
+   "x": 0.4952,
+   "y": 0.8125,
+   "size": 21.3,
+   "teammates": 4,
+   "races_with_mates": 61,
+   "strength": 60.0,
+   "reliability": 90.6684,
+   "bridge_cut": 1,
+   "rating": 30.3217,
+   "rank": 37,
+   "starts": 61
+  },
+  {
+   "id": "lawson",
+   "x": 0.5487,
+   "y": 0.6898,
+   "size": 20.6,
+   "teammates": 4,
+   "races_with_mates": 54,
+   "strength": 51.5,
+   "reliability": 82.1967,
+   "bridge_cut": 0,
+   "rating": 49.2469,
+   "rank": 20,
+   "starts": 54
+  },
+  {
+   "id": "leclerc",
+   "x": 0.3988,
+   "y": 0.4686,
+   "size": 30.0,
+   "teammates": 5,
+   "races_with_mates": 192,
+   "strength": 191.5,
+   "reliability": 99.1779,
+   "bridge_cut": 1,
+   "rating": 71.5486,
+   "rank": 4,
+   "starts": 192
+  },
+  {
+   "id": "max_verstappen",
+   "x": 0.5302,
+   "y": 0.6159,
+   "size": 30.0,
+   "teammates": 7,
+   "races_with_mates": 192,
+   "strength": 189.5,
+   "reliability": 100.0,
+   "bridge_cut": 0,
+   "rating": 99.9581,
+   "rank": 1,
+   "starts": 192
+  },
+  {
+   "id": "mazepin",
+   "x": 0.4741,
+   "y": 0.0669,
+   "size": 16.8,
+   "teammates": 1,
+   "races_with_mates": 22,
+   "strength": 22.0,
+   "reliability": 58.6335,
+   "bridge_cut": 0,
+   "rating": 26.8229,
+   "rank": 39,
+   "starts": 22
+  },
+  {
+   "id": "mick_schumacher",
+   "x": 0.4379,
+   "y": 0.1726,
+   "size": 19.6,
+   "teammates": 2,
+   "races_with_mates": 44,
+   "strength": 44.0,
+   "reliability": 69.6928,
+   "bridge_cut": 1,
+   "rating": 37.599,
+   "rank": 33,
+   "starts": 44
+  },
+  {
+   "id": "norris",
+   "x": 0.6098,
+   "y": 0.4152,
+   "size": 28.9,
+   "teammates": 3,
+   "races_with_mates": 171,
+   "strength": 171.0,
+   "reliability": 95.4595,
+   "bridge_cut": 1,
+   "rating": 73.0624,
+   "rank": 3,
+   "starts": 171
+  },
+  {
+   "id": "ocon",
+   "x": 0.4513,
+   "y": 0.5442,
+   "size": 28.8,
+   "teammates": 5,
+   "races_with_mates": 169,
+   "strength": 169.0,
+   "reliability": 98.6661,
+   "bridge_cut": 0,
+   "rating": 52.1867,
+   "rank": 15,
+   "starts": 169
+  },
+  {
+   "id": "perez",
+   "x": 0.397,
+   "y": 0.6205,
+   "size": 28.6,
+   "teammates": 5,
+   "races_with_mates": 166,
+   "strength": 165.5,
+   "reliability": 99.4437,
+   "bridge_cut": 0,
+   "rating": 57.2614,
+   "rank": 10,
+   "starts": 166
+  },
+  {
+   "id": "piastri",
+   "x": 1.0,
+   "y": 0.2556,
+   "size": 23.6,
+   "teammates": 1,
+   "races_with_mates": 89,
+   "strength": 89.0,
+   "reliability": 89.7292,
+   "bridge_cut": 0,
+   "rating": 63.0565,
+   "rank": 6,
+   "starts": 89
+  },
+  {
+   "id": "pietro_fittipaldi",
+   "x": 0.3815,
+   "y": 0.2585,
+   "size": 12.0,
+   "teammates": 1,
+   "races_with_mates": 2,
+   "strength": 1.0,
+   "reliability": 14.0235,
+   "bridge_cut": 0,
+   "rating": 43.4726,
+   "rank": null,
+   "starts": 2
+  },
+  {
+   "id": "raikkonen",
+   "x": 0.1419,
+   "y": 0.3635,
+   "size": 22.8,
+   "teammates": 2,
+   "races_with_mates": 79,
+   "strength": 79.0,
+   "reliability": 77.0909,
+   "bridge_cut": 0,
+   "rating": 54.6035,
+   "rank": 12,
+   "starts": 79
+  },
+  {
+   "id": "ricciardo",
+   "x": 0.4552,
+   "y": 0.6259,
+   "size": 26.3,
+   "teammates": 5,
+   "races_with_mates": 128,
+   "strength": 128.0,
+   "reliability": 98.8004,
+   "bridge_cut": 0,
+   "rating": 53.9772,
+   "rank": 14,
+   "starts": 128
+  },
+  {
+   "id": "russell",
+   "x": 0.3453,
+   "y": 0.6645,
+   "size": 28.9,
+   "teammates": 5,
+   "races_with_mates": 171,
+   "strength": 170.5,
+   "reliability": 93.3858,
+   "bridge_cut": 1,
+   "rating": 61.3399,
+   "rank": 7,
+   "starts": 171
+  },
+  {
+   "id": "ryo_hirakawa",
+   "x": 0.3568,
+   "y": 0.5093,
+   "size": 11.4,
+   "teammates": 1,
+   "races_with_mates": 1,
+   "strength": 0.5,
+   "reliability": 7.6649,
+   "bridge_cut": 0,
+   "rating": 48.9812,
+   "rank": null,
+   "starts": 1
+  },
+  {
+   "id": "sainz",
+   "x": 0.46,
+   "y": 0.4599,
+   "size": 29.9,
+   "teammates": 4,
+   "races_with_mates": 191,
+   "strength": 191.0,
+   "reliability": 99.9454,
+   "bridge_cut": 0,
+   "rating": 60.3248,
+   "rank": 8,
+   "starts": 191
+  },
+  {
+   "id": "sargeant",
+   "x": 0.6145,
+   "y": 0.9904,
+   "size": 18.7,
+   "teammates": 1,
+   "races_with_mates": 36,
+   "strength": 36.0,
+   "reliability": 84.7301,
+   "bridge_cut": 0,
+   "rating": 30.533,
+   "rank": 36,
+   "starts": 36
+  },
+  {
+   "id": "sirotkin",
+   "x": 0.2968,
+   "y": 0.4485,
+   "size": 16.6,
+   "teammates": 1,
+   "races_with_mates": 21,
+   "strength": 21.0,
+   "reliability": 76.5278,
+   "bridge_cut": 0,
+   "rating": 37.605,
+   "rank": 32,
+   "starts": 21
+  },
+  {
+   "id": "stroll",
+   "x": 0.307,
+   "y": 0.5245,
+   "size": 29.9,
+   "teammates": 5,
+   "races_with_mates": 190,
+   "strength": 188.0,
+   "reliability": 97.7338,
+   "bridge_cut": 1,
+   "rating": 41.9909,
+   "rank": 25,
+   "starts": 190
+  },
+  {
+   "id": "tsunoda",
+   "x": 0.4953,
+   "y": 0.6838,
+   "size": 25.6,
+   "teammates": 7,
+   "races_with_mates": 117,
+   "strength": 114.5,
+   "reliability": 97.2837,
+   "bridge_cut": 0,
+   "rating": 38.5806,
+   "rank": 31,
+   "starts": 117
+  },
+  {
+   "id": "vandoorne",
+   "x": 0.2247,
+   "y": 1.0,
+   "size": 16.6,
+   "teammates": 1,
+   "races_with_mates": 21,
+   "strength": 21.0,
+   "reliability": 75.6445,
+   "bridge_cut": 0,
+   "rating": 40.6887,
+   "rank": 27,
+   "starts": 21
+  },
+  {
+   "id": "vettel",
+   "x": 0.2369,
+   "y": 0.3881,
+   "size": 24.5,
+   "teammates": 3,
+   "races_with_mates": 101,
+   "strength": 101.0,
+   "reliability": 95.472,
+   "bridge_cut": 0,
+   "rating": 57.0985,
+   "rank": 11,
+   "starts": 101
+  },
+  {
+   "id": "zhou",
+   "x": -0.0,
+   "y": 0.7463,
+   "size": 21.9,
+   "teammates": 1,
+   "races_with_mates": 68,
+   "strength": 68.0,
+   "reliability": 86.8036,
+   "bridge_cut": 0,
+   "rating": 36.2303,
+   "rank": 35,
+   "starts": 68
+  }
+ ],
+ "edges": [
+  {
+   "a": "aitken",
+   "b": "latifi",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2020
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": true,
+   "quali": [
+    0,
+    1
+   ],
+   "pace": [
+    0.106,
+    1
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "colapinto",
+   "races": 9,
+   "strength": 9.0,
+   "seasons": [
+    2024
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    7,
+    2
+   ],
+   "race": [
+    2,
+    1
+   ],
+   "pace": [
+    -0.114,
+    6
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "kvyat",
+   "races": 12,
+   "strength": 12.0,
+   "seasons": [
+    2019
+   ],
+   "teams": [
+    "Toro Rosso"
+   ],
+   "weak": false,
+   "quali": [
+    6,
+    5
+   ],
+   "race": [
+    3,
+    6
+   ],
+   "pace": [
+    0.042,
+    12
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "latifi",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2022
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    19,
+    1
+   ],
+   "race": [
+    12,
+    1
+   ],
+   "pace": [
+    -0.476,
+    18
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "max_verstappen",
+   "races": 26,
+   "strength": 26.0,
+   "seasons": [
+    2019,
+    2020
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    0,
+    23
+   ],
+   "race": [
+    3,
+    16
+   ],
+   "pace": [
+    0.726,
+    22
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "sainz",
+   "races": 43,
+   "strength": 43.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    12,
+    28
+   ],
+   "race": [
+    17,
+    11
+   ],
+   "pace": [
+    -0.074,
+    38
+   ]
+  },
+  {
+   "a": "albon",
+   "b": "sargeant",
+   "races": 36,
+   "strength": 36.0,
+   "seasons": [
+    2023,
+    2024
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    29,
+    0
+   ],
+   "race": [
+    23,
+    0
+   ],
+   "pace": [
+    -0.265,
+    31
+   ]
+  },
+  {
+   "a": "alonso",
+   "b": "ocon",
+   "races": 44,
+   "strength": 44.0,
+   "seasons": [
+    2021,
+    2022
+   ],
+   "teams": [
+    "Alpine F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    23,
+    19
+   ],
+   "race": [
+    17,
+    16
+   ],
+   "pace": [
+    -0.069,
+    40
+   ]
+  },
+  {
+   "a": "alonso",
+   "b": "stroll",
+   "races": 88,
+   "strength": 88.0,
+   "seasons": [
+    2023,
+    2024,
+    2025,
+    2026
+   ],
+   "teams": [
+    "Aston Martin"
+   ],
+   "weak": false,
+   "quali": [
+    74,
+    10
+   ],
+   "race": [
+    48,
+    13
+   ],
+   "pace": [
+    -0.238,
+    77
+   ]
+  },
+  {
+   "a": "alonso",
+   "b": "vandoorne",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "McLaren"
+   ],
+   "weak": false,
+   "quali": [
+    21,
+    0
+   ],
+   "race": [
+    9,
+    1
+   ],
+   "pace": [
+    -0.421,
+    17
+   ]
+  },
+  {
+   "a": "antonelli",
+   "b": "russell",
+   "races": 43,
+   "strength": 43.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Mercedes"
+   ],
+   "weak": false,
+   "quali": [
+    13,
+    29
+   ],
+   "race": [
+    14,
+    21
+   ],
+   "pace": [
+    -0.002,
+    40
+   ]
+  },
+  {
+   "a": "arvid_lindblad",
+   "b": "lawson",
+   "races": 16,
+   "strength": 16.0,
+   "seasons": [
+    2026
+   ],
+   "teams": [
+    "RB F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    6,
+    10
+   ],
+   "race": [
+    3,
+    10
+   ],
+   "pace": [
+    0.162,
+    14
+   ]
+  },
+  {
+   "a": "arvid_lindblad",
+   "b": "tsunoda",
+   "races": 3,
+   "strength": 1.5,
+   "seasons": [
+    2026
+   ],
+   "teams": [
+    "RB F1 Team"
+   ],
+   "weak": true,
+   "quali": [
+    3,
+    0
+   ],
+   "race": [
+    2,
+    1
+   ],
+   "pace": [
+    -0.341,
+    3
+   ]
+  },
+  {
+   "a": "bearman",
+   "b": "hulkenberg",
+   "races": 2,
+   "strength": 1.0,
+   "seasons": [
+    2024
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": true,
+   "quali": [
+    2,
+    0
+   ],
+   "race": [
+    1,
+    0
+   ],
+   "pace": [
+    0.296,
+    2
+   ]
+  },
+  {
+   "a": "bearman",
+   "b": "leclerc",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2024
+   ],
+   "teams": [
+    "Ferrari"
+   ],
+   "weak": true,
+   "quali": [
+    0,
+    1
+   ],
+   "race": [
+    0,
+    1
+   ],
+   "pace": [
+    0.6,
+    1
+   ]
+  },
+  {
+   "a": "bearman",
+   "b": "ocon",
+   "races": 42,
+   "strength": 42.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    26,
+    12
+   ],
+   "race": [
+    21,
+    13
+   ],
+   "pace": [
+    -0.053,
+    41
+   ]
+  },
+  {
+   "a": "bearman",
+   "b": "ryo_hirakawa",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2026
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": true,
+   "quali": [
+    1,
+    0
+   ],
+   "pace": [
+    -0.72,
+    1
+   ]
+  },
+  {
+   "a": "bortoleto",
+   "b": "hulkenberg",
+   "races": 43,
+   "strength": 43.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Sauber",
+    "Audi"
+   ],
+   "weak": false,
+   "quali": [
+    20,
+    20
+   ],
+   "race": [
+    12,
+    19
+   ],
+   "pace": [
+    0.046,
+    34
+   ]
+  },
+  {
+   "a": "bottas",
+   "b": "hamilton",
+   "races": 80,
+   "strength": 80.0,
+   "seasons": [
+    2018,
+    2019,
+    2020,
+    2021
+   ],
+   "teams": [
+    "Mercedes"
+   ],
+   "weak": false,
+   "quali": [
+    23,
+    57
+   ],
+   "race": [
+    16,
+    55
+   ],
+   "pace": [
+    0.222,
+    78
+   ]
+  },
+  {
+   "a": "bottas",
+   "b": "perez",
+   "races": 19,
+   "strength": 19.0,
+   "seasons": [
+    2026
+   ],
+   "teams": [
+    "Cadillac F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    8,
+    11
+   ],
+   "race": [
+    1,
+    8
+   ],
+   "pace": [
+    0.762,
+    15
+   ]
+  },
+  {
+   "a": "bottas",
+   "b": "russell",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2020
+   ],
+   "teams": [
+    "Mercedes"
+   ],
+   "weak": true,
+   "quali": [
+    1,
+    0
+   ],
+   "race": [
+    1,
+    0
+   ],
+   "pace": [
+    0.256,
+    1
+   ]
+  },
+  {
+   "a": "bottas",
+   "b": "zhou",
+   "races": 68,
+   "strength": 68.0,
+   "seasons": [
+    2022,
+    2023,
+    2024
+   ],
+   "teams": [
+    "Alfa Romeo",
+    "Sauber"
+   ],
+   "weak": false,
+   "quali": [
+    50,
+    17
+   ],
+   "race": [
+    32,
+    19
+   ],
+   "pace": [
+    -0.013,
+    61
+   ]
+  },
+  {
+   "a": "brendon_hartley",
+   "b": "gasly",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Toro Rosso"
+   ],
+   "weak": false,
+   "quali": [
+    6,
+    12
+   ],
+   "race": [
+    4,
+    6
+   ],
+   "pace": [
+    0.405,
+    15
+   ]
+  },
+  {
+   "a": "colapinto",
+   "b": "gasly",
+   "races": 37,
+   "strength": 37.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Alpine F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    9,
+    28
+   ],
+   "race": [
+    12,
+    19
+   ],
+   "pace": [
+    0.089,
+    34
+   ]
+  },
+  {
+   "a": "de_vries",
+   "b": "latifi",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2022
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": true,
+   "quali": [
+    1,
+    0
+   ],
+   "race": [
+    1,
+    0
+   ],
+   "pace": [
+    -0.46,
+    1
+   ]
+  },
+  {
+   "a": "de_vries",
+   "b": "tsunoda",
+   "races": 10,
+   "strength": 10.0,
+   "seasons": [
+    2023
+   ],
+   "teams": [
+    "AlphaTauri"
+   ],
+   "weak": false,
+   "quali": [
+    2,
+    7
+   ],
+   "race": [
+    2,
+    7
+   ],
+   "pace": [
+    0.3,
+    9
+   ]
+  },
+  {
+   "a": "doohan",
+   "b": "gasly",
+   "races": 7,
+   "strength": 6.5,
+   "seasons": [
+    2024,
+    2025
+   ],
+   "teams": [
+    "Alpine F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    0,
+    6
+   ],
+   "race": [
+    0,
+    4
+   ],
+   "pace": [
+    0.641,
+    4
+   ]
+  },
+  {
+   "a": "ericsson",
+   "b": "leclerc",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Sauber"
+   ],
+   "weak": false,
+   "quali": [
+    4,
+    17
+   ],
+   "race": [
+    3,
+    9
+   ],
+   "pace": [
+    0.325,
+    18
+   ]
+  },
+  {
+   "a": "gasly",
+   "b": "kvyat",
+   "races": 26,
+   "strength": 26.0,
+   "seasons": [
+    2019,
+    2020
+   ],
+   "teams": [
+    "Toro Rosso",
+    "AlphaTauri"
+   ],
+   "weak": false,
+   "quali": [
+    19,
+    6
+   ],
+   "race": [
+    11,
+    8
+   ],
+   "pace": [
+    -0.082,
+    23
+   ]
+  },
+  {
+   "a": "gasly",
+   "b": "max_verstappen",
+   "races": 12,
+   "strength": 12.0,
+   "seasons": [
+    2019
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    1,
+    10
+   ],
+   "race": [
+    1,
+    9
+   ],
+   "pace": [
+    0.927,
+    12
+   ]
+  },
+  {
+   "a": "gasly",
+   "b": "ocon",
+   "races": 45,
+   "strength": 45.0,
+   "seasons": [
+    2023,
+    2024
+   ],
+   "teams": [
+    "Alpine F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    24,
+    18
+   ],
+   "race": [
+    13,
+    19
+   ],
+   "pace": [
+    -0.067,
+    38
+   ]
+  },
+  {
+   "a": "gasly",
+   "b": "tsunoda",
+   "races": 44,
+   "strength": 44.0,
+   "seasons": [
+    2021,
+    2022
+   ],
+   "teams": [
+    "AlphaTauri"
+   ],
+   "weak": false,
+   "quali": [
+    31,
+    10
+   ],
+   "race": [
+    23,
+    7
+   ],
+   "pace": [
+    -0.246,
+    37
+   ]
+  },
+  {
+   "a": "giovinazzi",
+   "b": "kubica",
+   "races": 2,
+   "strength": 1.0,
+   "seasons": [
+    2021
+   ],
+   "teams": [
+    "Alfa Romeo"
+   ],
+   "weak": true,
+   "quali": [
+    2,
+    0
+   ],
+   "race": [
+    2,
+    0
+   ],
+   "pace": [
+    -0.618,
+    2
+   ]
+  },
+  {
+   "a": "giovinazzi",
+   "b": "raikkonen",
+   "races": 58,
+   "strength": 58.0,
+   "seasons": [
+    2019,
+    2020,
+    2021
+   ],
+   "teams": [
+    "Alfa Romeo"
+   ],
+   "weak": false,
+   "quali": [
+    31,
+    23
+   ],
+   "race": [
+    14,
+    37
+   ],
+   "pace": [
+    0.065,
+    53
+   ]
+  },
+  {
+   "a": "grosjean",
+   "b": "kevin_magnussen",
+   "races": 57,
+   "strength": 57.0,
+   "seasons": [
+    2018,
+    2019,
+    2020
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    26,
+    26
+   ],
+   "race": [
+    16,
+    18
+   ],
+   "pace": [
+    0.069,
+    49
+   ]
+  },
+  {
+   "a": "hadjar",
+   "b": "lawson",
+   "races": 22,
+   "strength": 22.0,
+   "seasons": [
+    2025
+   ],
+   "teams": [
+    "RB F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    15,
+    5
+   ],
+   "race": [
+    11,
+    6
+   ],
+   "pace": [
+    -0.199,
+    20
+   ]
+  },
+  {
+   "a": "hadjar",
+   "b": "max_verstappen",
+   "races": 16,
+   "strength": 16.0,
+   "seasons": [
+    2026
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    3,
+    10
+   ],
+   "race": [
+    1,
+    12
+   ],
+   "pace": [
+    0.542,
+    13
+   ]
+  },
+  {
+   "a": "hadjar",
+   "b": "tsunoda",
+   "races": 2,
+   "strength": 1.0,
+   "seasons": [
+    2025
+   ],
+   "teams": [
+    "RB F1 Team"
+   ],
+   "weak": true,
+   "quali": [
+    1,
+    1
+   ],
+   "race": [
+    1,
+    0
+   ],
+   "pace": [
+    0.161,
+    1
+   ]
+  },
+  {
+   "a": "hamilton",
+   "b": "leclerc",
+   "races": 43,
+   "strength": 43.0,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Ferrari"
+   ],
+   "weak": false,
+   "quali": [
+    13,
+    29
+   ],
+   "race": [
+    12,
+    26
+   ],
+   "pace": [
+    0.184,
+    40
+   ]
+  },
+  {
+   "a": "hamilton",
+   "b": "russell",
+   "races": 68,
+   "strength": 68.0,
+   "seasons": [
+    2022,
+    2023,
+    2024
+   ],
+   "teams": [
+    "Mercedes"
+   ],
+   "weak": false,
+   "quali": [
+    29,
+    37
+   ],
+   "race": [
+    28,
+    29
+   ],
+   "pace": [
+    -0.058,
+    64
+   ]
+  },
+  {
+   "a": "hulkenberg",
+   "b": "kevin_magnussen",
+   "races": 44,
+   "strength": 44.0,
+   "seasons": [
+    2023,
+    2024
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    31,
+    12
+   ],
+   "race": [
+    25,
+    12
+   ],
+   "pace": [
+    -0.231,
+    41
+   ]
+  },
+  {
+   "a": "hulkenberg",
+   "b": "perez",
+   "races": 1,
+   "strength": 0.5,
+   "seasons": [
+    2020
+   ],
+   "teams": [
+    "Racing Point"
+   ],
+   "weak": true,
+   "quali": [
+    0,
+    1
+   ],
+   "race": [
+    0,
+    1
+   ],
+   "pace": [
+    1.17,
+    1
+   ]
+  },
+  {
+   "a": "hulkenberg",
+   "b": "ricciardo",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2019
+   ],
+   "teams": [
+    "Renault"
+   ],
+   "weak": false,
+   "quali": [
+    7,
+    13
+   ],
+   "race": [
+    5,
+    10
+   ],
+   "pace": [
+    0.059,
+    20
+   ]
+  },
+  {
+   "a": "hulkenberg",
+   "b": "sainz",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Renault"
+   ],
+   "weak": false,
+   "quali": [
+    13,
+    7
+   ],
+   "race": [
+    8,
+    5
+   ],
+   "pace": [
+    -0.051,
+    17
+   ]
+  },
+  {
+   "a": "hulkenberg",
+   "b": "stroll",
+   "races": 4,
+   "strength": 2.0,
+   "seasons": [
+    2020,
+    2022
+   ],
+   "teams": [
+    "Racing Point",
+    "Aston Martin"
+   ],
+   "weak": false,
+   "quali": [
+    2,
+    2
+   ],
+   "race": [
+    1,
+    2
+   ],
+   "pace": [
+    -0.098,
+    3
+   ]
+  },
+  {
+   "a": "kevin_magnussen",
+   "b": "mick_schumacher",
+   "races": 22,
+   "strength": 22.0,
+   "seasons": [
+    2022
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    15,
+    6
+   ],
+   "race": [
+    6,
+    9
+   ],
+   "pace": [
+    0.147,
+    19
+   ]
+  },
+  {
+   "a": "kevin_magnussen",
+   "b": "pietro_fittipaldi",
+   "races": 2,
+   "strength": 1.0,
+   "seasons": [
+    2020
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": true,
+   "quali": [
+    2,
+    0
+   ],
+   "race": [
+    2,
+    0
+   ],
+   "pace": [
+    -0.243,
+    2
+   ]
+  },
+  {
+   "a": "kubica",
+   "b": "russell",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2019
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    0,
+    19
+   ],
+   "race": [
+    2,
+    16
+   ],
+   "pace": [
+    0.454,
+    21
+   ]
+  },
+  {
+   "a": "latifi",
+   "b": "russell",
+   "races": 38,
+   "strength": 38.0,
+   "seasons": [
+    2020,
+    2021
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    3,
+    34
+   ],
+   "race": [
+    4,
+    21
+   ],
+   "pace": [
+    0.106,
+    32
+   ]
+  },
+  {
+   "a": "lawson",
+   "b": "max_verstappen",
+   "races": 5,
+   "strength": 2.5,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    0,
+    5
+   ],
+   "race": [
+    1,
+    4
+   ],
+   "pace": [
+    1.019,
+    4
+   ]
+  },
+  {
+   "a": "lawson",
+   "b": "tsunoda",
+   "races": 11,
+   "strength": 11.0,
+   "seasons": [
+    2023,
+    2024
+   ],
+   "teams": [
+    "AlphaTauri",
+    "RB F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    1,
+    10
+   ],
+   "race": [
+    3,
+    4
+   ],
+   "pace": [
+    0.19,
+    8
+   ]
+  },
+  {
+   "a": "leclerc",
+   "b": "sainz",
+   "races": 89,
+   "strength": 89.0,
+   "seasons": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "teams": [
+    "Ferrari"
+   ],
+   "weak": false,
+   "quali": [
+    52,
+    35
+   ],
+   "race": [
+    45,
+    27
+   ],
+   "pace": [
+    -0.084,
+    77
+   ]
+  },
+  {
+   "a": "leclerc",
+   "b": "vettel",
+   "races": 38,
+   "strength": 38.0,
+   "seasons": [
+    2019,
+    2020
+   ],
+   "teams": [
+    "Ferrari"
+   ],
+   "weak": false,
+   "quali": [
+    24,
+    13
+   ],
+   "race": [
+    17,
+    13
+   ],
+   "pace": [
+    -0.147,
+    33
+   ]
+  },
+  {
+   "a": "max_verstappen",
+   "b": "perez",
+   "races": 90,
+   "strength": 90.0,
+   "seasons": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    77,
+    6
+   ],
+   "race": [
+    68,
+    5
+   ],
+   "pace": [
+    -0.393,
+    79
+   ]
+  },
+  {
+   "a": "max_verstappen",
+   "b": "ricciardo",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    14,
+    5
+   ],
+   "race": [
+    8,
+    3
+   ],
+   "pace": [
+    -0.17,
+    18
+   ]
+  },
+  {
+   "a": "max_verstappen",
+   "b": "tsunoda",
+   "races": 22,
+   "strength": 22.0,
+   "seasons": [
+    2025
+   ],
+   "teams": [
+    "Red Bull"
+   ],
+   "weak": false,
+   "quali": [
+    20,
+    0
+   ],
+   "race": [
+    20,
+    0
+   ],
+   "pace": [
+    -1.25,
+    19
+   ]
+  },
+  {
+   "a": "mazepin",
+   "b": "mick_schumacher",
+   "races": 22,
+   "strength": 22.0,
+   "seasons": [
+    2021
+   ],
+   "teams": [
+    "Haas F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    0,
+    18
+   ],
+   "race": [
+    3,
+    12
+   ],
+   "pace": [
+    0.289,
+    16
+   ]
+  },
+  {
+   "a": "norris",
+   "b": "piastri",
+   "races": 89,
+   "strength": 89.0,
+   "seasons": [
+    2023,
+    2024,
+    2025,
+    2026
+   ],
+   "teams": [
+    "McLaren"
+   ],
+   "weak": false,
+   "quali": [
+    60,
+    26
+   ],
+   "race": [
+    53,
+    24
+   ],
+   "pace": [
+    -0.167,
+    82
+   ]
+  },
+  {
+   "a": "norris",
+   "b": "ricciardo",
+   "races": 44,
+   "strength": 44.0,
+   "seasons": [
+    2021,
+    2022
+   ],
+   "teams": [
+    "McLaren"
+   ],
+   "weak": false,
+   "quali": [
+    36,
+    7
+   ],
+   "race": [
+    28,
+    10
+   ],
+   "pace": [
+    -0.352,
+    41
+   ]
+  },
+  {
+   "a": "norris",
+   "b": "sainz",
+   "races": 38,
+   "strength": 38.0,
+   "seasons": [
+    2019,
+    2020
+   ],
+   "teams": [
+    "McLaren"
+   ],
+   "weak": false,
+   "quali": [
+    17,
+    19
+   ],
+   "race": [
+    11,
+    15
+   ],
+   "pace": [
+    0.072,
+    32
+   ]
+  },
+  {
+   "a": "ocon",
+   "b": "perez",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Force India"
+   ],
+   "weak": false,
+   "quali": [
+    15,
+    5
+   ],
+   "race": [
+    9,
+    5
+   ],
+   "pace": [
+    0.051,
+    18
+   ]
+  },
+  {
+   "a": "ocon",
+   "b": "ricciardo",
+   "races": 17,
+   "strength": 17.0,
+   "seasons": [
+    2020
+   ],
+   "teams": [
+    "Renault"
+   ],
+   "weak": false,
+   "quali": [
+    2,
+    15
+   ],
+   "race": [
+    3,
+    9
+   ],
+   "pace": [
+    0.328,
+    16
+   ]
+  },
+  {
+   "a": "perez",
+   "b": "stroll",
+   "races": 35,
+   "strength": 35.0,
+   "seasons": [
+    2019,
+    2020
+   ],
+   "teams": [
+    "Racing Point"
+   ],
+   "weak": false,
+   "quali": [
+    29,
+    6
+   ],
+   "race": [
+    18,
+    8
+   ],
+   "pace": [
+    -0.165,
+    31
+   ]
+  },
+  {
+   "a": "raikkonen",
+   "b": "vettel",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Ferrari"
+   ],
+   "weak": false,
+   "quali": [
+    4,
+    16
+   ],
+   "race": [
+    9,
+    8
+   ],
+   "pace": [
+    0.156,
+    19
+   ]
+  },
+  {
+   "a": "ricciardo",
+   "b": "tsunoda",
+   "races": 25,
+   "strength": 25.0,
+   "seasons": [
+    2023,
+    2024
+   ],
+   "teams": [
+    "AlphaTauri",
+    "RB F1 Team"
+   ],
+   "weak": false,
+   "quali": [
+    9,
+    16
+   ],
+   "race": [
+    8,
+    12
+   ],
+   "pace": [
+    0.019,
+    23
+   ]
+  },
+  {
+   "a": "sirotkin",
+   "b": "stroll",
+   "races": 21,
+   "strength": 21.0,
+   "seasons": [
+    2018
+   ],
+   "teams": [
+    "Williams"
+   ],
+   "weak": false,
+   "quali": [
+    12,
+    8
+   ],
+   "race": [
+    7,
+    9
+   ],
+   "pace": [
+    0.069,
+    18
+   ]
+  },
+  {
+   "a": "stroll",
+   "b": "vettel",
+   "races": 42,
+   "strength": 42.0,
+   "seasons": [
+    2021,
+    2022
+   ],
+   "teams": [
+    "Aston Martin"
+   ],
+   "weak": false,
+   "quali": [
+    15,
+    22
+   ],
+   "race": [
+    16,
+    15
+   ],
+   "pace": [
+    0.023,
+    39
+   ]
+  }
+ ],
+ "order": [
+  "aitken",
+  "albon",
+  "alonso",
+  "antonelli",
+  "arvid_lindblad",
+  "bearman",
+  "bortoleto",
+  "bottas",
+  "brendon_hartley",
+  "colapinto",
+  "de_vries",
+  "doohan",
+  "ericsson",
+  "gasly",
+  "giovinazzi",
+  "grosjean",
+  "hadjar",
+  "hamilton",
+  "hulkenberg",
+  "kevin_magnussen",
+  "kubica",
+  "kvyat",
+  "latifi",
+  "lawson",
+  "leclerc",
+  "max_verstappen",
+  "mazepin",
+  "mick_schumacher",
+  "norris",
+  "ocon",
+  "perez",
+  "piastri",
+  "pietro_fittipaldi",
+  "raikkonen",
+  "ricciardo",
+  "russell",
+  "ryo_hirakawa",
+  "sainz",
+  "sargeant",
+  "sirotkin",
+  "stroll",
+  "tsunoda",
+  "vandoorne",
+  "vettel",
+  "zhou"
+ ],
+ "eq_races": [
+  [
+   null,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.3,
+   0.5,
+   0.5,
+   0.5,
+   0.2,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5
+  ],
+  [
+   0.5,
+   null,
+   34.2,
+   19.0,
+   9.2,
+   21.6,
+   17.0,
+   32.9,
+   14.3,
+   27.7,
+   8.4,
+   5.7,
+   15.0,
+   45.2,
+   11.3,
+   13.2,
+   18.2,
+   39.8,
+   28.1,
+   17.2,
+   13.6,
+   27.3,
+   34.6,
+   17.1,
+   52.0,
+   57.6,
+   6.7,
+   9.6,
+   37.6,
+   41.4,
+   48.6,
+   26.4,
+   0.9,
+   13.6,
+   44.0,
+   34.1,
+   0.5,
+   68.4,
+   36.0,
+   13.5,
+   37.9,
+   39.7,
+   13.0,
+   33.8,
+   22.2
+  ],
+  [
+   0.5,
+   34.2,
+   null,
+   15.5,
+   8.8,
+   26.3,
+   15.2,
+   26.7,
+   13.8,
+   22.9,
+   8.1,
+   5.6,
+   13.4,
+   40.7,
+   11.8,
+   12.1,
+   16.8,
+   29.3,
+   23.6,
+   15.4,
+   11.8,
+   21.0,
+   21.3,
+   15.9,
+   37.2,
+   44.7,
+   6.4,
+   9.0,
+   28.8,
+   64.7,
+   51.4,
+   21.8,
+   0.9,
+   14.4,
+   37.0,
+   24.1,
+   0.5,
+   36.8,
+   17.5,
+   17.5,
+   104.8,
+   34.6,
+   21.0,
+   40.7,
+   19.2
+  ],
+  [
+   0.5,
+   19.0,
+   15.5,
+   null,
+   6.7,
+   12.0,
+   10.4,
+   21.8,
+   9.1,
+   12.7,
+   6.4,
+   4.6,
+   10.4,
+   16.0,
+   8.5,
+   8.8,
+   10.6,
+   27.8,
+   13.7,
+   10.4,
+   14.5,
+   12.4,
+   22.8,
+   10.2,
+   20.6,
+   17.7,
+   5.4,
+   7.1,
+   15.6,
+   16.2,
+   17.9,
+   13.3,
+   0.9,
+   9.7,
+   16.4,
+   43.0,
+   0.5,
+   19.3,
+   12.4,
+   9.2,
+   16.4,
+   15.5,
+   8.9,
+   16.4,
+   16.5
+  ],
+  [
+   0.5,
+   9.2,
+   8.8,
+   6.7,
+   null,
+   7.8,
+   6.8,
+   8.2,
+   6.7,
+   8.2,
+   5.3,
+   3.9,
+   6.2,
+   9.7,
+   5.6,
+   6.1,
+   11.3,
+   8.4,
+   8.1,
+   6.8,
+   5.9,
+   7.9,
+   7.7,
+   17.4,
+   8.9,
+   10.4,
+   4.2,
+   5.2,
+   8.7,
+   9.4,
+   9.7,
+   7.9,
+   0.9,
+   6.1,
+   9.5,
+   8.0,
+   0.5,
+   9.1,
+   7.3,
+   6.3,
+   9.0,
+   10.6,
+   6.2,
+   8.4,
+   7.3
+  ],
+  [
+   0.5,
+   21.6,
+   26.3,
+   12.0,
+   7.8,
+   null,
+   12.3,
+   17.7,
+   11.8,
+   17.5,
+   7.3,
+   5.2,
+   10.6,
+   27.1,
+   9.1,
+   10.1,
+   13.2,
+   18.7,
+   17.2,
+   12.3,
+   9.6,
+   16.3,
+   15.4,
+   12.8,
+   21.4,
+   25.4,
+   5.8,
+   7.9,
+   19.6,
+   43.4,
+   26.1,
+   16.1,
+   0.9,
+   10.6,
+   23.9,
+   16.6,
+   0.5,
+   22.1,
+   13.5,
+   11.4,
+   24.9,
+   23.1,
+   11.7,
+   20.0,
+   14.0
+  ],
+  [
+   0.5,
+   17.0,
+   15.2,
+   10.4,
+   6.8,
+   12.3,
+   null,
+   14.1,
+   9.1,
+   12.6,
+   6.4,
+   4.6,
+   9.6,
+   16.1,
+   8.0,
+   15.7,
+   10.6,
+   15.2,
+   43.0,
+   21.7,
+   8.6,
+   12.1,
+   12.9,
+   10.3,
+   17.8,
+   17.4,
+   7.3,
+   10.9,
+   17.4,
+   16.5,
+   16.9,
+   14.5,
+   1.0,
+   9.0,
+   20.0,
+   13.7,
+   0.5,
+   20.0,
+   11.5,
+   9.1,
+   15.9,
+   16.1,
+   8.8,
+   15.1,
+   11.7
+  ],
+  [
+   0.5,
+   32.9,
+   26.7,
+   21.8,
+   8.2,
+   17.7,
+   14.1,
+   null,
+   11.9,
+   18.7,
+   7.6,
+   5.3,
+   14.1,
+   27.5,
+   10.7,
+   11.4,
+   14.9,
+   91.2,
+   21.0,
+   14.2,
+   14.9,
+   17.9,
+   28.3,
+   14.1,
+   42.5,
+   34.2,
+   6.2,
+   8.6,
+   25.7,
+   28.9,
+   37.9,
+   19.9,
+   0.9,
+   12.7,
+   28.8,
+   44.3,
+   0.5,
+   36.7,
+   17.2,
+   12.3,
+   29.8,
+   26.2,
+   11.7,
+   28.4,
+   68.0
+  ],
+  [
+   0.5,
+   14.3,
+   13.8,
+   9.1,
+   6.7,
+   11.8,
+   9.1,
+   11.9,
+   null,
+   14.2,
+   6.4,
+   5.0,
+   8.2,
+   21.0,
+   7.2,
+   7.9,
+   10.1,
+   12.4,
+   11.6,
+   9.2,
+   7.7,
+   13.1,
+   11.0,
+   10.0,
+   13.5,
+   15.6,
+   5.0,
+   6.5,
+   12.9,
+   16.1,
+   15.0,
+   11.3,
+   0.9,
+   8.1,
+   14.6,
+   11.5,
+   0.5,
+   13.9,
+   10.3,
+   8.4,
+   13.9,
+   16.1,
+   8.3,
+   12.5,
+   10.1
+  ],
+  [
+   0.5,
+   27.7,
+   22.9,
+   12.7,
+   8.2,
+   17.5,
+   12.6,
+   18.7,
+   14.2,
+   null,
+   7.7,
+   5.7,
+   11.0,
+   44.3,
+   9.2,
+   10.3,
+   14.3,
+   20.2,
+   17.7,
+   12.6,
+   10.1,
+   20.7,
+   17.1,
+   13.9,
+   23.0,
+   28.7,
+   5.9,
+   8.0,
+   21.0,
+   29.0,
+   26.6,
+   17.0,
+   0.9,
+   10.6,
+   25.3,
+   18.0,
+   0.5,
+   24.7,
+   15.7,
+   11.0,
+   23.3,
+   28.7,
+   10.9,
+   20.1,
+   14.7
+  ],
+  [
+   0.5,
+   8.4,
+   8.1,
+   6.4,
+   5.3,
+   7.3,
+   6.4,
+   7.6,
+   6.4,
+   7.7,
+   null,
+   3.8,
+   5.9,
+   9.2,
+   5.3,
+   5.8,
+   7.1,
+   7.8,
+   7.5,
+   6.4,
+   5.6,
+   7.5,
+   7.3,
+   7.2,
+   8.2,
+   9.1,
+   4.1,
+   5.0,
+   8.1,
+   8.7,
+   8.7,
+   7.4,
+   0.9,
+   5.8,
+   8.9,
+   7.5,
+   0.5,
+   8.4,
+   6.8,
+   5.9,
+   8.2,
+   10.5,
+   5.9,
+   7.8,
+   6.9
+  ],
+  [
+   0.5,
+   5.7,
+   5.6,
+   4.6,
+   3.9,
+   5.2,
+   4.6,
+   5.3,
+   5.0,
+   5.7,
+   3.8,
+   null,
+   4.4,
+   6.5,
+   4.1,
+   4.3,
+   4.9,
+   5.4,
+   5.2,
+   4.6,
+   4.2,
+   5.5,
+   5.1,
+   4.9,
+   5.5,
+   5.9,
+   3.3,
+   3.8,
+   5.4,
+   5.9,
+   5.8,
+   5.1,
+   0.8,
+   4.3,
+   5.7,
+   5.2,
+   0.5,
+   5.6,
+   4.9,
+   4.4,
+   5.6,
+   5.9,
+   4.4,
+   5.4,
+   4.9
+  ],
+  [
+   0.5,
+   15.0,
+   13.4,
+   10.4,
+   6.2,
+   10.6,
+   9.6,
+   14.1,
+   8.2,
+   11.0,
+   5.9,
+   4.4,
+   null,
+   13.5,
+   8.0,
+   8.3,
+   9.4,
+   15.6,
+   12.4,
+   9.7,
+   8.6,
+   10.7,
+   12.4,
+   9.1,
+   21.0,
+   14.5,
+   5.1,
+   6.7,
+   13.9,
+   13.8,
+   14.5,
+   12.0,
+   0.9,
+   9.1,
+   14.2,
+   13.7,
+   0.5,
+   17.6,
+   10.6,
+   8.5,
+   14.3,
+   13.2,
+   8.2,
+   15.1,
+   11.6
+  ],
+  [
+   0.5,
+   45.2,
+   40.7,
+   16.0,
+   9.7,
+   27.1,
+   16.1,
+   27.5,
+   21.0,
+   44.3,
+   9.2,
+   6.5,
+   13.5,
+   null,
+   10.9,
+   12.7,
+   19.6,
+   30.5,
+   25.8,
+   16.3,
+   12.1,
+   35.1,
+   23.3,
+   19.1,
+   37.6,
+   60.9,
+   6.6,
+   9.4,
+   33.4,
+   69.7,
+   52.5,
+   24.3,
+   0.9,
+   13.1,
+   47.9,
+   25.5,
+   0.5,
+   41.5,
+   20.0,
+   13.9,
+   41.2,
+   68.7,
+   13.8,
+   31.2,
+   19.6
+  ],
+  [
+   0.5,
+   11.3,
+   11.8,
+   8.5,
+   5.6,
+   9.1,
+   8.0,
+   10.7,
+   7.2,
+   9.2,
+   5.3,
+   4.1,
+   8.0,
+   10.9,
+   null,
+   7.0,
+   8.1,
+   11.4,
+   9.8,
+   8.0,
+   7.6,
+   8.9,
+   9.8,
+   7.9,
+   12.8,
+   11.6,
+   4.6,
+   5.9,
+   10.6,
+   11.4,
+   11.8,
+   9.5,
+   0.9,
+   58.9,
+   11.1,
+   10.6,
+   0.5,
+   12.1,
+   8.6,
+   8.0,
+   12.9,
+   10.6,
+   7.6,
+   16.3,
+   9.2
+  ],
+  [
+   0.5,
+   13.2,
+   12.1,
+   8.8,
+   6.1,
+   10.1,
+   15.7,
+   11.4,
+   7.9,
+   10.3,
+   5.8,
+   4.3,
+   8.3,
+   12.7,
+   7.0,
+   null,
+   9.0,
+   12.1,
+   24.8,
+   57.0,
+   7.5,
+   10.0,
+   10.5,
+   8.8,
+   13.7,
+   13.4,
+   9.2,
+   15.9,
+   13.4,
+   12.9,
+   13.1,
+   11.7,
+   1.0,
+   7.8,
+   14.9,
+   11.1,
+   0.5,
+   14.9,
+   9.7,
+   7.8,
+   12.5,
+   12.7,
+   7.7,
+   12.0,
+   9.8
+  ],
+  [
+   0.5,
+   18.2,
+   16.8,
+   10.6,
+   11.3,
+   13.2,
+   10.6,
+   14.9,
+   10.1,
+   14.3,
+   7.1,
+   4.9,
+   9.4,
+   19.6,
+   8.1,
+   9.0,
+   null,
+   15.6,
+   14.1,
+   10.7,
+   8.7,
+   13.6,
+   13.3,
+   29.3,
+   17.0,
+   24.8,
+   5.4,
+   7.2,
+   16.2,
+   18.7,
+   21.0,
+   13.7,
+   0.9,
+   9.2,
+   19.1,
+   14.1,
+   0.5,
+   17.8,
+   12.1,
+   9.5,
+   17.5,
+   21.8,
+   9.3,
+   15.5,
+   12.2
+  ],
+  [
+   0.5,
+   39.8,
+   29.3,
+   27.8,
+   8.4,
+   18.7,
+   15.2,
+   91.2,
+   12.4,
+   20.2,
+   7.8,
+   5.4,
+   15.6,
+   30.5,
+   11.4,
+   12.1,
+   15.6,
+   null,
+   23.4,
+   15.3,
+   17.4,
+   19.3,
+   36.7,
+   14.8,
+   60.8,
+   37.7,
+   6.4,
+   9.0,
+   29.4,
+   31.9,
+   40.0,
+   22.1,
+   0.9,
+   13.6,
+   32.6,
+   78.4,
+   0.5,
+   47.1,
+   18.9,
+   12.9,
+   33.2,
+   28.9,
+   12.2,
+   33.3,
+   38.9
+  ],
+  [
+   0.5,
+   28.1,
+   23.6,
+   13.7,
+   8.1,
+   17.2,
+   43.0,
+   21.0,
+   11.6,
+   17.7,
+   7.5,
+   5.2,
+   12.4,
+   25.8,
+   9.8,
+   24.8,
+   14.1,
+   23.4,
+   null,
+   44.0,
+   10.7,
+   16.9,
+   18.3,
+   13.6,
+   30.3,
+   29.3,
+   8.8,
+   14.7,
+   29.2,
+   26.8,
+   27.8,
+   22.0,
+   1.0,
+   11.4,
+   37.5,
+   20.1,
+   0.5,
+   37.5,
+   15.8,
+   11.5,
+   25.3,
+   25.9,
+   11.1,
+   23.2,
+   16.1
+  ],
+  [
+   0.5,
+   17.2,
+   15.4,
+   10.4,
+   6.8,
+   12.3,
+   21.7,
+   14.2,
+   9.2,
+   12.6,
+   6.4,
+   4.6,
+   9.7,
+   16.3,
+   8.0,
+   57.0,
+   10.7,
+   15.3,
+   44.0,
+   null,
+   8.6,
+   12.2,
+   12.9,
+   10.4,
+   18.0,
+   17.6,
+   11.0,
+   22.0,
+   17.5,
+   16.7,
+   17.0,
+   14.7,
+   1.0,
+   9.1,
+   20.3,
+   13.8,
+   0.5,
+   20.2,
+   11.6,
+   9.1,
+   16.1,
+   16.3,
+   8.9,
+   15.2,
+   11.8
+  ],
+  [
+   0.5,
+   13.6,
+   11.8,
+   14.5,
+   5.9,
+   9.6,
+   8.6,
+   14.9,
+   7.7,
+   10.1,
+   5.6,
+   4.2,
+   8.6,
+   12.1,
+   7.6,
+   7.5,
+   8.7,
+   17.4,
+   10.7,
+   8.6,
+   null,
+   9.9,
+   15.2,
+   8.5,
+   14.5,
+   13.0,
+   4.8,
+   6.2,
+   11.8,
+   12.2,
+   13.1,
+   10.4,
+   0.9,
+   8.4,
+   12.3,
+   21.9,
+   0.5,
+   13.8,
+   9.9,
+   7.8,
+   12.4,
+   11.8,
+   7.6,
+   12.5,
+   12.2
+  ],
+  [
+   0.5,
+   27.3,
+   21.0,
+   12.4,
+   7.9,
+   16.3,
+   12.1,
+   17.9,
+   13.1,
+   20.7,
+   7.5,
+   5.5,
+   10.7,
+   35.1,
+   8.9,
+   10.0,
+   13.6,
+   19.3,
+   16.9,
+   12.2,
+   9.9,
+   null,
+   16.7,
+   13.2,
+   21.8,
+   26.1,
+   5.8,
+   7.8,
+   19.8,
+   25.7,
+   24.4,
+   16.2,
+   0.9,
+   10.3,
+   23.3,
+   17.4,
+   0.5,
+   23.5,
+   15.5,
+   10.6,
+   21.5,
+   25.4,
+   10.5,
+   18.9,
+   14.1
+  ],
+  [
+   0.5,
+   34.6,
+   21.3,
+   22.8,
+   7.7,
+   15.4,
+   12.9,
+   28.3,
+   11.0,
+   17.1,
+   7.3,
+   5.1,
+   12.4,
+   23.3,
+   9.8,
+   10.5,
+   13.3,
+   36.7,
+   18.3,
+   12.9,
+   15.2,
+   16.7,
+   null,
+   12.8,
+   30.3,
+   26.8,
+   5.9,
+   8.1,
+   21.9,
+   23.2,
+   26.3,
+   17.6,
+   0.9,
+   11.4,
+   23.8,
+   48.5,
+   0.5,
+   29.9,
+   17.7,
+   11.0,
+   23.0,
+   22.2,
+   10.6,
+   22.3,
+   20.0
+  ],
+  [
+   0.5,
+   17.1,
+   15.9,
+   10.2,
+   17.4,
+   12.8,
+   10.3,
+   14.1,
+   10.0,
+   13.9,
+   7.2,
+   4.9,
+   9.1,
+   19.1,
+   7.9,
+   8.8,
+   29.3,
+   14.8,
+   13.6,
+   10.4,
+   8.5,
+   13.2,
+   12.8,
+   null,
+   16.1,
+   22.0,
+   5.3,
+   7.1,
+   15.5,
+   17.9,
+   19.3,
+   13.2,
+   0.9,
+   8.9,
+   18.4,
+   13.5,
+   0.5,
+   16.8,
+   11.6,
+   9.2,
+   16.5,
+   22.5,
+   9.1,
+   14.7,
+   11.7
+  ],
+  [
+   0.5,
+   52.0,
+   37.2,
+   20.6,
+   8.9,
+   21.4,
+   17.8,
+   42.5,
+   13.5,
+   23.0,
+   8.2,
+   5.5,
+   21.0,
+   37.6,
+   12.8,
+   13.7,
+   17.0,
+   60.8,
+   30.3,
+   18.0,
+   14.5,
+   21.8,
+   30.3,
+   16.1,
+   null,
+   46.9,
+   6.8,
+   9.9,
+   41.4,
+   40.1,
+   47.2,
+   28.3,
+   0.9,
+   15.9,
+   43.8,
+   39.7,
+   0.5,
+   108.4,
+   21.3,
+   14.3,
+   44.6,
+   35.2,
+   13.4,
+   54.2,
+   26.2
+  ],
+  [
+   0.5,
+   57.6,
+   44.7,
+   17.7,
+   10.4,
+   25.4,
+   17.4,
+   34.2,
+   15.6,
+   28.7,
+   9.1,
+   5.9,
+   14.5,
+   60.9,
+   11.6,
+   13.4,
+   24.8,
+   37.7,
+   29.3,
+   17.6,
+   13.0,
+   26.1,
+   26.8,
+   22.0,
+   46.9,
+   null,
+   6.8,
+   9.8,
+   39.5,
+   58.8,
+   115.6,
+   27.4,
+   0.9,
+   14.0,
+   60.8,
+   30.1,
+   0.5,
+   52.3,
+   22.1,
+   14.9,
+   51.0,
+   62.5,
+   14.3,
+   36.9,
+   22.7
+  ],
+  [
+   0.5,
+   6.7,
+   6.4,
+   5.4,
+   4.2,
+   5.8,
+   7.3,
+   6.2,
+   5.0,
+   5.9,
+   4.1,
+   3.3,
+   5.1,
+   6.6,
+   4.6,
+   9.2,
+   5.4,
+   6.4,
+   8.8,
+   11.0,
+   4.8,
+   5.8,
+   5.9,
+   5.3,
+   6.8,
+   6.8,
+   null,
+   22.0,
+   6.8,
+   6.6,
+   6.7,
+   6.3,
+   0.9,
+   5.0,
+   7.1,
+   6.1,
+   0.5,
+   7.1,
+   5.7,
+   5.0,
+   6.5,
+   6.6,
+   4.9,
+   6.4,
+   5.7
+  ],
+  [
+   0.5,
+   9.6,
+   9.0,
+   7.1,
+   5.2,
+   7.9,
+   10.9,
+   8.6,
+   6.5,
+   8.0,
+   5.0,
+   3.8,
+   6.7,
+   9.4,
+   5.9,
+   15.9,
+   7.2,
+   9.0,
+   14.7,
+   22.0,
+   6.2,
+   7.8,
+   8.1,
+   7.1,
+   9.9,
+   9.8,
+   22.0,
+   null,
+   9.8,
+   9.5,
+   9.6,
+   8.8,
+   1.0,
+   6.4,
+   10.5,
+   8.5,
+   0.5,
+   10.5,
+   7.6,
+   6.4,
+   9.3,
+   9.4,
+   6.3,
+   9.0,
+   7.7
+  ],
+  [
+   0.5,
+   37.6,
+   28.8,
+   15.6,
+   8.7,
+   19.6,
+   17.4,
+   25.7,
+   12.9,
+   21.0,
+   8.1,
+   5.4,
+   13.9,
+   33.4,
+   10.6,
+   13.4,
+   16.2,
+   29.4,
+   29.2,
+   17.5,
+   11.8,
+   19.8,
+   21.9,
+   15.5,
+   41.4,
+   39.5,
+   6.8,
+   9.8,
+   null,
+   34.4,
+   36.1,
+   89.0,
+   0.9,
+   12.6,
+   62.0,
+   24.4,
+   0.5,
+   57.2,
+   18.4,
+   12.5,
+   31.2,
+   34.0,
+   12.1,
+   28.6,
+   18.6
+  ],
+  [
+   0.5,
+   41.4,
+   64.7,
+   16.2,
+   9.4,
+   43.4,
+   16.5,
+   28.9,
+   16.1,
+   29.0,
+   8.7,
+   5.9,
+   13.8,
+   69.7,
+   11.4,
+   12.9,
+   18.7,
+   31.9,
+   26.8,
+   16.7,
+   12.2,
+   25.7,
+   23.2,
+   17.9,
+   40.1,
+   58.8,
+   6.6,
+   9.5,
+   34.4,
+   null,
+   62.7,
+   24.8,
+   0.9,
+   13.8,
+   50.7,
+   26.1,
+   0.5,
+   42.7,
+   19.3,
+   15.3,
+   56.5,
+   47.9,
+   15.9,
+   35.9,
+   20.3
+  ],
+  [
+   0.5,
+   48.6,
+   51.4,
+   17.9,
+   9.7,
+   26.1,
+   16.9,
+   37.9,
+   15.0,
+   26.6,
+   8.7,
+   5.8,
+   14.5,
+   52.5,
+   11.8,
+   13.1,
+   21.0,
+   40.0,
+   27.8,
+   17.0,
+   13.1,
+   24.4,
+   26.3,
+   19.3,
+   47.2,
+   115.6,
+   6.7,
+   9.6,
+   36.1,
+   62.7,
+   null,
+   25.7,
+   0.9,
+   14.4,
+   50.7,
+   30.8,
+   0.5,
+   48.9,
+   20.7,
+   15.8,
+   63.5,
+   48.7,
+   14.9,
+   39.9,
+   24.3
+  ],
+  [
+   0.5,
+   26.4,
+   21.8,
+   13.3,
+   7.9,
+   16.1,
+   14.5,
+   19.9,
+   11.3,
+   17.0,
+   7.4,
+   5.1,
+   12.0,
+   24.3,
+   9.5,
+   11.7,
+   13.7,
+   22.1,
+   22.0,
+   14.7,
+   10.4,
+   16.2,
+   17.6,
+   13.2,
+   28.3,
+   27.4,
+   6.3,
+   8.8,
+   89.0,
+   24.8,
+   25.7,
+   null,
+   0.9,
+   11.0,
+   36.5,
+   19.2,
+   0.5,
+   34.8,
+   15.2,
+   11.0,
+   23.1,
+   24.6,
+   10.7,
+   21.6,
+   15.4
+  ],
+  [
+   0.3,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   1.0,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.8,
+   0.9,
+   0.9,
+   0.9,
+   1.0,
+   0.9,
+   0.9,
+   1.0,
+   1.0,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   1.0,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   null,
+   0.9,
+   1.0,
+   0.9,
+   0.3,
+   1.0,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9,
+   0.9
+  ],
+  [
+   0.5,
+   13.6,
+   14.4,
+   9.7,
+   6.1,
+   10.6,
+   9.0,
+   12.7,
+   8.1,
+   10.6,
+   5.8,
+   4.3,
+   9.1,
+   13.1,
+   58.9,
+   7.8,
+   9.2,
+   13.6,
+   11.4,
+   9.1,
+   8.4,
+   10.3,
+   11.4,
+   8.9,
+   15.9,
+   14.0,
+   5.0,
+   6.4,
+   12.6,
+   13.8,
+   14.4,
+   11.0,
+   0.9,
+   null,
+   13.3,
+   12.5,
+   0.5,
+   14.8,
+   9.9,
+   9.1,
+   16.0,
+   12.7,
+   8.5,
+   21.9,
+   10.7
+  ],
+  [
+   0.5,
+   44.0,
+   37.0,
+   16.4,
+   9.5,
+   23.9,
+   20.0,
+   28.8,
+   14.6,
+   25.3,
+   8.9,
+   5.7,
+   14.2,
+   47.9,
+   11.1,
+   14.9,
+   19.1,
+   32.6,
+   37.5,
+   20.3,
+   12.3,
+   23.3,
+   23.8,
+   18.4,
+   43.8,
+   60.8,
+   7.1,
+   10.5,
+   62.0,
+   50.7,
+   50.7,
+   36.5,
+   1.0,
+   13.3,
+   null,
+   26.6,
+   0.5,
+   54.5,
+   19.8,
+   13.7,
+   39.7,
+   53.7,
+   13.4,
+   32.5,
+   20.2
+  ],
+  [
+   0.5,
+   34.1,
+   24.1,
+   43.0,
+   8.0,
+   16.6,
+   13.7,
+   44.3,
+   11.5,
+   18.0,
+   7.5,
+   5.2,
+   13.7,
+   25.5,
+   10.6,
+   11.1,
+   14.1,
+   78.4,
+   20.1,
+   13.8,
+   21.9,
+   17.4,
+   48.5,
+   13.5,
+   39.7,
+   30.1,
+   6.1,
+   8.5,
+   24.4,
+   26.1,
+   30.8,
+   19.2,
+   0.9,
+   12.5,
+   26.6,
+   null,
+   0.5,
+   35.2,
+   17.5,
+   11.7,
+   26.6,
+   24.3,
+   11.2,
+   26.4,
+   26.8
+  ],
+  [
+   0.2,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.3,
+   0.5,
+   0.5,
+   0.5,
+   null,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5,
+   0.5
+  ],
+  [
+   0.5,
+   68.4,
+   36.8,
+   19.3,
+   9.1,
+   22.1,
+   20.0,
+   36.7,
+   13.9,
+   24.7,
+   8.4,
+   5.6,
+   17.6,
+   41.5,
+   12.1,
+   14.9,
+   17.8,
+   47.1,
+   37.5,
+   20.2,
+   13.8,
+   23.5,
+   29.9,
+   16.8,
+   108.4,
+   52.3,
+   7.1,
+   10.5,
+   57.2,
+   42.7,
+   48.9,
+   34.8,
+   1.0,
+   14.8,
+   54.5,
+   35.2,
+   0.5,
+   null,
+   23.6,
+   14.0,
+   42.4,
+   39.3,
+   13.4,
+   42.7,
+   23.8
+  ],
+  [
+   0.5,
+   36.0,
+   17.5,
+   12.4,
+   7.3,
+   13.5,
+   11.5,
+   17.2,
+   10.3,
+   15.7,
+   6.8,
+   4.9,
+   10.6,
+   20.0,
+   8.6,
+   9.7,
+   12.1,
+   18.9,
+   15.8,
+   11.6,
+   9.9,
+   15.5,
+   17.7,
+   11.6,
+   21.3,
+   22.1,
+   5.7,
+   7.6,
+   18.4,
+   19.3,
+   20.7,
+   15.2,
+   0.9,
+   9.9,
+   19.8,
+   17.5,
+   0.5,
+   23.6,
+   null,
+   9.8,
+   18.5,
+   18.9,
+   9.6,
+   17.4,
+   13.7
+  ],
+  [
+   0.5,
+   13.5,
+   17.5,
+   9.2,
+   6.3,
+   11.4,
+   9.1,
+   12.3,
+   8.4,
+   11.0,
+   5.9,
+   4.4,
+   8.5,
+   13.9,
+   8.0,
+   7.8,
+   9.5,
+   12.9,
+   11.5,
+   9.1,
+   7.8,
+   10.6,
+   11.0,
+   9.2,
+   14.3,
+   14.9,
+   5.0,
+   6.4,
+   12.5,
+   15.3,
+   15.8,
+   11.0,
+   0.9,
+   9.1,
+   13.7,
+   11.7,
+   0.5,
+   14.0,
+   9.8,
+   null,
+   21.0,
+   13.3,
+   9.5,
+   15.4,
+   10.4
+  ],
+  [
+   0.5,
+   37.9,
+   104.8,
+   16.4,
+   9.0,
+   24.9,
+   15.9,
+   29.8,
+   13.9,
+   23.3,
+   8.2,
+   5.6,
+   14.3,
+   41.2,
+   12.9,
+   12.5,
+   17.5,
+   33.2,
+   25.3,
+   16.1,
+   12.4,
+   21.5,
+   23.0,
+   16.5,
+   44.6,
+   51.0,
+   6.5,
+   9.3,
+   31.2,
+   56.5,
+   63.5,
+   23.1,
+   0.9,
+   16.0,
+   39.7,
+   26.6,
+   0.5,
+   42.4,
+   18.5,
+   21.0,
+   null,
+   36.4,
+   17.5,
+   57.2,
+   20.7
+  ],
+  [
+   0.5,
+   39.7,
+   34.6,
+   15.5,
+   10.6,
+   23.1,
+   16.1,
+   26.2,
+   16.1,
+   28.7,
+   10.5,
+   5.9,
+   13.2,
+   68.7,
+   10.6,
+   12.7,
+   21.8,
+   28.9,
+   25.9,
+   16.3,
+   11.8,
+   25.4,
+   22.2,
+   22.5,
+   35.2,
+   62.5,
+   6.6,
+   9.4,
+   34.0,
+   47.9,
+   48.7,
+   24.6,
+   0.9,
+   12.7,
+   53.7,
+   24.3,
+   0.5,
+   39.3,
+   18.9,
+   13.3,
+   36.4,
+   null,
+   13.1,
+   28.9,
+   18.9
+  ],
+  [
+   0.5,
+   13.0,
+   21.0,
+   8.9,
+   6.2,
+   11.7,
+   8.8,
+   11.7,
+   8.3,
+   10.9,
+   5.9,
+   4.4,
+   8.2,
+   13.8,
+   7.6,
+   7.7,
+   9.3,
+   12.2,
+   11.1,
+   8.9,
+   7.6,
+   10.5,
+   10.6,
+   9.1,
+   13.4,
+   14.3,
+   4.9,
+   6.3,
+   12.1,
+   15.9,
+   14.9,
+   10.7,
+   0.9,
+   8.5,
+   13.4,
+   11.2,
+   0.5,
+   13.4,
+   9.6,
+   9.5,
+   17.5,
+   13.1,
+   null,
+   13.8,
+   10.0
+  ],
+  [
+   0.5,
+   33.8,
+   40.7,
+   16.4,
+   8.4,
+   20.0,
+   15.1,
+   28.4,
+   12.5,
+   20.1,
+   7.8,
+   5.4,
+   15.1,
+   31.2,
+   16.3,
+   12.0,
+   15.5,
+   33.3,
+   23.2,
+   15.2,
+   12.5,
+   18.9,
+   22.3,
+   14.7,
+   54.2,
+   36.9,
+   6.4,
+   9.0,
+   28.6,
+   35.9,
+   39.9,
+   21.6,
+   0.9,
+   21.9,
+   32.5,
+   26.4,
+   0.5,
+   42.7,
+   17.4,
+   15.4,
+   57.2,
+   28.9,
+   13.8,
+   null,
+   20.0
+  ],
+  [
+   0.5,
+   22.2,
+   19.2,
+   16.5,
+   7.3,
+   14.0,
+   11.7,
+   68.0,
+   10.1,
+   14.7,
+   6.9,
+   4.9,
+   11.6,
+   19.6,
+   9.2,
+   9.8,
+   12.2,
+   38.9,
+   16.1,
+   11.8,
+   12.2,
+   14.1,
+   20.0,
+   11.7,
+   26.2,
+   22.7,
+   5.7,
+   7.7,
+   18.6,
+   20.3,
+   24.3,
+   15.4,
+   0.9,
+   10.7,
+   20.2,
+   26.8,
+   0.5,
+   23.8,
+   13.7,
+   10.4,
+   20.7,
+   18.9,
+   10.0,
+   20.0,
+   null
+  ]
+ ],
+ "stats": {
+  "drivers": 45,
+  "pairs": 67,
+  "components": 1,
+  "diameter": 7,
+  "mean_hops": 3.53,
+  "weak_pairs": 11,
+  "weak_races": 3
+ }
+}

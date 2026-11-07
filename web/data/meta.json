@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-07T20:53:39+00:00",
+ "generated_at": "2026-11-07T21:21:58+00:00",
  "data_through": {
   "season": 2026,
   "round": 19,
@@ -325,37 +325,37 @@
  "quali_max_gap_pct": 3.0,
  "models": {
   "quali": {
-   "sigma": 0.4254,
-   "tau0": 0.2728,
-   "tau_rw": 0.0605,
-   "tau_dev": 0.1101,
-   "mu_rookie": -0.17,
-   "mu_dev": 0.1072,
+   "sigma": 0.4236,
+   "tau0": 0.2659,
+   "tau_rw": 0.0542,
+   "tau_dev": 0.1253,
+   "mu_rookie": -0.1521,
+   "mu_dev": 0.0986,
    "n_obs": 1839,
-   "log_evidence": -1208.2364,
-   "iterations": 11,
+   "log_evidence": -1207.1952,
+   "iterations": 12,
    "downweighted": 342
   },
   "race": {
-   "tau0": 0.7128,
-   "tau_rw": 0.1883,
+   "tau0": 0.7135,
+   "tau_rw": 0.1803,
    "tau_dev": 0.001,
-   "mu_rookie": -0.5599,
-   "mu_dev": 0.3397,
+   "mu_rookie": -0.5329,
+   "mu_dev": 0.3374,
    "n_obs": 1727,
-   "log_evidence": -993.4767
+   "log_evidence": -985.8969
   },
   "pace": {
-   "sigma": 0.3807,
-   "tau0": 0.1928,
-   "tau_rw": 0.0848,
-   "tau_dev": 0.1667,
-   "mu_rookie": -0.047,
-   "mu_dev": 0.0516,
+   "sigma": 0.379,
+   "tau0": 0.1934,
+   "tau_rw": 0.0843,
+   "tau_dev": 0.1672,
+   "mu_rookie": -0.0395,
+   "mu_dev": 0.0463,
    "n_obs": 1715,
-   "log_evidence": -947.7413,
+   "log_evidence": -947.9019,
    "iterations": 11,
-   "downweighted": 352
+   "downweighted": 353
   }
  },
  "counts": {
@@ -414,62 +414,62 @@
   "quali": {
    "all": {
     "n": 1640,
-    "mae_model": 0.4582,
+    "mae_model": 0.4604,
     "mae_baseline": 0.4851,
-    "sign_accuracy": 0.6453,
+    "sign_accuracy": 0.6397,
     "season_pairs": 87,
-    "season_sign_accuracy": 0.7356,
-    "season_corr": 0.5245
+    "season_sign_accuracy": 0.7126,
+    "season_corr": 0.5077
    },
    "known": {
     "n": 1336,
-    "mae_model": 0.435,
+    "mae_model": 0.4368,
     "mae_baseline": 0.4697,
-    "sign_accuracy": 0.6422,
+    "sign_accuracy": 0.6355,
     "season_pairs": 70,
-    "season_sign_accuracy": 0.7571,
-    "season_corr": 0.6153
+    "season_sign_accuracy": 0.7286,
+    "season_corr": 0.6002
    },
    "new_pairs": {
     "n": 479,
-    "mae_model": 0.4874,
+    "mae_model": 0.4925,
     "mae_baseline": 0.4965,
-    "sign_accuracy": 0.5866,
+    "sign_accuracy": 0.5678,
     "season_pairs": 25,
-    "season_sign_accuracy": 0.68,
-    "season_corr": 0.3853
+    "season_sign_accuracy": 0.6,
+    "season_corr": 0.3528
    }
   },
   "race": {
    "all": {
     "n": 1322,
-    "accuracy": 0.6089,
-    "log_loss": 0.6576,
+    "accuracy": 0.5991,
+    "log_loss": 0.6544,
     "log_loss_coin": 0.6931,
-    "brier": 0.2333,
+    "brier": 0.2321,
     "brier_coin": 0.25,
     "season_pairs": 79,
-    "season_accuracy": 0.6456
+    "season_accuracy": 0.6329
    },
    "known": {
     "n": 1079,
-    "accuracy": 0.6024,
-    "log_loss": 0.6528,
+    "accuracy": 0.6052,
+    "log_loss": 0.6491,
     "log_loss_coin": 0.6931,
-    "brier": 0.2313,
+    "brier": 0.2298,
     "brier_coin": 0.25,
     "season_pairs": 64,
-    "season_accuracy": 0.6562
+    "season_accuracy": 0.6719
    },
    "new_pairs": {
     "n": 395,
-    "accuracy": 0.5595,
-    "log_loss": 0.6686,
+    "accuracy": 0.5671,
+    "log_loss": 0.6608,
     "log_loss_coin": 0.6931,
-    "brier": 0.2398,
+    "brier": 0.2367,
     "brier_coin": 0.25,
     "season_pairs": 24,
-    "season_accuracy": 0.5
+    "season_accuracy": 0.5417
    }
   }
  },
@@ -500,7 +500,7 @@
      "alonso": 9,
      "sainz": 6,
      "leclerc": 5,
-     "bearman": 7,
+     "bearman": 8,
      "hadjar": 11,
      "hulkenberg": 12
     }
@@ -550,15 +550,15 @@
     ],
     "overlap": 9,
     "overlap_old": 8,
-    "spearman": 0.8061,
+    "spearman": 0.8424,
     "spearman_old": 0.8667,
     "our_ranks": {
      "max_verstappen": 1,
      "alonso": 2,
-     "norris": 6,
+     "norris": 5,
      "leclerc": 3,
      "hamilton": 4,
-     "sainz": 5,
+     "sainz": 6,
      "piastri": 13,
      "albon": 10,
      "russell": 8,

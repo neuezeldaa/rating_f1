@@ -29,6 +29,8 @@ from .features.laps import lap_features
 from .features.quali import quali_pairs
 from .features.race import race_duels
 from .features.stats import quali_records, race_records
+from .features.stints import stint_factor, stint_starts
+from .graph import build_graph
 from .models.season import season_performance
 from .models.teammate import build_index, fit_quali, fit_race
 from .ratings import raw_stats, season_context, season_ratings
@@ -125,6 +127,15 @@ def main(argv=None) -> None:
              {k: int(v) for k, v in rd.loc[~rd["valid"], "reason"].value_counts().items()})
 
     lap_stats, pace_pairs, _ = lap_features(tables["laps"], tables["pit_stops"], results)
+
+    # Подменные выступления (до 3 гонок за команду в сезоне) — половинный вес во всех моделях напарников.
+    starts_map = stint_starts(results)
+    qp["weight"] = stint_factor(qp, starts_map)
+    pace_pairs["weight"] = stint_factor(pace_pairs, starts_map)
+    rd["weight"] = rd["weight"] * stint_factor(rd, starts_map)
+    log.info("Подменные выступления с половинным весом: квалификаций %s, дуэлей %s, пар темпа %s",
+             int((qp["weight"] < 1).sum()), int((stint_factor(rd, starts_map) < 1).sum()),
+             int((pace_pairs["weight"] < 1).sum()))
     log.info("Круги: темп посчитан для %s стартов, обгонов на трассе %s; пар напарников по темпу %s (учтено %s)",
              int(lap_stats["pace_gap"].notna().sum()), int(lap_stats["overtakes_made"].sum()),
              len(pace_pairs), int(pace_pairs["valid"].sum()))
@@ -138,6 +149,12 @@ def main(argv=None) -> None:
     log.info("Ожидаемые очки за гонку по рангу машины: %s", expectations["points"])
     scopes = build_scopes(records, sprints, tables["standings"],
                           teammate[["driver_id", "season", "quali_s", "race_p", "pace_s"]])
+
+    graph = build_graph(results, tables["constructors"], qp, rd, pace_pairs, scopes[PERIOD], starts_map)
+    gs = graph["stats"]
+    log.info("Граф напарников: %s пилотов, %s пар (слабых, до %s гонок: %s), компонент %s, "
+             "в среднем %.1f шага между пилотами", gs["drivers"], gs["pairs"], gs["weak_races"],
+             gs["weak_pairs"], gs["components"], gs["mean_hops"])
 
     expert_raw = yaml.safe_load(EXPERT_PATH.read_text(encoding="utf-8")) if EXPERT_PATH.exists() else {}
     expert_lists = {int(s): v["top10"] for s, v in expert_raw.items()}
@@ -176,7 +193,7 @@ def main(argv=None) -> None:
                    "sources": {str(s): v["source"] for s, v in expert_raw.items()}}
     counts["pace_pairs_valid"] = int(pace_pairs["valid"].sum())
     counts["overtakes"] = int(lap_stats["overtakes_made"].sum())
-    export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations)
+    export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations, graph)
 
     _log_scope(scopes[PERIOD], names, f"Общий рейтинг {seasons[0]}–{seasons[-1]}", 15)
     _log_scope(scopes[str(seasons[-1])], names, f"Сезон {seasons[-1]}", 8)
