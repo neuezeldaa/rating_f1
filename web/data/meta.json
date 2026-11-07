@@ -1,0 +1,659 @@
+{
+ "generated_at": "2026-11-07T20:53:39+00:00",
+ "data_through": {
+  "season": 2026,
+  "round": 19,
+  "race_name": "Mexico City Grand Prix",
+  "date": "2026-11-01"
+ },
+ "scopes": [
+  "all",
+  "2026",
+  "2025",
+  "2024",
+  "2023",
+  "2022",
+  "2021",
+  "2020",
+  "2019",
+  "2018"
+ ],
+ "period": [
+  2018,
+  2026
+ ],
+ "season_races": {
+  "2018": {
+   "completed": 21,
+   "scheduled": 21
+  },
+  "2019": {
+   "completed": 21,
+   "scheduled": 21
+  },
+  "2020": {
+   "completed": 17,
+   "scheduled": 17
+  },
+  "2021": {
+   "completed": 22,
+   "scheduled": 22
+  },
+  "2022": {
+   "completed": 22,
+   "scheduled": 22
+  },
+  "2023": {
+   "completed": 22,
+   "scheduled": 22
+  },
+  "2024": {
+   "completed": 24,
+   "scheduled": 24
+  },
+  "2025": {
+   "completed": 24,
+   "scheduled": 24
+  },
+  "2026": {
+   "completed": 19,
+   "scheduled": 23
+  }
+ },
+ "groups": [
+  {
+   "id": "results",
+   "name": "Результаты",
+   "about": "Очки, победы, подиумы, место в чемпионате — то, что пилот реально привёз."
+  },
+  {
+   "id": "above_car",
+   "name": "Сверх уровня машины",
+   "about": "Очки и места сверх того, что обычно привозит машина такого уровня; яркие гонки — подиум на машине из середины пелотона."
+  },
+  {
+   "id": "quali",
+   "name": "Квалификация",
+   "about": "Поулы, выход в Q3, отставание от лучшего времени, среднее место."
+  },
+  {
+   "id": "pace",
+   "name": "Темп в гонке",
+   "about": "Отставание от медианы поля на чистых кругах и стабильность темпа."
+  },
+  {
+   "id": "racecraft",
+   "name": "Борьба",
+   "about": "Первый круг, обгоны и защита на трассе, позиции сверх ожидаемого за гонку."
+  },
+  {
+   "id": "clean",
+   "name": "Надёжность",
+   "about": "Сходы по своей ошибке, финиши без поломок, штрафы по времени."
+  },
+  {
+   "id": "teammate",
+   "name": "Против напарника",
+   "about": "Модель сети напарников: квалификация, темп и финиш с поправкой на силу напарников; доля очков команды."
+  },
+  {
+   "id": "career",
+   "name": "Карьера",
+   "about": "Только для общей сводки: титулы, лучший сезон, сезоны в топ-5."
+  }
+ ],
+ "features": [
+  {
+   "id": "ppr",
+   "group": "results",
+   "name": "Очки за гонку",
+   "unit": "num1",
+   "better": 1
+  },
+  {
+   "id": "win_rate",
+   "group": "results",
+   "name": "Победы",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "podium_rate",
+   "group": "results",
+   "name": "Подиумы",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "champ",
+   "group": "results",
+   "name": "Место в чемпионате (очки за место)",
+   "unit": "num1",
+   "better": 1
+  },
+  {
+   "id": "points_above_car",
+   "group": "above_car",
+   "name": "Очки сверх уровня машины, за гонку",
+   "unit": "signed1",
+   "better": 1
+  },
+  {
+   "id": "pos_above_car",
+   "group": "above_car",
+   "name": "Места сверх уровня машины",
+   "unit": "signed1",
+   "better": 1
+  },
+  {
+   "id": "standout_rate",
+   "group": "above_car",
+   "name": "Яркие гонки",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "pole_rate",
+   "group": "quali",
+   "name": "Поулы",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "q3_rate",
+   "group": "quali",
+   "name": "Выход в Q3",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "quali_gap",
+   "group": "quali",
+   "name": "Отставание от лучшего в квале",
+   "unit": "gap",
+   "better": -1
+  },
+  {
+   "id": "quali_pos",
+   "group": "quali",
+   "name": "Среднее место в квале",
+   "unit": "pos",
+   "better": -1
+  },
+  {
+   "id": "race_pace",
+   "group": "pace",
+   "name": "Темп: отставание от медианы поля",
+   "unit": "signedgap",
+   "better": -1
+  },
+  {
+   "id": "consistency",
+   "group": "pace",
+   "name": "Разброс времени круга",
+   "unit": "gap",
+   "better": -1
+  },
+  {
+   "id": "lap1_vs_exp",
+   "group": "racecraft",
+   "name": "Первый круг: места сверх ожидаемого",
+   "unit": "signed1",
+   "better": 1
+  },
+  {
+   "id": "overtakes",
+   "group": "racecraft",
+   "name": "Обгоны на трассе за гонку",
+   "unit": "num1",
+   "better": 1
+  },
+  {
+   "id": "overtaken",
+   "group": "racecraft",
+   "name": "Пропущено обгонов за гонку",
+   "unit": "num1",
+   "better": -1
+  },
+  {
+   "id": "gain_vs_exp",
+   "group": "racecraft",
+   "name": "Позиции за гонку сверх ожидаемого",
+   "unit": "signed1",
+   "better": 1
+  },
+  {
+   "id": "err_rate",
+   "group": "clean",
+   "name": "Сходы по своей ошибке",
+   "unit": "pct",
+   "better": -1
+  },
+  {
+   "id": "finish_rate",
+   "group": "clean",
+   "name": "Финиши без поломок",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "penalty_rate",
+   "group": "clean",
+   "name": "Штрафы по времени",
+   "unit": "pct",
+   "better": -1
+  },
+  {
+   "id": "car_quali",
+   "group": "teammate",
+   "name": "Квала против напарников, с/круг",
+   "unit": "sec",
+   "better": 1
+  },
+  {
+   "id": "car_pace",
+   "group": "teammate",
+   "name": "Темп против напарников, с/круг",
+   "unit": "sec",
+   "better": 1
+  },
+  {
+   "id": "car_race",
+   "group": "teammate",
+   "name": "Финиш против напарников",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "team_share",
+   "group": "teammate",
+   "name": "Доля очков команды",
+   "unit": "pct",
+   "better": 1
+  },
+  {
+   "id": "titles",
+   "group": "career",
+   "name": "Титулы",
+   "unit": "int",
+   "better": 1
+  },
+  {
+   "id": "peak",
+   "group": "career",
+   "name": "Лучший сезон",
+   "unit": "score",
+   "better": 1
+  },
+  {
+   "id": "elite",
+   "group": "career",
+   "name": "Сезонов в топ-5",
+   "unit": "int",
+   "better": 1
+  }
+ ],
+ "weights": {
+  "period": {
+   "results": 0.2,
+   "above_car": 0.15,
+   "quali": 0.1,
+   "pace": 0.1,
+   "racecraft": 0.1,
+   "clean": 0.05,
+   "teammate": 0.2,
+   "career": 0.1
+  },
+  "season": {
+   "results": 0.22,
+   "above_car": 0.17,
+   "quali": 0.11,
+   "pace": 0.11,
+   "racecraft": 0.11,
+   "clean": 0.06,
+   "teammate": 0.22
+  }
+ },
+ "min_starts": {
+  "period": 20,
+  "season": 5
+ },
+ "shrink_races": 10,
+ "interval": 0.8,
+ "reference_lap_s": 90.0,
+ "sprint_weight": 0.5,
+ "quali_max_gap_pct": 3.0,
+ "models": {
+  "quali": {
+   "sigma": 0.4254,
+   "tau0": 0.2728,
+   "tau_rw": 0.0605,
+   "tau_dev": 0.1101,
+   "mu_rookie": -0.17,
+   "mu_dev": 0.1072,
+   "n_obs": 1839,
+   "log_evidence": -1208.2364,
+   "iterations": 11,
+   "downweighted": 342
+  },
+  "race": {
+   "tau0": 0.7128,
+   "tau_rw": 0.1883,
+   "tau_dev": 0.001,
+   "mu_rookie": -0.5599,
+   "mu_dev": 0.3397,
+   "n_obs": 1727,
+   "log_evidence": -993.4767
+  },
+  "pace": {
+   "sigma": 0.3807,
+   "tau0": 0.1928,
+   "tau_rw": 0.0848,
+   "tau_dev": 0.1667,
+   "mu_rookie": -0.047,
+   "mu_dev": 0.0516,
+   "n_obs": 1715,
+   "log_evidence": -947.7413,
+   "iterations": 11,
+   "downweighted": 352
+  }
+ },
+ "counts": {
+  "quali_valid": 1839,
+  "quali_total": 1929,
+  "race_valid": 1727,
+  "race_total": 2243,
+  "race_excluded": {
+   "техника": 301,
+   "неясный сход": 201,
+   "дисквалификация": 14
+  },
+  "starts": 3876,
+  "pace_pairs_valid": 1715,
+  "overtakes": 7116
+ },
+ "car_expectations": {
+  "points": {
+   "1": 17.66,
+   "2": 13.35,
+   "3": 10.32,
+   "4": 6.46,
+   "5": 3.61,
+   "6": 2.2,
+   "7": 1.34,
+   "8": 0.66,
+   "9": 0.42,
+   "10": 0.11,
+   "11": 0.0
+  },
+  "position": {
+   "1": 2.74,
+   "2": 4.04,
+   "3": 5.37,
+   "4": 7.28,
+   "5": 9.25,
+   "6": 10.44,
+   "7": 11.47,
+   "8": 12.79,
+   "9": 13.84,
+   "10": 15.6,
+   "11": 17.4
+  }
+ },
+ "backtest": {
+  "seasons": [
+   2019,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025,
+   2026
+  ],
+  "quali": {
+   "all": {
+    "n": 1640,
+    "mae_model": 0.4582,
+    "mae_baseline": 0.4851,
+    "sign_accuracy": 0.6453,
+    "season_pairs": 87,
+    "season_sign_accuracy": 0.7356,
+    "season_corr": 0.5245
+   },
+   "known": {
+    "n": 1336,
+    "mae_model": 0.435,
+    "mae_baseline": 0.4697,
+    "sign_accuracy": 0.6422,
+    "season_pairs": 70,
+    "season_sign_accuracy": 0.7571,
+    "season_corr": 0.6153
+   },
+   "new_pairs": {
+    "n": 479,
+    "mae_model": 0.4874,
+    "mae_baseline": 0.4965,
+    "sign_accuracy": 0.5866,
+    "season_pairs": 25,
+    "season_sign_accuracy": 0.68,
+    "season_corr": 0.3853
+   }
+  },
+  "race": {
+   "all": {
+    "n": 1322,
+    "accuracy": 0.6089,
+    "log_loss": 0.6576,
+    "log_loss_coin": 0.6931,
+    "brier": 0.2333,
+    "brier_coin": 0.25,
+    "season_pairs": 79,
+    "season_accuracy": 0.6456
+   },
+   "known": {
+    "n": 1079,
+    "accuracy": 0.6024,
+    "log_loss": 0.6528,
+    "log_loss_coin": 0.6931,
+    "brier": 0.2313,
+    "brier_coin": 0.25,
+    "season_pairs": 64,
+    "season_accuracy": 0.6562
+   },
+   "new_pairs": {
+    "n": 395,
+    "accuracy": 0.5595,
+    "log_loss": 0.6686,
+    "log_loss_coin": 0.6931,
+    "brier": 0.2398,
+    "brier_coin": 0.25,
+    "season_pairs": 24,
+    "season_accuracy": 0.5
+   }
+  }
+ },
+ "expert": {
+  "seasons": {
+   "2025": {
+    "experts": [
+     "max_verstappen",
+     "norris",
+     "piastri",
+     "russell",
+     "alonso",
+     "sainz",
+     "leclerc",
+     "bearman",
+     "hadjar",
+     "hulkenberg"
+    ],
+    "overlap": 8,
+    "overlap_old": 8,
+    "spearman": 0.9152,
+    "spearman_old": 0.8061,
+    "our_ranks": {
+     "max_verstappen": 1,
+     "norris": 2,
+     "piastri": 3,
+     "russell": 4,
+     "alonso": 9,
+     "sainz": 6,
+     "leclerc": 5,
+     "bearman": 7,
+     "hadjar": 11,
+     "hulkenberg": 12
+    }
+   },
+   "2024": {
+    "experts": [
+     "max_verstappen",
+     "norris",
+     "leclerc",
+     "piastri",
+     "sainz",
+     "russell",
+     "hamilton",
+     "hulkenberg",
+     "alonso",
+     "gasly"
+    ],
+    "overlap": 9,
+    "overlap_old": 8,
+    "spearman": 0.9515,
+    "spearman_old": 0.7212,
+    "our_ranks": {
+     "max_verstappen": 1,
+     "norris": 2,
+     "leclerc": 3,
+     "piastri": 5,
+     "sainz": 6,
+     "russell": 4,
+     "hamilton": 7,
+     "hulkenberg": 9,
+     "alonso": 8,
+     "gasly": 11
+    }
+   },
+   "2023": {
+    "experts": [
+     "max_verstappen",
+     "alonso",
+     "norris",
+     "leclerc",
+     "hamilton",
+     "sainz",
+     "piastri",
+     "albon",
+     "russell",
+     "perez"
+    ],
+    "overlap": 9,
+    "overlap_old": 8,
+    "spearman": 0.8061,
+    "spearman_old": 0.8667,
+    "our_ranks": {
+     "max_verstappen": 1,
+     "alonso": 2,
+     "norris": 6,
+     "leclerc": 3,
+     "hamilton": 4,
+     "sainz": 5,
+     "piastri": 13,
+     "albon": 10,
+     "russell": 8,
+     "perez": 7
+    }
+   },
+   "2022": {
+    "experts": [
+     "max_verstappen",
+     "leclerc",
+     "russell",
+     "hamilton",
+     "perez",
+     "norris",
+     "sainz",
+     "alonso",
+     "bottas",
+     "vettel"
+    ],
+    "overlap": 9,
+    "overlap_old": 8,
+    "spearman": 0.9515,
+    "spearman_old": 0.6364,
+    "our_ranks": {
+     "max_verstappen": 1,
+     "leclerc": 2,
+     "russell": 3,
+     "hamilton": 6,
+     "perez": 4,
+     "norris": 5,
+     "sainz": 7,
+     "alonso": 9,
+     "bottas": 13,
+     "vettel": 10
+    }
+   },
+   "2021": {
+    "experts": [
+     "max_verstappen",
+     "hamilton",
+     "norris",
+     "sainz",
+     "leclerc",
+     "alonso",
+     "gasly",
+     "russell",
+     "bottas",
+     "ocon"
+    ],
+    "overlap": 8,
+    "overlap_old": 9,
+    "spearman": 0.8182,
+    "spearman_old": 0.8909,
+    "our_ranks": {
+     "max_verstappen": 1,
+     "hamilton": 2,
+     "norris": 3,
+     "sainz": 6,
+     "leclerc": 5,
+     "alonso": 10,
+     "gasly": 4,
+     "russell": 13,
+     "bottas": 11,
+     "ocon": 7
+    }
+   }
+  },
+  "sources": {
+   "2025": "https://www.formula1.com/en/latest/article/exclusive-the-f1-team-bosses-choose-their-top-10-drivers-of-2025.30ev5TbzHuK6hnaiv9k7KI",
+   "2024": "https://www.formula1.com/en/latest/article/revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2024.1QXLRus9GDzlx0BPqRtMJx",
+   "2023": "https://www.formula1.com/en/latest/article.revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2023.2bTFcy4xt21OFJQSZoiL3e.html",
+   "2022": "https://www.formula1.com/en/latest/article/revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2022.2glaMF3Vu9RSSBZmjwhCBM",
+   "2021": "https://www.formula1.com/en/latest/article/revealed-f1s-team-bosses-choose-their-top-10-drivers-of-2021.1sK8ysV0LK0MIbeNsHAkgY"
+  }
+ },
+ "sources": [
+  {
+   "name": "Jolpica F1 API",
+   "url": "https://api.jolpi.ca",
+   "what": "результаты, квалификации, спринты"
+  },
+  {
+   "name": "F1DB",
+   "url": "https://github.com/f1db/f1db",
+   "what": "причины сходов, штрафы, лучшие круги, гонщик дня, таблицы чемпионатов (CC BY 4.0)"
+  },
+  {
+   "name": "TracingInsights RaceData",
+   "url": "https://github.com/TracingInsights/RaceData",
+   "what": "позиции и время каждого пилота на каждом круге, пит-стопы"
+  },
+  {
+   "name": "Опрос руководителей команд F1",
+   "url": "https://www.formula1.com",
+   "what": "только для сверки, 2021–2025"
+  }
+ ]
+}

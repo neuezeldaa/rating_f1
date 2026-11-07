@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rating-f1"
+version = "0.1.0"
+description = "Рейтинг пилотов Формулы-1 с поправкой на машину"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "numpy",
+    "pandas",
+    "scipy",
+    "pyarrow",
+    "duckdb",
+    "pyyaml",
+    "fastf1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

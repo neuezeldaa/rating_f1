@@ -1,0 +1,12 @@
+# Окружение и IDE
+.venv/
+.idea/
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+
+# Скачанные и промежуточные данные (воспроизводятся командой пайплайна)
+data/raw/
+data/processed/
+data/*.duckdb
+data/*.duckdb.wal

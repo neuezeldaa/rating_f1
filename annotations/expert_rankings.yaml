@@ -1,0 +1,20 @@
+# Опрос руководителей команд F1: каждый называет свой топ-10 сезона, голоса суммируются
+# по очковой системе F1 (25 за первое место … 1 за десятое). Это субъективное мнение,
+# поэтому используется только для сверки, а не для подбора весов.
+# Идентификаторы пилотов — как в Jolpica.
+
+2025:
+  source: https://www.formula1.com/en/latest/article/exclusive-the-f1-team-bosses-choose-their-top-10-drivers-of-2025.30ev5TbzHuK6hnaiv9k7KI
+  top10: [max_verstappen, norris, piastri, russell, alonso, sainz, leclerc, bearman, hadjar, hulkenberg]
+2024:
+  source: https://www.formula1.com/en/latest/article/revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2024.1QXLRus9GDzlx0BPqRtMJx
+  top10: [max_verstappen, norris, leclerc, piastri, sainz, russell, hamilton, hulkenberg, alonso, gasly]
+2023:
+  source: https://www.formula1.com/en/latest/article.revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2023.2bTFcy4xt21OFJQSZoiL3e.html
+  top10: [max_verstappen, alonso, norris, leclerc, hamilton, sainz, piastri, albon, russell, perez]
+2022:
+  source: https://www.formula1.com/en/latest/article/revealed-the-f1-team-bosses-choose-their-top-10-drivers-of-2022.2glaMF3Vu9RSSBZmjwhCBM
+  top10: [max_verstappen, leclerc, russell, hamilton, perez, norris, sainz, alonso, bottas, vettel]
+2021:
+  source: https://www.formula1.com/en/latest/article/revealed-f1s-team-bosses-choose-their-top-10-drivers-of-2021.1sK8ysV0LK0MIbeNsHAkgY
+  top10: [max_verstappen, hamilton, norris, sainz, leclerc, alonso, gasly, russell, bottas, ocon]

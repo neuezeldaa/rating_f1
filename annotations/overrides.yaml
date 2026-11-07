@@ -1,0 +1,32 @@
+# Ручные правки данных. Пайплайн читает этот файл при каждом запуске.
+#
+# Идентификаторы пилотов — как в Jolpica (max_verstappen, leclerc, hamilton...),
+# их можно посмотреть в data/processed/drivers.parquet или в базе data/f1.duckdb.
+# session: R — гонка (по умолчанию), S — спринт.
+#
+# 1) Уточнить причину схода, если статус общий («Retired») или неоднозначный («Collision»).
+#    Категории: finished | driver_error | mechanical | unclear | disqualified | victim
+#    driver_error — дуэль засчитывается как поражение; victim и mechanical — дуэль не учитывается.
+status_overrides: []
+#  - season: 2025
+#    round: 7
+#    session: R
+#    driver: some_driver
+#    category: victim
+#    note: "выбит соперником на первом круге"
+
+# 2) Исключить квалификацию: пара напарников с этим пилотом не сравнивается
+#    (поломка, попытка сорвана красным флагом, командная тактика и т. п.).
+exclude_quali: []
+#  - season: 2024
+#    round: 5
+#    driver: some_driver
+#    note: "техническая проблема в Q2"
+
+# 3) Исключить гоночную дуэль (командный приказ, повреждение, болезнь и т. п.).
+exclude_race: []
+#  - season: 2024
+#    round: 5
+#    session: R
+#    drivers: [driver_one, driver_two]
+#    note: "командный приказ"

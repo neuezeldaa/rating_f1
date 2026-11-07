@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Рейтинг пилотов F1</title>
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Рейтинг пилотов Формулы-1</h1>
+    <p class="subtitle" id="subtitle">Общая сводка</p>
+  </header>
+
+  <main>
+    <div class="filters" role="group" aria-label="Фильтры">
+      <label class="field">Охват <select id="scope"></select></label>
+      <label class="check">
+        <input type="checkbox" id="show-all">
+        <span>Показать пилотов, у которых меньше <span id="min-starts">20</span> гонок</span>
+      </label>
+    </div>
+
+    <details class="card weights" id="weights">
+      <summary>
+        <span class="summary-title">Веса групп</span>
+        <span class="summary-value" id="weights-summary"></span>
+      </summary>
+      <p class="hint">Итог — взвешенная сумма групп. Двигайте ползунки, чтобы посмотреть рейтинг под свой взгляд на «лучшего пилота».</p>
+      <div class="presets" id="presets" role="group" aria-label="Готовые наборы весов"></div>
+      <div class="sliders" id="sliders"></div>
+    </details>
+
+    <div class="layout">
+      <section class="card" aria-labelledby="ranking-title">
+        <div class="card-head">
+          <h2 id="ranking-title">Общий рейтинг</h2>
+          <p class="hint" id="ranking-hint"></p>
+        </div>
+        <div class="table-wrap">
+          <table id="ranking">
+            <thead><tr id="ranking-head"></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="season-note" id="scope-note"></p>
+      </section>
+
+      <aside class="card driver" id="driver" aria-live="polite"></aside>
+    </div>
+
+    <section class="card method" aria-labelledby="method-title">
+      <h2 id="method-title">Как это посчитано</h2>
+      <div id="method-body"></div>
+    </section>
+  </main>
+
+  <footer id="footer"></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script src="data/data.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
