@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-08T11:04:24+00:00",
+ "generated_at": "2026-11-08T11:56:50+00:00",
  "data_through": {
   "season": 2026,
   "round": 19,
@@ -305,7 +305,7 @@
   {
    "id": "clean",
    "name": "Аккуратность",
-   "about": "Сходы по своей ошибке, сходы после столкновений, штрафы по времени. Поломки не в счёт."
+   "about": "Свои аварии и развороты, столкновения по решению стюардов, другие штрафы по времени. Поломки и чужие столкновения не в счёт."
   },
   {
    "id": "teammate",
@@ -441,21 +441,21 @@
   {
    "id": "err_rate",
    "group": "clean",
-   "name": "Сходы по своей ошибке",
+   "name": "Свои аварии и развороты",
    "unit": "pct",
    "better": -1
   },
   {
-   "id": "contact_rate",
+   "id": "collision_rate",
    "group": "clean",
-   "name": "Сходы после столкновений",
+   "name": "Столкновения по решению стюардов",
    "unit": "pct",
    "better": -1
   },
   {
    "id": "penalty_rate",
    "group": "clean",
-   "name": "Штрафы по времени",
+   "name": "Другие штрафы по времени",
    "unit": "pct",
    "better": -1
   },
@@ -554,13 +554,13 @@
    "downweighted": 342
   },
   "race": {
-   "tau0": 0.7123,
-   "tau_rw": 0.1778,
+   "tau0": 0.7035,
+   "tau_rw": 0.1707,
    "tau_dev": 0.001,
-   "mu_rookie": -0.5376,
-   "mu_dev": 0.3399,
-   "n_obs": 1728,
-   "log_evidence": -986.332
+   "mu_rookie": -0.5324,
+   "mu_dev": 0.3354,
+   "n_obs": 1747,
+   "log_evidence": -1001.0863
   },
   "pace": {
    "sigma": 0.379,
@@ -578,12 +578,14 @@
  "counts": {
   "quali_valid": 1839,
   "quali_total": 1940,
-  "race_valid": 1728,
+  "race_valid": 1747,
   "race_total": 2243,
   "race_excluded": {
    "техника": 298,
-   "неясный сход": 203,
-   "дисквалификация": 14
+   "неясный сход": 143,
+   "чужая ошибка": 40,
+   "дисквалификация": 14,
+   "оба сошли по своей ошибке": 1
   },
   "starts": 3876,
   "pace_pairs_valid": 1715,
@@ -619,17 +621,17 @@
    4.0
   ],
   "points": [
-   16.63,
+   16.54,
    12.7,
    10.19,
-   6.07,
-   4.61,
-   3.28,
-   3.12,
-   2.28,
+   5.94,
+   4.56,
+   3.26,
+   3.11,
+   2.26,
    2.45,
-   2.14,
-   1.15,
+   2.12,
+   1.14,
    0.19
   ],
   "position": [
@@ -655,9 +657,9 @@
     "stayed": 0.8099
    },
    "above_car": {
-    "reliability": 0.9235,
-    "moved": 0.4338,
-    "stayed": 0.8332
+    "reliability": 0.9243,
+    "moved": 0.4317,
+    "stayed": 0.8334
    },
    "quali": {
     "reliability": 0.9773,
@@ -675,34 +677,178 @@
     "stayed": 0.5757
    },
    "clean": {
-    "reliability": 0.3152,
-    "moved": -0.0572,
-    "stayed": 0.2969
+    "reliability": 0.1764,
+    "moved": -0.2344,
+    "stayed": 0.0981
    },
    "teammate": {
     "reliability": 0.9848,
-    "moved": 0.3737,
-    "stayed": 0.8662
+    "moved": 0.3733,
+    "stayed": 0.8668
    },
    "overall": {
-    "reliability": 0.9615,
-    "moved": 0.4196,
-    "stayed": 0.8751
+    "reliability": 0.96,
+    "moved": 0.4252,
+    "stayed": 0.8756
    }
   },
   "n_moved": 24,
   "n_stayed": 114,
   "data_weights": {
    "results": 0.0,
-   "above_car": 0.373,
+   "above_car": 0.372,
    "quali": 0.124,
    "pace": 0.012,
-   "racecraft": 0.169,
+   "racecraft": 0.17,
    "clean": 0.0,
-   "teammate": 0.321,
+   "teammate": 0.322,
    "career": 0.0
   },
   "expert_spearman": 0.8836
+ },
+ "track_types": {
+  "fast": [
+   [
+    "hockenheimring",
+    216.0
+   ],
+   [
+    "yas-marina",
+    217.0
+   ],
+   [
+    "sirius",
+    218.0
+   ],
+   [
+    "paul-ricard",
+    221.0
+   ],
+   [
+    "suzuka",
+    226.0
+   ],
+   [
+    "imola",
+    227.0
+   ],
+   [
+    "spielberg",
+    231.0
+   ],
+   [
+    "lusail",
+    234.0
+   ],
+   [
+    "spa-francorchamps",
+    236.0
+   ],
+   [
+    "silverstone",
+    238.0
+   ],
+   [
+    "mugello",
+    240.0
+   ],
+   [
+    "monza",
+    252.0
+   ]
+  ],
+  "street": [
+   [
+    "monaco",
+    162.0
+   ],
+   [
+    "marina-bay",
+    186.0
+   ],
+   [
+    "madring",
+    204.0
+   ],
+   [
+    "baku",
+    206.0
+   ],
+   [
+    "montreal",
+    212.0
+   ],
+   [
+    "miami",
+    215.0
+   ],
+   [
+    "melbourne",
+    231.0
+   ],
+   [
+    "las-vegas",
+    235.0
+   ],
+   [
+    "jeddah",
+    243.0
+   ]
+  ],
+  "technical": [
+   [
+    "mexico-city",
+    196.0
+   ],
+   [
+    "hungaroring",
+    197.0
+   ],
+   [
+    "sepang",
+    203.0
+   ],
+   [
+    "austin",
+    203.0
+   ],
+   [
+    "shanghai",
+    206.0
+   ],
+   [
+    "istanbul",
+    206.0
+   ],
+   [
+    "zandvoort",
+    208.0
+   ],
+   [
+    "bahrain",
+    209.0
+   ],
+   [
+    "nurburgring",
+    210.0
+   ],
+   [
+    "portimao",
+    211.0
+   ],
+   [
+    "interlagos",
+    214.0
+   ],
+   [
+    "catalunya",
+    214.0
+   ]
+  ]
+ },
+ "wet": {
+  "races": 21,
+  "checked": 21
  },
  "backtest": {
   "seasons": [
@@ -746,34 +892,34 @@
   },
   "race": {
    "all": {
-    "n": 1323,
-    "accuracy": 0.5994,
-    "log_loss": 0.6543,
+    "n": 1341,
+    "accuracy": 0.5958,
+    "log_loss": 0.6571,
     "log_loss_coin": 0.6931,
-    "brier": 0.232,
+    "brier": 0.233,
     "brier_coin": 0.25,
     "season_pairs": 79,
-    "season_accuracy": 0.6329
+    "season_accuracy": 0.6203
    },
    "known": {
-    "n": 1079,
-    "accuracy": 0.6052,
-    "log_loss": 0.6491,
+    "n": 1094,
+    "accuracy": 0.5996,
+    "log_loss": 0.6518,
     "log_loss_coin": 0.6931,
-    "brier": 0.2298,
+    "brier": 0.2308,
     "brier_coin": 0.25,
     "season_pairs": 64,
-    "season_accuracy": 0.6719
+    "season_accuracy": 0.6562
    },
    "new_pairs": {
-    "n": 395,
-    "accuracy": 0.5671,
-    "log_loss": 0.6607,
+    "n": 399,
+    "accuracy": 0.5514,
+    "log_loss": 0.6693,
     "log_loss_coin": 0.6931,
-    "brier": 0.2367,
+    "brier": 0.2399,
     "brier_coin": 0.25,
     "season_pairs": 24,
-    "season_accuracy": 0.5417
+    "season_accuracy": 0.5
    }
   }
  },
@@ -835,7 +981,7 @@
      "russell": 5,
      "hamilton": 7,
      "hulkenberg": 10,
-     "alonso": 8,
+     "alonso": 9,
      "gasly": 11
     }
    },
@@ -863,8 +1009,8 @@
      "leclerc": 3,
      "hamilton": 4,
      "sainz": 7,
-     "piastri": 13,
-     "albon": 9,
+     "piastri": 12,
+     "albon": 10,
      "russell": 8,
      "perez": 5
     }
@@ -894,8 +1040,8 @@
      "perez": 3,
      "norris": 5,
      "sainz": 7,
-     "alonso": 9,
-     "bottas": 11,
+     "alonso": 8,
+     "bottas": 12,
      "vettel": 10
     }
    },
@@ -923,7 +1069,7 @@
      "sainz": 4,
      "leclerc": 5,
      "alonso": 10,
-     "gasly": 6,
+     "gasly": 7,
      "russell": 13,
      "bottas": 11,
      "ocon": 9
@@ -963,6 +1109,16 @@
    "name": "Википедия",
    "url": "https://ru.wikipedia.org",
    "what": "краткие биографии пилотов (CC BY-SA 4.0)"
+  },
+  {
+   "name": "FIA",
+   "url": "https://www.fia.com/documents",
+   "what": "решения стюардов о столкновениях, с 2019 года"
+  },
+  {
+   "name": "Open-Meteo",
+   "url": "https://open-meteo.com",
+   "what": "осадки на трассе — подсказка для разметки дождевых гонок (CC BY 4.0)"
   }
  ]
 }

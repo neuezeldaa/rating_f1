@@ -641,6 +641,9 @@
       box.append(historyTable(history));
     }
 
+    const conditions = conditionsBlock(id, current);
+    if (conditions) box.append(conditions);
+
     const tmSeason = isPeriod ? history[history.length - 1] : history.find((h) => String(h.season) === state.scope);
     if (tmSeason && tmSeason.e.tm) box.append(teammateBlock(tmSeason));
   }
@@ -671,7 +674,7 @@
   // Из чего сложилась «Аккуратность»: в сезоне — сами гонки, в сводке — счёт за все сезоны.
   function incidentsNote(e) {
     const isPeriod = state.scope === PERIOD;
-    const kinds = { error: [], contact: [], penalty: [], mech: [], dsq: [] };
+    const kinds = { error: [], collision: [], penalty: [], victim: [], contact: [], mech: [], dsq: [] };
     const seasons = isPeriod ? SEASON_KEYS : [state.scope];
     for (const key of seasons) {
       const entry = key === state.scope ? e : scopes[key].find((x) => x.id === e.id);
@@ -681,13 +684,16 @@
     }
     const box = el("div", "incidents");
     const cause = (x) => CAUSE_RU[x.detail] || String(x.detail).toLowerCase();
+    const count = (list, one, few, many) => `${list.length} ${plural(list.length, one, few, many)}`;
     if (isPeriod) {
-      const count = (list, one, few, many) => `${list.length} ${plural(list.length, one, few, many)}`;
-      box.append(el("p", null, `За все сезоны: ${count(kinds.error, "сход", "схода", "сходов")} по своей ошибке, ` +
-        `${count(kinds.contact, "сход", "схода", "сходов")} после столкновений, ` +
-        `${count(kinds.penalty, "штраф", "штрафа", "штрафов")} по времени.`));
-      box.append(el("p", "muted", `Не в счёт: ${count(kinds.mech, "поломка", "поломки", "поломок")}` +
-        (kinds.dsq.length ? `, ${count(kinds.dsq, "дисквалификация", "дисквалификации", "дисквалификаций")}` : "") + "."));
+      box.append(el("p", null, `За все сезоны: ${count(kinds.error, "своя авария", "свои аварии", "своих аварий")} ` +
+        `или разворота, ${count(kinds.collision, "столкновение", "столкновения", "столкновений")} по решению стюардов ` +
+        `(с ${meta.fia_from || 2019} года), ${count(kinds.penalty, "другой штраф", "других штрафа", "других штрафов")} по времени.`));
+      const outside = [[kinds.victim, "чужое столкновение", "чужих столкновения", "чужих столкновений"],
+        [kinds.contact, "столкновение без виновника", "столкновения без виновника", "столкновений без виновника"],
+        [kinds.mech, "поломка", "поломки", "поломок"], [kinds.dsq, "дисквалификация", "дисквалификации", "дисквалификаций"]]
+        .filter(([list]) => list.length).map(([list, ...forms]) => count(list, ...forms));
+      if (outside.length) box.append(el("p", "muted", `Не в счёт: ${outside.join(", ")}.`));
       return box;
     }
     const line = (label, list, fmt) => {
@@ -696,14 +702,63 @@
       return p;
     };
     const lapText = (x) => (x.lap ? `, ${x.lap}-й круг` : "");
+    const collisionText = (x) => `${gpName(x.key, x.round)}` + (x.lap ? ` (сошёл${lapText(x)})`
+      : typeof x.detail === "number" && x.detail > 0 ? ` (+${int(x.detail)} с)` : "");
     box.append(
-      line("Сходы по своей ошибке", kinds.error, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
-      line("Сходы после столкновений", kinds.contact, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
-      line("Штрафы по времени", kinds.penalty, (x) => `${gpName(x.key, x.round)} +${int(x.detail)} с`),
+      line("Свои аварии и развороты", kinds.error, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
+      line("Столкновения по решению стюардов", kinds.collision, collisionText),
+      line("Другие штрафы по времени", kinds.penalty, (x) => `${gpName(x.key, x.round)} +${int(x.detail)} с`),
     );
-    const outside = [...kinds.mech.map((x) => `${gpName(x.key, x.round)} (${CAUSE_RU[x.detail] || "поломка"})`),
+    const outside = [
+      ...kinds.victim.map((x) => `${gpName(x.key, x.round)} (пострадал, наказан соперник)`),
+      ...kinds.contact.map((x) => `${gpName(x.key, x.round)} (столкновение без виновника)`),
+      ...kinds.mech.map((x) => `${gpName(x.key, x.round)} (${CAUSE_RU[x.detail] || "поломка"})`),
       ...kinds.dsq.map((x) => `${gpName(x.key, x.round)} (дисквалификация)`)];
-    if (outside.length) box.append(el("p", "muted", `Не в счёт — поломки и дисквалификации: ${outside.join("; ")}.`));
+    if (outside.length) box.append(el("p", "muted", `Не в счёт: ${outside.join("; ")}.`));
+    return box;
+  }
+
+  // Дождь и типы трасс — справка, в балл не входят (проверка: features/conditions.py).
+  const CIRCUIT_RU = {
+    monaco: "Монако", "marina-bay": "Сингапур", madring: "Мадрид", baku: "Баку", montreal: "Монреаль",
+    miami: "Майами", melbourne: "Мельбурн", "las-vegas": "Лас-Вегас", jeddah: "Джидда", "mexico-city": "Мехико",
+    hungaroring: "Хунгароринг", austin: "Остин", sepang: "Сепанг", istanbul: "Стамбул", shanghai: "Шанхай",
+    zandvoort: "Зандворт", bahrain: "Бахрейн", nurburgring: "Нюрбургринг", portimao: "Портимао",
+    interlagos: "Интерлагос", catalunya: "Барселона", hockenheimring: "Хоккенхайм", "yas-marina": "Яс-Марина",
+    sirius: "Сочи", "paul-ricard": "Поль Рикар", suzuka: "Сузука", imola: "Имола", spielberg: "Шпильберг",
+    lusail: "Лусаил", "spa-francorchamps": "Спа", silverstone: "Сильверстоун", mugello: "Муджелло", monza: "Монца",
+  };
+  const TRACK_RU = { street: "уличные", fast: "скоростные", technical: "технические" };
+
+  function conditionsBlock(id, e) {
+    const isPeriod = state.scope === PERIOD;
+    const c = (drivers[id] && drivers[id].conditions) || {};
+    const lines = [];
+    if (isPeriod && c.wet) {
+      const w = c.wet;
+      const share = (pair) => (pair && pair[1] ? `${Math.round((100 * pair[0]) / pair[1])}%` : "—");
+      let text = `В дождь (${w.races} ${plural(w.races, "гонка", "гонки", "гонок")}): против напарника по темпу ` +
+        `${w.pace_wet == null ? "—" : `${signed(w.pace_wet, 2)}%`} (в сухих — ${w.pace_dry == null ? "—" : `${signed(w.pace_dry, 2)}%`}), ` +
+        `выше напарника на финише в ${share(w.duels_wet)} дождевых гонок (в сухих — ${share(w.duels_dry)}).`;
+      if (w.best) text += ` Лучшая дождевая гонка: ${gpName(String(w.best[0]), w.best[1])} ${w.best[0]} — ` +
+        `${w.best[2]}-е место со старта ${w.best[3]}-м.`;
+      lines.push(text);
+    }
+    if (isPeriod && c.tracks) {
+      const parts = ["street", "fast", "technical"].filter((t) => c.tracks[t])
+        .map((t) => `${TRACK_RU[t]} ${signed(c.tracks[t].rel, 1)} (${c.tracks[t].races})`);
+      if (parts.length) lines.push(`По типам трасс — очки сверх машины относительно своего среднего: ${parts.join(", ")}.`);
+    }
+    if (!isPeriod && e.wet_races && e.wet_races.length) {
+      const races = e.wet_races.map(([round, pos, grid, status]) => `${gpName(state.scope, round)} — ` +
+        (pos ? `${pos}-е со старта ${grid}-м` : (CAUSE_RU[status] || "сход")));
+      lines.push(`Дождевые гонки сезона: ${races.join("; ")}.`);
+    }
+    if (!lines.length) return null;
+    const box = el("div", "conditions");
+    box.append(el("h3", null, "Дождь и трассы"));
+    for (const line of lines) box.append(el("p", "hint", line));
+    box.append(el("p", "hint muted", "Справка, в балл не входит: на данных она повторяется слабо (см. «Как это посчитано»)."));
     return box;
   }
 
@@ -1273,11 +1328,24 @@
           сравнения двух пилотов пропорциональна эффективному сопротивлению между ними в сети, где каждая
           совместная гонка — проводник. Отсюда «надёжность сравнения» каждого пилота и оценка «сколько гонок
           прямой дуэли стоит это сравнение» для любой пары.</li>
-        <li><strong>Аккуратность</strong> — три вида происшествий без пересечений: сходы по своей ошибке, сходы
-          после столкновений (виновника по протоколу не видно, поэтому это мера участия в инцидентах, а не вины)
-          и штрафы по времени. Поломки не в счёт. Балл группы относительный: у большинства пилотов за сезон нет
-          ни одного схода по своей ошибке, поэтому даже два заметно опускают балл. В карточке пилота под группой
-          перечислены сами гонки.</li>
+        <li><strong>Аккуратность</strong> — три вида происшествий без пересечений: свои аварии и развороты,
+          столкновения по решению стюардов и другие штрафы по времени. Виновника столкновения берём из решений
+          стюардов FIA (заголовки документов «Offence / Infringement — Car N — causing a collision», с 2019 года):
+          столкновение засчитывается только наказанному, а сошедший из-за чужой ошибки не теряет ничего — и его
+          дуэль с напарником не учитывается. Если наказан сам сошедший, дуэль засчитывается как поражение.
+          Поломки и столкновения без наказания (гоночные инциденты) не в счёт. Балл группы относительный и
+          редкий: у большинства пилотов за сезон ноль-одно происшествие, поэтому группа шумная (см. проверки)
+          и весит немного. В карточке пилота под группой перечислены сами гонки.</li>
+        <li><strong>Дождь и типы трасс — справка, а не часть балла.</strong> Дождевые гонки размечены вручную
+          по отчётам (${(meta.wet && meta.wet.races) || "—"} за ${meta.period[0]}–${meta.period[1]}, файл
+          annotations/wet_races.yaml); для новых гонок подсказку дают осадки из архива Open-Meteo, но реанализ
+          часто ошибается: дождь до старта и ливень по соседству он путает. Тип трассы: уличные — по F1DB,
+          автодромы — пополам по средней скорости лучшего круга${meta.track_types ? ` (скоростные: ${
+            (meta.track_types.fast || []).map(([c, k]) => CIRCUIT_RU[c] || c).join(", ")}; технические: ${
+            (meta.track_types.technical || []).map(([c, k]) => CIRCUIT_RU[c] || c).join(", ")})` : ""}.
+          В балл не входят, потому что на данных повторяются слабо: прибавка в дождь против напарника,
+          посчитанная по половинам дождевых гонок, совпадает на 0,1–0,3 (у групп рейтинга — 0,86–0,98),
+          а «специализация» по типу трасс держится только на уличных трассах (0,6) — и может идти от машины.</li>
         <li><strong>Сходы</strong> классифицируются по причинам из F1DB: авария или разворот — ошибка пилота,
           поломка — не его вина. В дуэлях с напарником столкновения без разбора виновника не засчитываются
           никому (${unclear} ${plural(unclear, "гоночная дуэль", "гоночные дуэли", "гоночных дуэлей")}).</li>
@@ -1334,7 +1402,11 @@
         <a href="https://github.com/TracingInsights/RaceData" target="_blank" rel="noopener">TracingInsights RaceData</a> —
         позиция и время каждого пилота на каждом круге, пит-стопы;
         <a href="https://ru.wikipedia.org" target="_blank" rel="noopener">Википедия</a> — краткие биографии пилотов
-        (вводная часть статьи, CC BY-SA 4.0).</p>
+        (вводная часть статьи, CC BY-SA 4.0);
+        <a href="https://www.fia.com/documents" target="_blank" rel="noopener">документы FIA</a> — решения стюардов
+        о столкновениях (с 2019 года);
+        <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> — осадки на трассах
+        (подсказка для разметки дождевых гонок, CC BY 4.0).</p>
       <p><strong>Чего пока нет.</strong> Шин (составы и износ — есть только в тяжёлых сезонных архивах
         TracingInsights), погоды и дождевых гонок отдельно, виновников столкновений. Уровень машины берётся
         из темпа её же пилотов, поэтому сильный пилот слегка «ускоряет» свою машину в глазах модели.</p>`;

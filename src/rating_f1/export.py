@@ -24,7 +24,8 @@ from .config import (
 from .intervals import encode
 
 STAT_COLS = ["points", "wins", "podiums", "top10", "poles", "fastest_laps", "grand_slams", "dotd",
-             "driver_errors", "contacts", "mechanical", "penalties", "finished", "overtakes_total", "standouts"]
+             "driver_errors", "crashes", "collisions", "contacts", "victims", "mechanical", "penalties",
+             "penalties_other", "finished", "overtakes_total", "standouts"]
 WIKI_LINK = ("https://ru.wikipedia.org/", "https://en.wikipedia.org/")
 
 
@@ -95,12 +96,14 @@ def _entries(table: pd.DataFrame, teams: dict, extra: dict) -> list:
 def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, context: pd.DataFrame,
                models: dict, backtest, expert: dict, counts: dict, expectations: dict, graph: dict,
                draws: dict | None = None, bios: dict | None = None, incidents: dict | None = None,
-               validation: dict | None = None) -> dict:
+               validation: dict | None = None, conditions: tuple | None = None, races_extra: dict | None = None) -> dict:
     """draws — пересчёты для вилок балла и места (intervals.bootstrap); None — без вилок.
     bios — краткие биографии из Википедии; incidents — происшествия по сезонам (stats.incident_lists);
-    validation — проверки рейтинга (validate.report).
+    validation — проверки рейтинга (validate.report); conditions — дождь и типы трасс
+    (features/conditions.driver_conditions); races_extra — разметка гонок: wet, tracks.
     """
     bios, incidents = bios or {}, incidents or {}
+    cond_period, cond_season = conditions or ({}, {})
     races = tables["races"]
     done = races[races["completed"]].sort_values(["season", "round"])
     last = done.iloc[-1]
@@ -138,7 +141,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
             for d in table.index:
                 item = {"standing": _num(st["position"].get(d)) if d in st.index else None,
                         "champion": bool(st["champion"].get(d, False)) if d in st.index else False,
-                        "incidents": incidents.get((d, season), [])}
+                        "incidents": incidents.get((d, season), []),
+                        "wet_races": cond_season.get((d, season), [])}
                 if d in tm_season.index:
                     rec = tm_season.loc[d].to_dict()
                     item["tm"] = _teammate_block(rec)
@@ -162,6 +166,16 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
     for d, bio in bios.items():
         if d in drivers and bio["url"].startswith(WIKI_LINK):
             drivers[d]["bio"] = bio
+    for d, item in cond_period.items():
+        if d in drivers:
+            drivers[d]["conditions"] = item
+    tracks_meta, wet_meta = None, None
+    if races_extra:
+        t, w = races_extra["tracks"], races_extra["wet"]
+        circuits = t.groupby(["track_type", "circuit"])["kmh"].median().round(0).reset_index()
+        tracks_meta = {k: [[c, float(v)] for c, v in zip(g["circuit"], g["kmh"])]
+                       for k, g in circuits.sort_values("kmh").groupby("track_type")}
+        wet_meta = {"races": int(w["wet"].sum()), "checked": int((w["wet"] & w["checked"]).sum())}
 
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -188,6 +202,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         "counts": counts,
         "car_expectations": expectations,
         "validation": validation,
+        "track_types": tracks_meta,
+        "wet": wet_meta,
         "backtest": backtest,
         "expert": expert,
         "sources": [
@@ -200,6 +216,10 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
              "what": "только для сверки, 2021–2025"},
             {"name": "Википедия", "url": "https://ru.wikipedia.org",
              "what": "краткие биографии пилотов (CC BY-SA 4.0)"},
+            {"name": "FIA", "url": "https://www.fia.com/documents",
+             "what": "решения стюардов о столкновениях, с 2019 года"},
+            {"name": "Open-Meteo", "url": "https://open-meteo.com",
+             "what": "осадки на трассе — подсказка для разметки дождевых гонок (CC BY 4.0)"},
         ],
     }
 

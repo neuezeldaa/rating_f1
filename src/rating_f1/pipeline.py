@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from .clean.collisions import collision_status
 from .clean.enrich import enrich_results
 from .clean.overrides import load_overrides
 from .clean.status import classify_status
@@ -26,12 +27,15 @@ from .config import (FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH,
 from .evaluate import backtest
 from .export import export_web
 from .features.car_level import above_car, car_levels, sprint_records
+from .features.conditions import driver_conditions, track_types, wet_races
 from .features.laps import lap_features
 from .features.quali import quali_pairs
 from .features.race import race_duels
 from .features.stats import incident_lists, race_records
 from .features.stints import stint_factor, stint_starts
 from .graph import build_graph
+from .ingest.fia import collision_verdicts, fetch_documents
+from .ingest.weather import race_weather
 from .ingest.wiki import driver_bios
 from .intervals import bands, bootstrap
 from .models.season import season_performance
@@ -41,6 +45,7 @@ from .tables import build_tables, load_tables, save_tables
 from .validate import report as validation_report
 
 EXPERT_PATH = ROOT / "annotations" / "expert_rankings.yaml"
+WET_PATH = ROOT / "annotations" / "wet_races.yaml"
 log = logging.getLogger("rating_f1")
 
 
@@ -128,12 +133,22 @@ def main(argv=None) -> None:
     log.info("Данные: %s сезонов, %s гонок, %s строк результатов, %s строк квалификаций",
              len(seasons), int(tables["races"]["completed"].sum()), len(results), len(qualifying))
 
+    weather = race_weather(tables["races"], offline=args.offline)
+
     categories = results["status_detail"].map(classify_status)
     unclear = results.loc[categories == "unclear", "status_detail"].value_counts()
     log.info("Неясные сходы после F1DB (можно уточнить в annotations/overrides.yaml): %s",
              {k: int(v) for k, v in unclear.items()})
 
     overrides = load_overrides(OVERRIDES_PATH)
+    # Виновники столкновений по решениям стюардов: своя ошибка или пострадавший (ручные правки главнее).
+    verdicts = collision_verdicts(fetch_documents(seasons, offline=args.offline), tables["races"], results)
+    auto_status = collision_status(results, verdicts, tables["laps"])
+    overrides.status = {**auto_status, **overrides.status}
+    log.info("Столкновения: наказаний стюардов %s (гонки %s, спринты %s); сходов после столкновений "
+             "разобрано %s — виновник %s, пострадавший %s", len(verdicts), int((verdicts["session"] == "R").sum()),
+             int((verdicts["session"] == "S").sum()), len(auto_status),
+             sum(c == "driver_error" for c in auto_status.values()), sum(c == "victim" for c in auto_status.values()))
     qp = quali_pairs(qualifying, overrides)
     rd = race_duels(results, overrides)
     log.info("Квалификации: %s сравнений с напарником, учтено %s", len(qp), int(qp["valid"].sum()))
@@ -155,7 +170,7 @@ def main(argv=None) -> None:
              len(pace_pairs), int(pace_pairs["valid"].sum()))
 
     teammate, models_hyper, pace_skill, car_draws = teammate_model(qp, rd, pace_pairs, results, debut)
-    records = race_records(results, qualifying, lap_stats)
+    records = race_records(results, qualifying, lap_stats, overrides.status, verdicts)
     teams = results[results["session"] == "R"][["season", "round", "driver_id", "constructor_id"]]
     # Навык в темпе из модели напарников (% быстрее среднего пилота в такой же машине) —
     # чтобы уровень машины был уровнем машины со средним пилотом.
@@ -167,6 +182,14 @@ def main(argv=None) -> None:
                        zip(expectations["gap_from"], expectations["gap_to"], expectations["points"])))
     car_features = teammate[["driver_id", "season", "quali_s", "race_p", "pace_s"]]
     scopes, rulers = build_scopes(records, sprints, tables["standings"], car_features)
+
+    # Дождь и тип трассы — справка для карточки (в балл не идут, см. features/conditions.py).
+    wet = wet_races(tables["races"], weather, WET_PATH)
+    tracks = track_types(tables["race_info"], tables["fastest_laps"])
+    conditions = driver_conditions(records, pace_pairs, rd, wet, tracks)
+    log.info("Дождевых гонок: %s (по разметке %s); трассы: %s", int(wet["wet"].sum()),
+             int((wet["wet"] & wet["checked"]).sum()),
+             ", ".join(f"{k} {v}" for k, v in tracks["track_type"].value_counts().items()))
     draws = None
     if not args.no_intervals:
         draws = bootstrap(records, sprints, results, tables["standings"], car_draws, rulers, N_BOOT,
@@ -203,7 +226,8 @@ def main(argv=None) -> None:
     context = season_context(results, tables["constructors"])
     scores = pd.concat([df.assign(scope=k).reset_index() for k, df in scopes.items()], ignore_index=True)
     save_tables({"quali_pairs": qp, "race_duels": rd, "pace_pairs": pace_pairs, "teammate_ratings": teammate,
-                 "lap_stats": lap_stats, "car_levels": levels,
+                 "lap_stats": lap_stats, "car_levels": levels, "race_weather": weather,
+                 "fia_verdicts": verdicts.drop(columns=["title"]).assign(title=verdicts["title"].astype(str)),
                  "race_records": records.drop(columns=["status_detail"]).assign(
                      status_detail=records["status_detail"].astype(str)),
                  "scores": scores})
@@ -228,7 +252,7 @@ def main(argv=None) -> None:
     counts["overtakes"] = int(lap_stats["overtakes_made"].sum())
     bios = driver_bios(tables["drivers"], offline=args.offline, refresh=args.refresh)
     export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations, graph,
-               draws, bios, incident_lists(records), validation)
+               draws, bios, incident_lists(records), validation, conditions, {"wet": wet, "tracks": tracks})
 
     _log_scope(scopes[PERIOD], names, f"Общий рейтинг {seasons[0]}–{seasons[-1]}", 15)
     _log_scope(scopes[str(seasons[-1])], names, f"Сезон {seasons[-1]}", 8)

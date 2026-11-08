@@ -13,8 +13,9 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..clean.status import (DISQUALIFIED, DRIVER_ERROR, FINISHED, MECHANICAL, UNCLEAR, classify_status,
+from ..clean.status import (DISQUALIFIED, DRIVER_ERROR, FINISHED, MECHANICAL, UNCLEAR, VICTIM, classify_status,
                             is_collision)
+from ..ingest.fia import FIRST_SEASON as FIA_FIRST_SEASON
 from .car_level import summarize_above_car
 
 BASE_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
@@ -39,10 +40,18 @@ def quali_records(qualifying: pd.DataFrame) -> pd.DataFrame:
     return q[KEY + ["driver_id", "quali_pos", "quali_gap", "pole", "q3"]]
 
 
-def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.DataFrame) -> pd.DataFrame:
-    """Одна строка на старт пилота в гонке (без спринтов) со всеми исходными признаками."""
+def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.DataFrame,
+                 status: dict | None = None, verdicts: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Одна строка на старт пилота в гонке (без спринтов) со всеми исходными признаками.
+
+    status — уточнённые категории сходов {(сезон, этап, сессия, пилот): категория}: ручные правки
+    и виновники столкновений; verdicts — наказания стюардов за столкновения (ingest/fia.py).
+    """
     r = results[results["session"] == "R"].copy()
     r["category"] = r["status_detail"].map(classify_status)
+    if status:
+        r["category"] = [status.get((int(s), int(n), "R", d), c)
+                         for s, n, d, c in zip(r["season"], r["round"], r["driver_id"], r["category"])]
     classified = r["position_text"].astype(str).str.isdigit()
     r["finish_pos"] = r["position"].astype(float).where(classified)
     r["base_points"] = r["finish_pos"].map(BASE_POINTS).fillna(0.0)
@@ -66,12 +75,21 @@ def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.
 
     team = r.groupby(KEY + ["constructor_id"])["base_points"].transform("sum")
     r["mate_points"] = team - r["base_points"]
+    collision = r["status_detail"].map(is_collision)
     r["driver_error"] = r["category"] == DRIVER_ERROR
+    r["crash"] = r["driver_error"] & ~collision            # своя авария или разворот, без столкновения
     r["mechanical"] = r["category"] == MECHANICAL
-    r["contact"] = (r["category"] == UNCLEAR) & r["status_detail"].map(is_collision)
+    r["contact"] = (r["category"] == UNCLEAR) & collision  # столкновение, за которое никого не наказали
+    r["victim"] = (r["category"] == VICTIM) & collision    # пострадал: наказан соперник
     r["finished"] = finished
     r["penalty"] = r["time_penalty_s"].fillna(0) > 0
     r["dotd"] = r["driver_of_the_day"]
+    # Наказания стюардов за столкновения в гонке; без данных FIA признак пустой.
+    r["fia_covered"] = (r["season"] >= FIA_FIRST_SEASON) if verdicts is not None else False
+    caused = (verdicts[verdicts["session"] == "R"].groupby(["season", "round", "driver_id"]).size()
+              if verdicts is not None else pd.Series(dtype=float))
+    r["collisions_caused"] = [float(caused.get((s, n, d), 0)) for s, n, d in zip(r["season"], r["round"], r["driver_id"])]
+    r["penalty_other"] = r["penalty"] & (r["collisions_caused"] == 0)  # штраф не за столкновение
     return r
 
 
@@ -104,9 +122,14 @@ def summarize(records: pd.DataFrame, sprints: pd.DataFrame) -> pd.DataFrame:
         "finish_pos": g["finish_pos"].mean(),
         "finished": g["finished"].sum(),
         "driver_errors": g["driver_error"].sum(),
+        "crashes": g["crash"].sum(),
+        "collisions": g["collisions_caused"].sum(),
+        "fia_starts": g["fia_covered"].sum(),
         "contacts": g["contact"].sum(),
+        "victims": g["victim"].sum(),
         "mechanical": g["mechanical"].sum(),
         "penalties": g["penalty"].sum(),
+        "penalties_other": g["penalty_other"].sum(),
         "dotd": g["dotd"].sum(),
         "fastest_laps": g["fastest_lap"].sum(),
         "grand_slams": g["grand_slam"].sum(),
@@ -118,19 +141,24 @@ def summarize(records: pd.DataFrame, sprints: pd.DataFrame) -> pd.DataFrame:
 def incident_lists(records: pd.DataFrame) -> dict:
     """Что пошло не так в гонках пилота — для карточки «Аккуратность».
 
-    {(пилот, сезон): [[этап, вид, причина или секунды штрафа, круг схода], …]};
-    вид: error — своя ошибка, contact — столкновение, penalty — штраф по времени,
-    mech — поломка, dsq — дисквалификация (последние два в балл не идут).
+    {(пилот, сезон): [[этап, вид, подробность, круг схода], …]}. Идут в балл: error — своя авария
+    или разворот; collision — наказан стюардами за столкновение (подробность — причина схода, если
+    сошёл, иначе секунды штрафа); penalty — другой штраф по времени (секунды). Не идут: victim —
+    пострадал, наказан соперник; contact — столкновение без наказания; mech — поломка; dsq —
+    дисквалификация.
     """
     out: dict = {}
     for rec in records.itertuples(index=False):
         items = []
         lap = None if pd.isna(rec.laps) else int(rec.laps) + 1
-        kind = ("error" if rec.driver_error else "contact" if rec.contact else "mech" if rec.mechanical
-                else "dsq" if rec.category == DISQUALIFIED else None)
+        if rec.collisions_caused > 0:
+            detail = str(rec.status_detail) if rec.driver_error else (float(rec.time_penalty_s) if rec.penalty else "")
+            items.append([int(rec.round), "collision", detail, lap if rec.driver_error else None])
+        kind = ("error" if rec.crash else "victim" if rec.victim else "contact" if rec.contact
+                else "mech" if rec.mechanical else "dsq" if rec.category == DISQUALIFIED else None)
         if kind:
             items.append([int(rec.round), kind, str(rec.status_detail), lap])
-        if rec.penalty:
+        if rec.penalty_other:
             items.append([int(rec.round), "penalty", float(rec.time_penalty_s), None])
         if items:
             out.setdefault((rec.driver_id, int(rec.season)), []).extend(items)

@@ -1,0 +1,25 @@
+# Гонки под дождём или со стартом на мокрой трассе, когда до промежуточной резины дело дошло
+# у большинства (не считая лёгкой мороси, которую проехали на сликах).
+#
+# reviewed — до какого этапа сезон проверен по отчётам о гонках: остальные проверенные гонки сухие.
+# Непроверенные этапы пайплайн размечает по осадкам Open-Meteo (реанализ ошибается — это только
+# подсказка) и пишет в лог, какие гонки стоит проверить и вписать сюда.
+# no_racing — гонка формально засчитана, но борьбы не было (только круги за машиной безопасности):
+# в «дождь» не идёт.
+#
+# Названия — как у Jolpica (поле raceName).
+
+2018: {reviewed: 21, wet: [German Grand Prix]}
+2019: {reviewed: 21, wet: [German Grand Prix]}
+2020: {reviewed: 17, wet: [Hungarian Grand Prix, Turkish Grand Prix]}
+2021:
+  reviewed: 22
+  wet: [Emilia Romagna Grand Prix, Hungarian Grand Prix, Russian Grand Prix, Turkish Grand Prix]
+  no_racing: [Belgian Grand Prix]
+2022: {reviewed: 22, wet: [Emilia Romagna Grand Prix, Monaco Grand Prix, Singapore Grand Prix, Japanese Grand Prix]}
+2023: {reviewed: 22, wet: [Monaco Grand Prix, Dutch Grand Prix]}
+2024: {reviewed: 24, wet: [Canadian Grand Prix, British Grand Prix, São Paulo Grand Prix]}
+2025: {reviewed: 24, wet: [Australian Grand Prix, British Grand Prix, Belgian Grand Prix]}
+# Майами: старт перенесли на 3 часа раньше, проехали на сликах; Канада: влажно до старта,
+# через 1–2 круга все на сликах. Сепанг: старт задержан ливнем на 1 ч 40 мин, гонка на промежуточной резине.
+2026: {reviewed: 19, wet: [Bahrain Grand Prix in Malaysia]}

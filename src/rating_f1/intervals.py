@@ -31,7 +31,8 @@ SCALE = 1000    # z групп на странице: целые z × 1000 в in
 # Только то, что нужно сводке (summarize): так пересчёт копирует меньше столбцов.
 RACE_COLS = KEY + ["driver_id", "base_points", "win", "podium", "top10", "pole", "q3", "quali_pos", "quali_gap",
                    "pace_gap", "consistency", "lap1_vs_exp", "overtakes_made", "overtakes_lost", "gain_vs_exp",
-                   "finish_pos", "finished", "driver_error", "contact", "mechanical", "penalty", "dotd", "fastest_lap",
+                   "finish_pos", "finished", "driver_error", "crash", "contact", "victim", "mechanical", "penalty",
+                   "penalty_other", "collisions_caused", "fia_covered", "dotd", "fastest_lap",
                    "grand_slam", "mate_points", "points_above_car", "pos_above_car", "standout"]
 SPRINT_COLS = KEY + ["driver_id", "pos_above_car", "standout"]
 log = logging.getLogger("rating_f1")

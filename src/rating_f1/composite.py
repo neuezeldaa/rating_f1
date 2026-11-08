@@ -61,7 +61,8 @@ GROUPS = [
     Group("pace", "Темп в гонке", "Отставание от медианы поля на чистых кругах и стабильность темпа."),
     Group("racecraft", "Борьба", "Первый круг, обгоны и защита на трассе, позиции сверх ожидаемого за гонку."),
     Group("clean", "Аккуратность",
-          "Сходы по своей ошибке, сходы после столкновений, штрафы по времени. Поломки не в счёт."),
+          "Свои аварии и развороты, столкновения по решению стюардов, другие штрафы по времени. "
+          "Поломки и чужие столкновения не в счёт."),
     Group("teammate", "Против напарника",
           "Модель сети напарников: квалификация, темп и финиш с поправкой на силу напарников; доля очков команды."),
     Group("career", "Карьера", "Только для общей сводки: титулы, лучший сезон, сезоны в топ-5."),
@@ -85,10 +86,11 @@ FEATURES = [
     Feature("overtakes", "racecraft", "Обгоны на трассе за гонку", "num1", +1, "ot_n"),
     Feature("overtaken", "racecraft", "Пропущено обгонов за гонку", "num1", -1, "ot_n"),
     Feature("gain_vs_exp", "racecraft", "Позиции за гонку сверх ожидаемого", "signed1", +1, "gain_n"),
-    # Три вида происшествий без пересечений: одна гонка попадает максимум в один вид схода.
-    Feature("err_rate", "clean", "Сходы по своей ошибке", "pct", -1, "starts"),
-    Feature("contact_rate", "clean", "Сходы после столкновений", "pct", -1, "starts"),
-    Feature("penalty_rate", "clean", "Штрафы по времени", "pct", -1, "starts"),
+    # Три вида происшествий без пересечений. Столкновение засчитывается только виновнику — по решению
+    # стюардов (с 2019 года, ingest/fia.py), штраф за него не считается ещё раз «другим штрафом».
+    Feature("err_rate", "clean", "Свои аварии и развороты", "pct", -1, "starts"),
+    Feature("collision_rate", "clean", "Столкновения по решению стюардов", "pct", -1, "fia_starts"),
+    Feature("penalty_rate", "clean", "Другие штрафы по времени", "pct", -1, "starts"),
     Feature("car_quali", "teammate", "Квала против напарников, с/круг", "sec", +1),
     Feature("car_pace", "teammate", "Темп против напарников, с/круг", "sec", +1),
     Feature("car_race", "teammate", "Финиш против напарников", "pct", +1),
@@ -141,9 +143,9 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
     raw["overtakes"] = s["overtakes"]
     raw["overtaken"] = s["overtaken"]
     raw["gain_vs_exp"] = s["gain_vs_exp"]
-    raw["err_rate"] = s["driver_errors"] / n
-    raw["contact_rate"] = s["contacts"] / n
-    raw["penalty_rate"] = s["penalties"] / n
+    raw["err_rate"] = s["crashes"] / n
+    raw["collision_rate"] = s["collisions"] / s["fia_starts"].where(s["fia_starts"] > 0)
+    raw["penalty_rate"] = s["penalties_other"] / n
     raw["car_quali"] = car["quali_s"].reindex(s.index)
     raw["car_pace"] = car["pace_s"].reindex(s.index)
     raw["car_race"] = car["race_p"].reindex(s.index)
@@ -162,6 +164,7 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
         "gain_n": s["gain_n"],
         "pac_n": s["pac_n"],
         "posac_n": s["posac_n"],
+        "fia_starts": s["fia_starts"],
     })
     return raw, counts
 

@@ -14,7 +14,7 @@ from .ingest.jolpica import JolpicaClient
 log = logging.getLogger(__name__)
 
 BASE_TABLES = ("races", "drivers", "constructors", "results", "qualifying",
-               "f1db_results", "fastest_laps", "standings", "laps", "pit_stops")
+               "f1db_results", "fastest_laps", "standings", "race_info", "laps", "pit_stops")
 DRIVER_COLS = ["driver_id", "code", "given_name", "family_name", "nationality", "dob", "permanent_number", "wiki_url"]
 CONSTRUCTOR_COLS = ["constructor_id", "constructor_name", "constructor_nationality"]
 INT_COLS = ["number", "position", "grid", "laps", "time_ms", "permanent_number", "debut_season"]
@@ -61,7 +61,10 @@ def _races(pages):
                 "circuit_name": circuit.get("circuitName"),
                 "locality": location.get("locality"),
                 "country": location.get("country"),
+                "lat": _float(location.get("lat")),
+                "lon": _float(location.get("long")),
                 "date": race.get("date"),
+                "time": race.get("time"),  # старт гонки по UTC, «15:00:00Z» — для погоды
                 "has_sprint": "Sprint" in race,
             }
 
@@ -168,7 +171,18 @@ def build_f1db_tables(results: pd.DataFrame, offline: bool = False) -> dict[str,
         "points": table["points"],
         "champion": table["championshipWon"].fillna(False).astype(bool),
     }).dropna(subset=["driver_id"])
-    return {"f1db_results": f1db_results, "fastest_laps": fastest_laps, "standings": standings}
+
+    # Трасса каждой гонки: тип (STREET — уличная, RACE — автодром, ROAD — дорожная) и длина круга.
+    races = f1db.read_table(archive, "races", FIRST_SEASON)
+    race_info = pd.DataFrame({
+        "season": races["year"].astype(int),
+        "round": races["round"].astype(int),
+        "circuit": races["circuitId"],
+        "circuit_type": races["circuitType"],
+        "course_km": races["courseLength"].astype(float),
+    })
+    return {"f1db_results": f1db_results, "fastest_laps": fastest_laps, "standings": standings,
+            "race_info": race_info}
 
 
 def build_tables(seasons, refresh: bool = False) -> dict[str, pd.DataFrame]:
