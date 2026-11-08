@@ -65,7 +65,8 @@
     "Russian Grand Prix": "Россия", "Sakhir Grand Prix": "Сахир", "Saudi Arabian Grand Prix": "Саудовская Аравия",
     "Singapore Grand Prix": "Сингапур", "Spanish Grand Prix": "Испания", "Styrian Grand Prix": "Штирия",
     "São Paulo Grand Prix": "Сан-Паулу", "Turkish Grand Prix": "Турция", "Tuscan Grand Prix": "Тоскана",
-    "United States Grand Prix": "США",
+    "United States Grand Prix": "США", "Korean Grand Prix": "Корея", "Indian Grand Prix": "Индия",
+    "European Grand Prix": "Европа", "Malaysian Grand Prix": "Малайзия",
   };
   const CAUSE_RU = {
     Accident: "авария", "Spun off": "разворот", "Accident damage": "повреждения после аварии",
@@ -83,6 +84,8 @@
     Handling: "управляемость", Tyre: "шина", Steering: "рулевое управление", Chassis: "шасси",
     Disqualified: "дисквалификация",
   };
+  const FIA_FROM = meta.fia_from || 2019;  // с этого года есть решения стюардов о столкновениях
+
   function gpName(season, round) {
     const en = ((meta.race_names || {})[season] || {})[round];
     return en ? GP_RU[en] || en.replace(/ Grand Prix$/, "") : `${round}-й этап`;
@@ -614,7 +617,7 @@
     const gn = gNodes.get(id);
     if (gn) {
       box.append(el("p", "hint",
-        `Надёжность сравнения с остальными пилотами: ${reliabilityLabel(gn.reliability)} (${int(gn.reliability)} из 100) · ` +
+        `Надёжность сравнения с остальными пилотами: ${reliabilityText(gn)} · ` +
         `напарников ${gn.teammates}` + (gn.bridge_cut ? ` · «мост»: без него от сети отрываются пилотов — ${gn.bridge_cut}` : "")));
     }
 
@@ -688,7 +691,7 @@
     if (isPeriod) {
       box.append(el("p", null, `За все сезоны: ${count(kinds.error, "своя авария", "свои аварии", "своих аварий")} ` +
         `или разворота, ${count(kinds.collision, "столкновение", "столкновения", "столкновений")} по решению стюардов ` +
-        `(с ${meta.fia_from || 2019} года), ${count(kinds.penalty, "другой штраф", "других штрафа", "других штрафов")} по времени.`));
+        `(с ${FIA_FROM} года), ${count(kinds.penalty, "другой штраф", "других штрафа", "других штрафов")} по времени.`));
       const outside = [[kinds.victim, "чужое столкновение", "чужих столкновения", "чужих столкновений"],
         [kinds.contact, "столкновение без виновника", "столкновения без виновника", "столкновений без виновника"],
         [kinds.mech, "поломка", "поломки", "поломок"], [kinds.dsq, "дисквалификация", "дисквалификации", "дисквалификаций"]]
@@ -704,9 +707,12 @@
     const lapText = (x) => (x.lap ? `, ${x.lap}-й круг` : "");
     const collisionText = (x) => `${gpName(x.key, x.round)}` + (x.lap ? ` (сошёл${lapText(x)})`
       : typeof x.detail === "number" && x.detail > 0 ? ` (+${int(x.detail)} с)` : "");
+    const collisions = Number(state.scope) < FIA_FROM
+      ? el("p", null, `Столкновения по решению стюардов: нет данных — решения есть с ${FIA_FROM} года`)
+      : line("Столкновения по решению стюардов", kinds.collision, collisionText);
     box.append(
       line("Свои аварии и развороты", kinds.error, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
-      line("Столкновения по решению стюардов", kinds.collision, collisionText),
+      collisions,
       line("Другие штрафы по времени", kinds.penalty, (x) => `${gpName(x.key, x.round)} +${int(x.detail)} с`),
     );
     const outside = [
@@ -727,6 +733,7 @@
     interlagos: "Интерлагос", catalunya: "Барселона", hockenheimring: "Хоккенхайм", "yas-marina": "Яс-Марина",
     sirius: "Сочи", "paul-ricard": "Поль Рикар", suzuka: "Сузука", imola: "Имола", spielberg: "Шпильберг",
     lusail: "Лусаил", "spa-francorchamps": "Спа", silverstone: "Сильверстоун", mugello: "Муджелло", monza: "Монца",
+    buddh: "Будда (Индия)", valencia: "Валенсия", yeongam: "Йонам",
   };
   const TRACK_RU = { street: "уличные", fast: "скоростные", technical: "технические" };
 
@@ -933,6 +940,10 @@
   const edgeKey = (e) => `${e.a}|${e.b}`;
   const surname = (id) => (drivers[id] ? drivers[id].name.split(" ").slice(-1)[0] : id);
   const reliabilityLabel = (score) => (score >= 80 ? "высокая" : score >= 50 ? "средняя" : "низкая");
+  // У отдельных групп (не было общих напарников с основной сетью) сравнения с остальными нет вовсе.
+  const reliabilityText = (n) => (n.group > 0
+    ? "нет — у этой группы не было общих напарников с остальными пилотами"
+    : `${reliabilityLabel(n.reliability)} (${int(n.reliability)} из 100)`);
 
   function eqRaces(a, b) {
     const i = GRAPH.order.indexOf(a);
@@ -1069,7 +1080,7 @@
           const n = gNodes.get(p.data.id);
           return `<b>${esc(name(n.id))}</b> · рейтинг ${int(n.rating)}${n.rank ? `, ${n.rank}-е место` : ""}` +
             `<br>напарников ${n.teammates}, гонок с ними ${n.races_with_mates}` +
-            `<br>надёжность сравнения: ${reliabilityLabel(n.reliability)} (${int(n.reliability)} из 100)` +
+            `<br>надёжность сравнения: ${reliabilityText(n)}` +
             (n.bridge_cut ? `<br>мост: без него от сети отрываются пилотов — ${n.bridge_cut}` : "");
         },
       },
@@ -1127,7 +1138,7 @@
         ` · титулов ${(period.titles || []).length}, побед ${int(period.stats.wins)}, гонок ${period.starts}`));
     }
     box.append(el("p", null, `Напарников ${n.teammates}, гонок с ними ${n.races_with_mates} · надёжность сравнения: ` +
-      `${reliabilityLabel(n.reliability)} (${int(n.reliability)} из 100)`));
+      reliabilityText(n)));
     if (n.bridge_cut) box.append(el("p", null, `«Мост»: без него от сети отрываются пилотов — ${n.bridge_cut}.`));
     const button = el("button", null, "Открыть полную карточку ↑");
     button.type = "button";
@@ -1220,8 +1231,15 @@
     }
     const s = GRAPH.stats;
     $("#graph-title").textContent = `Граф напарников ${meta.period[0]}–${meta.period[1]}`;
-    $("#graph-hint").textContent =
-      `${s.drivers} пилотов и ${s.pairs} пар напарников связаны в одну сеть, в среднем ${num(s.mean_hops, 1)} шага между пилотами. ` +
+    const isolated = s.isolated || [];
+    const network = isolated.length
+      ? `${s.drivers} пилотов и ${s.pairs} пар напарников. Кроме основной сети есть ` +
+        `${isolated.length} ${plural(isolated.length, "отдельная группа", "отдельные группы", "отдельных групп")} ` +
+        `без общих напарников с остальными (${isolated.map((g) => g.map(surname).join(" и ")).join("; ")}) — ` +
+        `внизу графа: их «Против напарника» сравнивает только внутри группы. ` +
+        `В среднем ${num(s.mean_hops, 1)} шага между пилотами. `
+      : `${s.drivers} пилотов и ${s.pairs} пар напарников связаны в одну сеть, в среднем ${num(s.mean_hops, 1)} шага между пилотами. `;
+    $("#graph-hint").textContent = network +
       "Модель сравнивает пилотов через все цепочки сразу: связи с большим числом совместных гонок весят больше, " +
       `подменные выступления (до ${s.weak_races} гонок за команду в сезоне) — вполовину. ` +
       "Выберите двух пилотов или нажмите на узел.";
@@ -1306,7 +1324,7 @@
         <li><strong>Мало гонок — меньше доверия.</strong> Доли и средние сжимаются к среднему по пулу так,
           будто к реальным гонкам добавили ${meta.shrink_races} гонок среднего пилота.</li>
         <li><strong>Очки</strong> считаются по единой шкале 25-18-15-…-1 только за гонки, без спринтов и бонуса
-          за лучший круг, чтобы сезоны 2018–2026 были сравнимы.</li>
+          за лучший круг, чтобы сезоны ${meta.period[0]}–${meta.period[1]} были сравнимы.</li>
         <li><strong>Сверх уровня машины.</strong> Уровень машины на этапе — темп, который она показала бы
           со средним пилотом: средний темп двух её пилотов на чистых кругах с поправкой на их навык из модели
           напарников, сглаженный по соседним этапам (машина не меняется скачками). По всем гонкам считается,

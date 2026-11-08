@@ -9,6 +9,15 @@
 #
 # Названия — как у Jolpica (поле raceName).
 
+# Сухими проверены, хотя по осадкам Open-Meteo похожи на дождевые: Малайзия и Бразилия-2011,
+# Германия-2011 (дождь так и не пришёл), Бразилия-2013 (морось в конце, без промежуточной резины).
+2011: {reviewed: 19, wet: [Canadian Grand Prix, British Grand Prix, Hungarian Grand Prix]}
+2012: {reviewed: 20, wet: [Malaysian Grand Prix, Brazilian Grand Prix]}
+2013: {reviewed: 19, wet: [Malaysian Grand Prix]}
+2014: {reviewed: 19, wet: [Hungarian Grand Prix, Japanese Grand Prix]}
+2015: {reviewed: 19, wet: [British Grand Prix, United States Grand Prix]}
+2016: {reviewed: 21, wet: [Monaco Grand Prix, British Grand Prix, Brazilian Grand Prix]}
+2017: {reviewed: 20, wet: [Chinese Grand Prix, Singapore Grand Prix]}
 2018: {reviewed: 21, wet: [German Grand Prix]}
 2019: {reviewed: 21, wet: [German Grand Prix]}
 2020: {reviewed: 17, wet: [Hungarian Grand Prix, Turkish Grand Prix]}

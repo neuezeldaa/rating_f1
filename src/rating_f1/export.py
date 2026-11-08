@@ -21,6 +21,7 @@ from .config import (
     WEIGHTS_PERIOD,
     WEIGHTS_SEASON,
 )
+from .ingest.fia import FIRST_SEASON as FIA_FIRST_SEASON
 from .intervals import encode
 
 STAT_COLS = ["points", "wins", "podiums", "top10", "poles", "fastest_laps", "grand_slams", "dotd",
@@ -204,6 +205,7 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         "validation": validation,
         "track_types": tracks_meta,
         "wet": wet_meta,
+        "fia_from": FIA_FIRST_SEASON,
         "backtest": backtest,
         "expert": expert,
         "sources": [

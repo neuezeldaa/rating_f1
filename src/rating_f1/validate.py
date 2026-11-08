@@ -21,9 +21,10 @@ import pandas as pd
 from .composite import PERIOD, build_scopes
 from .intervals import Championship
 
-# Одна и та же команда под разными названиями.
+# Одна и та же команда под разными названиями (Энстоун: Renault → Lotus → Renault → Alpine и т. д.).
 LINEAGE = {"force_india": "aston_martin", "racing_point": "aston_martin", "toro_rosso": "rb", "alphatauri": "rb",
-           "alfa": "sauber", "audi": "sauber", "renault": "alpine"}
+           "alfa": "sauber", "audi": "sauber", "renault": "alpine", "lotus_f1": "alpine",
+           "virgin": "manor", "marussia": "manor", "lotus_racing": "caterham"}
 MIN_COMMON = 8  # меньше общих пилотов в половинах сезона — корреляция бессмысленна
 
 

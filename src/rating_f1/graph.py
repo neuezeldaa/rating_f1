@@ -52,6 +52,41 @@ def spread_layout(xy: np.ndarray, sizes: np.ndarray, iterations: int = 800) -> n
     return p
 
 
+def _layout(graph: nx.Graph, components: list, nodes: list) -> np.ndarray:
+    """Основная сеть — Kamada–Kawai по числу шагов, на всё поле; отдельные группы (у них не было
+    общих напарников с остальными) — маленькими кругами в ряд под ней. Kamada–Kawai на несвязном
+    графе разносит части на огромное расстояние и сжимает основную сеть в точку."""
+    main = nx.kamada_kawai_layout(graph.subgraph(components[0]))
+    pts = np.array(list(main.values()))
+    lo, span = pts.min(axis=0), np.ptp(pts, axis=0)
+    span[span == 0] = 1.0
+    top = LAYOUT_H * (0.84 if len(components) > 1 else 1.0)
+    pos = {v: ((x - lo[0]) / span[0] * LAYOUT_W, (y - lo[1]) / span[1] * top) for v, (x, y) in main.items()}
+    small = components[1:]
+    for k, comp in enumerate(small):
+        cx, cy = LAYOUT_W * (k + 1) / (len(small) + 1), LAYOUT_H
+        members = sorted(comp)
+        for j, v in enumerate(members):
+            angle = 2 * np.pi * j / len(members)
+            radius = 0 if len(members) == 1 else 40
+            pos[v] = (cx + radius * np.cos(angle), cy + radius * np.sin(angle))
+    return np.array([pos[v] for v in nodes])
+
+
+def _resistance(graph: nx.Graph, components: list, nodes: list) -> np.ndarray:
+    """Эффективное сопротивление между пилотами; между разными частями сети — бесконечность."""
+    index = {v: i for i, v in enumerate(nodes)}
+    laplacian = nx.laplacian_matrix(graph, nodelist=nodes, weight="weight").toarray().astype(float)
+    resistance = np.full((len(nodes), len(nodes)), np.inf)
+    for comp in components:
+        idx = np.array([index[v] for v in comp])
+        pinv = np.linalg.pinv(laplacian[np.ix_(idx, idx)])
+        diag = np.diag(pinv)
+        resistance[np.ix_(idx, idx)] = diag[:, None] + diag[None, :] - 2 * pinv
+    np.fill_diagonal(resistance, 0.0)
+    return resistance
+
+
 def _race_pairs(results: pd.DataFrame, starts: dict) -> pd.DataFrame:
     race = results[results["session"] == "R"][KEY + ["driver_id", "constructor_id"]]
     pairs = race.merge(race, on=KEY + ["constructor_id"], suffixes=("_a", "_b"))
@@ -100,28 +135,26 @@ def build_graph(results: pd.DataFrame, constructors: pd.DataFrame, qp: pd.DataFr
         graph.add_edge(rec["a"], rec["b"], weight=rec["strength"])
     nodes = sorted(graph.nodes)
     n = len(nodes)
+    components = sorted(nx.connected_components(graph), key=len, reverse=True)
+    group = {v: k for k, comp in enumerate(components) for v in comp}  # 0 — основная сеть
 
-    positions = nx.kamada_kawai_layout(graph)  # по числу шагов, без весов: структура читается лучше
-    xy = np.array([positions[v] for v in nodes])
-    xy = (xy - xy.min(axis=0)) / np.ptp(xy, axis=0) * [LAYOUT_W, LAYOUT_H]
     period_starts = {v: int(period.loc[v, "starts"]) if v in period.index else 1 for v in nodes}
     max_starts = max(period_starts.values())
     sizes = np.array([node_size(period_starts[v], max_starts) for v in nodes])
-    xy = spread_layout(xy, sizes) / [LAYOUT_W, LAYOUT_H]
+    xy = spread_layout(_layout(graph, components, nodes), sizes) / [LAYOUT_W, LAYOUT_H]
 
-    laplacian = nx.laplacian_matrix(graph, nodelist=nodes, weight="weight").toarray().astype(float)
-    pinv = np.linalg.pinv(laplacian)
-    diag = np.diag(pinv)
-    resistance = diag[:, None] + diag[None, :] - 2 * pinv
-    mean_r = resistance.sum(axis=1) / (n - 1)
-    reliability = 100 * mean_r.min() / mean_r
+    # Надёжность — среднее сопротивление до пилотов основной сети; у отдельных групп сравнения
+    # с основной сетью нет вовсе (сопротивление бесконечно, надёжность 0).
+    resistance = _resistance(graph, components, nodes)
+    main_idx = np.array([i for i, v in enumerate(nodes) if group[v] == 0])
+    mean_r = np.array([resistance[i, main_idx[main_idx != i]].mean() for i in range(n)])
+    reliability = np.where(np.isfinite(mean_r), 100 * mean_r[main_idx].min() / mean_r, 0.0)
     with np.errstate(divide="ignore"):
         eq_races = np.where(np.eye(n, dtype=bool), np.nan, 1.0 / resistance)
 
     cut_off = {}
-    for v in nx.articulation_points(graph):
-        rest = graph.copy()
-        rest.remove_node(v)
+    for v in nx.articulation_points(graph):  # «мост»: сколько пилотов его части сети без него отрываются
+        rest = graph.subgraph(components[group[v]] - {v})
         parts = sorted(len(c) for c in nx.connected_components(rest))
         cut_off[v] = int(sum(parts[:-1]))
 
@@ -141,6 +174,7 @@ def build_graph(results: pd.DataFrame, constructors: pd.DataFrame, qp: pd.DataFr
             "races_with_mates": int(edges_df.loc[(edges_df["a"] == v) | (edges_df["b"] == v), "races"].sum()),
             "strength": float(sum(e["weight"] for e in incident)),
             "reliability": float(reliability[i]),
+            "group": group[v],
             "bridge_cut": cut_off.get(v, 0),
             "rating": None if rec is None else float(rec["rating"]),
             "rank": None if rec is None or pd.isna(rec["rank"]) else int(rec["rank"]),
@@ -164,7 +198,8 @@ def build_graph(results: pd.DataFrame, constructors: pd.DataFrame, qp: pd.DataFr
         "stats": {
             "drivers": n,
             "pairs": len(edge_rows),
-            "components": nx.number_connected_components(graph),
+            "components": len(components),
+            "isolated": [sorted(c) for c in components[1:]],  # группы без общих напарников с остальными
             "diameter": int(max(distances)),
             "mean_hops": round(float(np.mean(distances)), 2),
             "weak_pairs": int(sum(e["weak"] for e in edge_rows)),

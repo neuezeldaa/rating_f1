@@ -14,8 +14,9 @@ DUCKDB_PATH = DATA / "f1.duckdb"
 OVERRIDES_PATH = ROOT / "annotations" / "overrides.yaml"
 WEB_DATA = ROOT / "web" / "data"
 
-# Период: детальные данные по кругам (FastF1) есть с 2018 года.
-FIRST_SEASON = 2018
+# Период: с 2011 года — эпоха шин Pirelli и DRS, гонки устроены как сейчас; с этого же года
+# в RaceData есть пит-стопы (без них не отличить чистые круги от кругов заезда в боксы).
+FIRST_SEASON = 2011
 LAST_SEASON = date.today().year
 
 # Квалификация: гэп к напарнику больше этого (в % от времени круга) почти всегда

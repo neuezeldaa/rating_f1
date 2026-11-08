@@ -44,16 +44,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 47,
-     "rel": 0.9
+     "races": 45,
+     "rel": 0.61
     },
     "street": {
      "races": 33,
-     "rel": -0.34
+     "rel": -0.37
     },
     "technical": {
-     "races": 43,
-     "rel": -0.72
+     "races": 45,
+     "rel": -0.34
+    }
+   }
+  }
+ },
+ "alguersuari": {
+  "code": "ALG",
+  "name": "Jaime Alguersuari",
+  "nationality": "Spanish",
+  "dob": "1990-03-23",
+  "debut": 2009,
+  "bio": {
+   "text": "Хайме Альгерсуари (исп. Jaime Alguersuari, родился 23 марта 1990 года в Барселоне) — испанский автогонщик, чемпион британской Формулы-3, пилот Формулы-1 в сезонах 2009—2011 годов. В возрасте 19 лет и 125 дней вошёл в историю как самый юный гонщик, стартовавший в Гран-при (рекорд побит в 2015 году Максом Ферстаппеном). Кроме того, он первый из гонщиков Формулы-1, родившийся в 1990-х годах.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%90%D0%BB%D1%8C%D0%B3%D0%B5%D1%80%D1%81%D1%83%D0%B0%D1%80%D0%B8,_%D0%A5%D0%B0%D0%B9%D0%BC%D0%B5",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": 0.389,
+    "pace_dry": -0.032,
+    "duels_wet": [
+     1,
+     2
+    ],
+    "duels_dry": [
+     5,
+     10
+    ],
+    "best": [
+     2011,
+     7,
+     8,
+     24
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 5,
+     "rel": -0.08
+    },
+    "street": {
+     "races": 4,
+     "rel": 0.64
+    },
+    "technical": {
+     "races": 7,
+     "rel": -0.31
     }
    }
   }
@@ -71,36 +118,83 @@
   },
   "conditions": {
    "wet": {
-    "races": 18,
-    "pace_wet": 0.437,
-    "pace_dry": 0.242,
+    "races": 33,
+    "pace_wet": 0.514,
+    "pace_dry": 0.306,
     "duels_wet": [
-     7,
-     15
+     14,
+     24
     ],
     "duels_dry": [
-     68,
-     90
+     140,
+     173
     ],
     "best": [
-     2023,
-     13,
+     2012,
      2,
-     5
+     1,
+     8
     ]
    },
    "tracks": {
     "fast": {
-     "races": 46,
-     "rel": 0.16
+     "races": 81,
+     "rel": -0.09
     },
     "street": {
-     "races": 38,
-     "rel": -0.2
+     "races": 59,
+     "rel": -0.14
     },
     "technical": {
-     "races": 40,
-     "rel": 0.01
+     "races": 89,
+     "rel": 0.18
+    }
+   }
+  }
+ },
+ "ambrosio": {
+  "code": "DAM",
+  "name": "Jérôme d'Ambrosio",
+  "nationality": "Belgian",
+  "dob": "1985-12-27",
+  "debut": 2011,
+  "bio": {
+   "text": "Жером Д’Амброзио (фр. Jerôme d'Ambrosio, родился 27 декабря 1985 года) — бельгийский автогонщик, пилот Формулы-E. Выступал в Формуле-1 в 2011—2012 годах.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%94%E2%80%99%D0%90%D0%BC%D0%B1%D1%80%D0%BE%D0%B7%D0%B8%D0%BE,_%D0%96%D0%B5%D1%80%D0%BE%D0%BC",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.36,
+    "pace_dry": -0.225,
+    "duels_wet": [
+     1,
+     3
+    ],
+    "duels_dry": [
+     4,
+     10
+    ],
+    "best": [
+     2011,
+     7,
+     14,
+     23
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 6,
+     "rel": -1.06
+    },
+    "street": {
+     "races": 5,
+     "rel": 0.58
+    },
+    "technical": {
+     "races": 6,
+     "rel": 0.58
     }
    }
   }
@@ -139,15 +233,15 @@
    "tracks": {
     "fast": {
      "races": 11,
-     "rel": -1.94
+     "rel": -0.87
     },
     "street": {
      "races": 15,
-     "rel": 2.61
+     "rel": 2.54
     },
     "technical": {
      "races": 13,
-     "rel": -1.38
+     "rel": -2.2
     }
    }
   }
@@ -186,15 +280,62 @@
    "tracks": {
     "fast": {
      "races": 5,
-     "rel": 0.39
+     "rel": 0.25
     },
     "street": {
      "races": 6,
-     "rel": 1.25
+     "rel": 1.29
     },
     "technical": {
      "races": 6,
-     "rel": -1.58
+     "rel": -1.49
+    }
+   }
+  }
+ },
+ "barrichello": {
+  "code": "BAR",
+  "name": "Rubens Barrichello",
+  "nationality": "Brazilian",
+  "dob": "1972-05-23",
+  "debut": 1993,
+  "bio": {
+   "text": "Рубенс Гонсалвеш Баррикелло (порт. Rubens Gonçalves Barrichello, родился 23 мая 1972, Сан-Паулу) — бразильский автогонщик, бывший пилот Формулы-1. Вице-чемпион мира 2002 и 2004 годов и бронзовый призёр 2001 и 2009 годов. Двукратный чемпион бразильской серии сток-каров (2014, 2022).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%B0%D1%80%D1%80%D0%B8%D0%BA%D0%B5%D0%BB%D0%BB%D0%BE,_%D0%A0%D1%83%D0%B1%D0%B5%D0%BD%D1%81",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": 0.164,
+    "pace_dry": 0.007,
+    "duels_wet": [
+     3,
+     3
+    ],
+    "duels_dry": [
+     4,
+     9
+    ],
+    "best": [
+     2011,
+     7,
+     9,
+     16
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 6,
+     "rel": -0.13
+    },
+    "street": {
+     "races": 4,
+     "rel": 0.52
+    },
+    "technical": {
+     "races": 6,
+     "rel": -0.22
     }
    }
   }
@@ -232,16 +373,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 12,
-     "rel": -0.63
+     "races": 13,
+     "rel": -0.56
     },
     "street": {
      "races": 15,
-     "rel": -0.69
+     "rel": -0.6
     },
     "technical": {
-     "races": 12,
-     "rel": 1.49
+     "races": 11,
+     "rel": 1.48
     }
    }
   }
@@ -280,15 +421,15 @@
    "tracks": {
     "fast": {
      "races": 13,
-     "rel": 0.57
+     "rel": 0.35
     },
     "street": {
      "races": 13,
-     "rel": -0.45
+     "rel": -0.33
     },
     "technical": {
      "races": 14,
-     "rel": -0.11
+     "rel": -0.02
     }
    }
   }
@@ -306,16 +447,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 18,
-    "pace_wet": -0.144,
-    "pace_dry": -0.279,
+    "races": 28,
+    "pace_wet": -0.168,
+    "pace_dry": -0.155,
     "duels_wet": [
-     9,
-     16
+     11,
+     24
     ],
     "duels_dry": [
-     41,
-     118
+     75,
+     187
     ],
     "best": [
      2021,
@@ -326,16 +467,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 60,
-     "rel": 0.36
+     "races": 89,
+     "rel": 0.54
     },
     "street": {
-     "races": 37,
-     "rel": -0.03
+     "races": 56,
+     "rel": -0.22
     },
     "technical": {
-     "races": 49,
-     "rel": -0.41
+     "races": 89,
+     "rel": -0.4
     }
    }
   }
@@ -355,14 +496,14 @@
    "wet": {
     "races": 1,
     "pace_wet": 0.168,
-    "pace_dry": -0.47,
+    "pace_dry": -0.364,
     "duels_wet": [
      1,
      1
     ],
     "duels_dry": [
-     3,
-     9
+     4,
+     11
     ],
     "best": [
      2018,
@@ -373,16 +514,216 @@
    },
    "tracks": {
     "fast": {
-     "races": 5,
-     "rel": -0.15
+     "races": 4,
+     "rel": -0.24
     },
     "street": {
      "races": 3,
-     "rel": -0.34
+     "rel": -0.09
+    },
+    "technical": {
+     "races": 9,
+     "rel": 0.14
+    }
+   }
+  }
+ },
+ "bruno_senna": {
+  "code": "SEN",
+  "name": "Bruno Senna",
+  "nationality": "Brazilian",
+  "dob": "1983-10-15",
+  "debut": 2010,
+  "bio": {
+   "text": "Бруно Сенна Лалли (порт. Bruno Senna Lalli; род. 15 октября 1983 года в Сан-Паулу) — бразильский автогонщик, племянник легендарного трёхкратного чемпиона Формулы-1 Айртона Сенны. Его мать, сестра Айртона — Вивьен Сенна. Его отец, Флавио Лалли, погиб в аварии на мотоцикле в 1995 году.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D0%BD%D0%BD%D0%B0,_%D0%91%D1%80%D1%83%D0%BD%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 2,
+    "pace_wet": -0.009,
+    "pace_dry": -0.376,
+    "duels_wet": [
+     0,
+     0
+    ],
+    "duels_dry": [
+     7,
+     18
+    ],
+    "best": [
+     2012,
+     2,
+     6,
+     13
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 8,
+     "rel": 0.08
+    },
+    "street": {
+     "races": 4,
+     "rel": -1.37
+    },
+    "technical": {
+     "races": 11,
+     "rel": 0.44
+    }
+   }
+  }
+ },
+ "buemi": {
+  "code": "BUE",
+  "name": "Sébastien Buemi",
+  "nationality": "Swiss",
+  "dob": "1988-10-31",
+  "debut": 2009,
+  "bio": {
+   "text": "Себастьен Оливье Буэми (фр. Sebastien Olivier Buemi; род. 31 октября 1988 года в Эгле, Швейцария) — швейцарский автогонщик, пилот Формулы-1 (2009-2011), четырёхкратный чемпион мира по автогонкам на выносливость (2014, 2018/2019, 2022, 2023), чемпион Формулы-E (2015/2016), четырёхкратный победитель 24 часов Ле-Мана (2018, 2019, 2020, 2022).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%91%D1%83%D1%8D%D0%BC%D0%B8,_%D0%A1%D0%B5%D0%B1%D0%B0%D1%81%D1%82%D1%8C%D0%B5%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.389,
+    "pace_dry": 0.032,
+    "duels_wet": [
+     1,
+     2
+    ],
+    "duels_dry": [
+     5,
+     10
+    ],
+    "best": [
+     2011,
+     11,
+     8,
+     23
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 3,
+     "rel": 0.03
+    },
+    "street": {
+     "races": 5,
+     "rel": 0.49
     },
     "technical": {
      "races": 6,
-     "rel": 0.3
+     "rel": -0.43
+    }
+   }
+  }
+ },
+ "button": {
+  "code": "BUT",
+  "name": "Jenson Button",
+  "nationality": "British",
+  "dob": "1980-01-19",
+  "debut": 2000,
+  "bio": {
+   "text": "Дженсон Александр Лайонс Баттон MBE (англ. Jenson Alexander Lyons Button ['bʌtn]; род. 19 января 1980 года во Фроуме, Сомерсет) — британский автогонщик, выступавший в Формуле-1 с 2000 по 2017 годы. За 18 лет выступлений принял участие в 309 Гран-при (четвёртый показатель в истории), из которых выиграл 15. Стал чемпионом Формулы-1 в 2009 году, выступая за команду Brawn в её единственном сезоне, вице-чемпионом Формулы-1 в 2011 году, выступая за McLaren и бронзовым призёром в 2004 году, выступая за BAR.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%B0%D1%82%D1%82%D0%BE%D0%BD,_%D0%94%D0%B6%D0%B5%D0%BD%D1%81%D0%BE%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 13,
+    "pace_wet": -0.117,
+    "pace_dry": -0.051,
+    "duels_wet": [
+     5,
+     8
+    ],
+    "duels_dry": [
+     38,
+     68
+    ],
+    "best": [
+     2011,
+     7,
+     1,
+     7
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 32,
+     "rel": 0.77
+    },
+    "street": {
+     "races": 21,
+     "rel": 0.73
+    },
+    "technical": {
+     "races": 43,
+     "rel": -0.93
+    }
+   }
+  }
+ },
+ "chandhok": {
+  "code": "CHA",
+  "name": "Karun Chandhok",
+  "nationality": "Indian",
+  "dob": "1984-01-19",
+  "debut": 2010,
+  "bio": {
+   "text": "Карун Чандхок (род. 19 января 1984, Мадрас) — индийский автогонщик. Победитель чемпионата Формула-Азия в 2001 году, первый чемпион серии Формула-Рено V6 Азия в 2006. Участник чемпионата GP2 и победитель одного из этапов. Пилот Формулы-1; провёл в Формуле-1 11 гонок в сезонах 2010 и 2011 годов.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A7%D0%B0%D0%BD%D0%B4%D1%85%D0%BE%D0%BA,_%D0%9A%D0%B0%D1%80%D1%83%D0%BD",
+   "lang": "ru"
+  }
+ },
+ "chilton": {
+  "code": "CHI",
+  "name": "Max Chilton",
+  "nationality": "British",
+  "dob": "1991-04-21",
+  "debut": 2013,
+  "bio": {
+   "text": "Макс Александр Чилтон (англ. Max Alexander Chilton; родился 21 апреля 1991 года в Рейгейте, Великобритания) — британский автогонщик, выступавший в Формуле-1 в 2013 и 2014 годах.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A7%D0%B8%D0%BB%D1%82%D0%BE%D0%BD,_%D0%9C%D0%B0%D0%BA%D1%81",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.624,
+    "pace_dry": -0.388,
+    "duels_wet": [
+     0,
+     2
+    ],
+    "duels_dry": [
+     5,
+     26
+    ],
+    "best": [
+     2013,
+     2,
+     16,
+     21
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 10,
+     "rel": 0.21
+    },
+    "street": {
+     "races": 8,
+     "rel": 0.06
+    },
+    "technical": {
+     "races": 16,
+     "rel": -0.17
     }
    }
   }
@@ -420,16 +761,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 12,
-     "rel": -0.2
+     "races": 13,
+     "rel": -0.31
     },
     "street": {
      "races": 14,
-     "rel": 0.93
+     "rel": 0.89
     },
     "technical": {
-     "races": 15,
-     "rel": -0.71
+     "races": 14,
+     "rel": -0.61
     }
    }
   }
@@ -468,11 +809,11 @@
    "tracks": {
     "fast": {
      "races": 3,
-     "rel": 1.38
+     "rel": 1.58
     },
     "street": {
      "races": 5,
-     "rel": -0.56
+     "rel": -0.91
     }
    }
   }
@@ -518,16 +859,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 1,
-    "pace_wet": -0.265,
-    "pace_dry": -0.457,
+    "races": 10,
+    "pace_wet": 0.428,
+    "pace_dry": -0.111,
     "duels_wet": [
-     1,
-     1
+     3,
+     5
     ],
     "duels_dry": [
-     2,
-     11
+     21,
+     55
     ],
     "best": [
      2018,
@@ -538,16 +879,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 8,
+     "races": 29,
+     "rel": -0.0
+    },
+    "street": {
+     "races": 17,
+     "rel": -0.32
+    },
+    "technical": {
+     "races": 34,
+     "rel": 0.16
+    }
+   }
+  }
+ },
+ "garde": {
+  "code": "VDG",
+  "name": "Giedo van der Garde",
+  "nationality": "Dutch",
+  "dob": "1985-04-25",
+  "debut": 2013,
+  "bio": {
+   "text": "Гидо ван дер Гарде (нид. Giedo van der Garde; родился 25 апреля 1985 года в Ренене, Нидерланды) — нидерландский автогонщик, победитель чемпионата Формулы-Рено 3.5 (2008). В 2013 году выступал в Формуле-1.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B0%D0%BD_%D0%B4%D0%B5%D1%80_%D0%93%D0%B0%D1%80%D0%B4%D0%B5,_%D0%93%D0%B8%D0%B4%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 1,
+    "pace_wet": -1.051,
+    "pace_dry": -0.255,
+    "duels_wet": [
+     0,
+     1
+    ],
+    "duels_dry": [
+     4,
+     11
+    ],
+    "best": [
+     2013,
+     2,
+     15,
+     22
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 4,
      "rel": -0.04
     },
     "street": {
-     "races": 4,
-     "rel": -1.14
+     "races": 3,
+     "rel": 0.01
     },
     "technical": {
-     "races": 6,
-     "rel": 0.81
+     "races": 8,
+     "rel": 0.01
     }
    }
   }
@@ -567,14 +955,14 @@
    "wet": {
     "races": 21,
     "pace_wet": -0.138,
-    "pace_dry": 0.144,
+    "pace_dry": 0.141,
     "duels_wet": [
      10,
      17
     ],
     "duels_dry": [
-     68,
-     121
+     69,
+     123
     ],
     "best": [
      2024,
@@ -585,8 +973,8 @@
    },
    "tracks": {
     "fast": {
-     "races": 63,
-     "rel": -0.31
+     "races": 68,
+     "rel": 0.27
     },
     "street": {
      "races": 42,
@@ -594,7 +982,7 @@
     },
     "technical": {
      "races": 58,
-     "rel": 0.93
+     "rel": 0.27
     }
    }
   }
@@ -612,12 +1000,12 @@
   },
   "conditions": {
    "wet": {
-    "races": 7,
+    "races": 8,
     "pace_wet": -0.153,
-    "pace_dry": -0.09,
+    "pace_dry": -0.079,
     "duels_wet": [
      1,
-     6
+     7
     ],
     "duels_dry": [
      15,
@@ -632,16 +1020,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 27,
-     "rel": -0.14
+     "races": 29,
+     "rel": 0.08
     },
     "street": {
-     "races": 8,
-     "rel": 0.17
+     "races": 9,
+     "rel": 0.13
     },
     "technical": {
-     "races": 22,
-     "rel": 0.12
+     "races": 21,
+     "rel": -0.17
+    }
+   }
+  }
+ },
+ "glock": {
+  "code": "GLO",
+  "name": "Timo Glock",
+  "nationality": "German",
+  "dob": "1982-03-18",
+  "debut": 2004,
+  "bio": {
+   "text": "Тимо Глок (нем. Timo Glock, род. 18 марта 1982 года, Линденфельс) — немецкий автогонщик, выступающий в чемпионате DTM за команду BMW. Ранее выступал в Формуле-1 за команды Jordan, Toyota, Virgin и Marussia. Также выступал в GP2, Champ Car и других гоночных сериях.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%BB%D0%BE%D0%BA,_%D0%A2%D0%B8%D0%BC%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": 0.429,
+    "pace_dry": 0.107,
+    "duels_wet": [
+     3,
+     5
+    ],
+    "duels_dry": [
+     11,
+     19
+    ],
+    "best": [
+     2011,
+     7,
+     15,
+     21
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 9,
+     "rel": 0.09
+    },
+    "street": {
+     "races": 7,
+     "rel": -0.08
+    },
+    "technical": {
+     "races": 17,
+     "rel": -0.01
     }
    }
   }
@@ -659,36 +1094,83 @@
   },
   "conditions": {
    "wet": {
-    "races": 4,
-    "pace_wet": -0.344,
-    "pace_dry": 0.001,
+    "races": 16,
+    "pace_wet": -0.307,
+    "pace_dry": 0.016,
+    "duels_wet": [
+     4,
+     10
+    ],
+    "duels_dry": [
+     40,
+     91
+    ],
+    "best": [
+     2013,
+     2,
+     6,
+     11
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 46,
+     "rel": 0.47
+    },
+    "street": {
+     "races": 23,
+     "rel": -1.01
+    },
+    "technical": {
+     "races": 60,
+     "rel": 0.03
+    }
+   }
+  }
+ },
+ "gutierrez": {
+  "code": "GUT",
+  "name": "Esteban Gutiérrez",
+  "nationality": "Mexican",
+  "dob": "1991-08-05",
+  "debut": 2013,
+  "bio": {
+   "text": "Эстебан Мануэль Гутьеррес Гутьеррес (исп. Esteban Manuel Gutierrez Gutierrez; родился 5 августа 1991 года в Монтеррее, Мексика) — мексиканский автогонщик; бронзовый призёр чемпионата GP2 (2012); чемпион серии GP3 (2010). В 2013—2014 и 2016 годах выступал в Формуле-1, представляя команды Sauber (2013—2014), Haas (2016); единственный раз финишировал в очковой зоне в Гран-при Японии 2013 года. Также на его счету 2 круга лидирования и быстрый круг в Гран-при Испании 2013 года.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%93%D1%83%D1%82%D1%8C%D0%B5%D1%80%D1%80%D0%B5%D1%81,_%D0%AD%D1%81%D1%82%D0%B5%D0%B1%D0%B0%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 6,
+    "pace_wet": 0.25,
+    "pace_dry": -0.194,
     "duels_wet": [
      2,
      3
     ],
     "duels_dry": [
-     14,
-     31
+     13,
+     34
     ],
     "best": [
-     2018,
-     11,
+     2016,
      6,
-     6
+     11,
+     12
     ]
    },
    "tracks": {
     "fast": {
-     "races": 21,
-     "rel": 0.8
+     "races": 17,
+     "rel": 0.27
     },
     "street": {
-     "races": 7,
-     "rel": -1.64
+     "races": 10,
+     "rel": -0.02
     },
     "technical": {
-     "races": 14,
-     "rel": -0.38
+     "races": 19,
+     "rel": -0.23
     }
    }
   }
@@ -727,15 +1209,15 @@
    "tracks": {
     "fast": {
      "races": 11,
-     "rel": -0.67
+     "rel": -0.46
     },
     "street": {
      "races": 13,
-     "rel": 0.4
+     "rel": 0.3
     },
     "technical": {
      "races": 14,
-     "rel": 0.16
+     "rel": 0.09
     }
    }
   }
@@ -753,16 +1235,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 21,
-    "pace_wet": 0.194,
-    "pace_dry": 0.132,
+    "races": 36,
+    "pace_wet": 0.232,
+    "pace_dry": 0.102,
     "duels_wet": [
-     12,
-     19
+     23,
+     31
     ],
     "duels_dry": [
-     84,
-     148
+     135,
+     243
     ],
     "best": [
      2018,
@@ -773,17 +1255,93 @@
    },
    "tracks": {
     "fast": {
-     "races": 69,
-     "rel": 0.84
+     "races": 109,
+     "rel": 0.38
     },
     "street": {
-     "races": 49,
-     "rel": -2.19
+     "races": 75,
+     "rel": -1.61
     },
     "technical": {
-     "races": 64,
-     "rel": 0.77
+     "races": 119,
+     "rel": 0.66
     }
+   }
+  }
+ },
+ "haryanto": {
+  "code": "HAR",
+  "name": "Rio Haryanto",
+  "nationality": "Indonesian",
+  "dob": "1993-01-22",
+  "debut": 2016,
+  "bio": {
+   "text": "Рио Харьянто (индон. Rio Haryanto; род. 22 января 1993, Суракарта, Центральная Ява) — индонезийский автогонщик, пилот Формулы-1.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A5%D0%B0%D1%80%D1%8C%D1%8F%D0%BD%D1%82%D0%BE,_%D0%A0%D0%B8%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 2,
+    "pace_wet": -0.574,
+    "pace_dry": -0.336,
+    "duels_wet": [
+     0,
+     1
+    ],
+    "duels_dry": [
+     0,
+     7
+    ],
+    "best": [
+     2016,
+     6,
+     15,
+     19
+    ]
+   },
+   "tracks": {
+    "street": {
+     "races": 3,
+     "rel": 0.04
+    },
+    "technical": {
+     "races": 5,
+     "rel": 0.0
+    }
+   }
+  }
+ },
+ "heidfeld": {
+  "code": "HEI",
+  "name": "Nick Heidfeld",
+  "nationality": "German",
+  "dob": "1977-05-10",
+  "debut": 2000,
+  "bio": {
+   "text": "Ник Хайдфельд (нем. Nick Heidfeld; род. 10 мая 1977, Мёнхенгладбах, Германия) — германский автогонщик, чемпион серии Формула-3000 1999 года. В 2000-2011 годах выступал в автогоночной серии Формула-1. Живёт гражданским браком с Патрицией Папен (род. 8 июля 1977 г.). Дети: дочь Юни (род. 3 июля 2005 г.), сыновья Йода (род. 21 июля 2007 г.) и Юстус (род. 16 августа 2010 г.).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A5%D0%B0%D0%B9%D0%B4%D1%84%D0%B5%D0%BB%D1%8C%D0%B4,_%D0%9D%D0%B8%D0%BA",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.287,
+    "pace_dry": -0.101,
+    "duels_wet": [
+     1,
+     2
+    ],
+    "duels_dry": [
+     4,
+     6
+    ],
+    "best": [
+     2011,
+     9,
+     8,
+     16
+    ]
    }
   }
  },
@@ -800,16 +1358,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 11,
-    "pace_wet": 0.204,
-    "pace_dry": 0.107,
+    "races": 23,
+    "pace_wet": 0.215,
+    "pace_dry": 0.17,
     "duels_wet": [
-     8,
-     9
+     13,
+     18
     ],
     "duels_dry": [
-     51,
-     93
+     96,
+     165
     ],
     "best": [
      2025,
@@ -820,16 +1378,157 @@
    },
    "tracks": {
     "fast": {
-     "races": 38,
-     "rel": 0.51
+     "races": 67,
+     "rel": 0.53
     },
     "street": {
-     "races": 38,
-     "rel": -0.26
+     "races": 58,
+     "rel": -0.42
     },
     "technical": {
-     "races": 38,
-     "rel": -0.26
+     "races": 82,
+     "rel": -0.13
+    }
+   }
+  }
+ },
+ "jolyon_palmer": {
+  "code": "PAL",
+  "name": "Jolyon Palmer",
+  "nationality": "British",
+  "dob": "1991-01-20",
+  "debut": 2016,
+  "bio": {
+   "text": "Джолион Палмер (англ. Jolyon Palmer; родился 20 января 1991 года в Хоршеме, Великобритания) — потомственный британский автогонщик; пилот Формулы-1 в 2016—2017 годы; чемпион серии GP2 (2014); вице-чемпион серии FIA Формула-2 (2010). Сын пилота Формулы-1 Джонатана Палмера.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B0%D0%BB%D0%BC%D0%B5%D1%80,_%D0%94%D0%B6%D0%BE%D0%BB%D0%B8%D0%BE%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": -0.541,
+    "pace_dry": -0.268,
+    "duels_wet": [
+     0,
+     1
+    ],
+    "duels_dry": [
+     9,
+     19
+    ],
+    "best": [
+     2017,
+     14,
+     6,
+     11
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 7,
+     "rel": -0.44
+    },
+    "street": {
+     "races": 7,
+     "rel": 0.59
+    },
+    "technical": {
+     "races": 13,
+     "rel": -0.08
+    }
+   }
+  }
+ },
+ "jules_bianchi": {
+  "code": "BIA",
+  "name": "Jules Bianchi",
+  "nationality": "French",
+  "dob": "1989-08-03",
+  "debut": 2013,
+  "bio": {
+   "text": "Жюль Бьянки (фр. Jules Bianchi; 3 августа 1989, Ницца, Франция — 17 июля 2015, Ницца, Франция) — французский автогонщик; двукратный бронзовый призёр чемпионата GP2 (2010-11); вице-чемпион серии Формулы-Рено 3.5 (2012); чемпион Евросерии Ф3 (2009); победитель F3 Masters (2008). На Гран-при Японии 2014 года получил тяжёлые травмы, от которых скончался спустя девять месяцев, став первой жертвой на гонках Формулы-1 с 1994 года, когда погиб Айртон Сенна.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%91%D1%8C%D1%8F%D0%BD%D0%BA%D0%B8,_%D0%96%D1%8E%D0%BB%D1%8C",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": 0.624,
+    "pace_dry": 0.388,
+    "duels_wet": [
+     2,
+     2
+    ],
+    "duels_dry": [
+     21,
+     26
+    ],
+    "best": [
+     2013,
+     2,
+     13,
+     19
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 7,
+     "rel": 0.18
+    },
+    "street": {
+     "races": 8,
+     "rel": 0.28
+    },
+    "technical": {
+     "races": 14,
+     "rel": -0.25
+    }
+   }
+  }
+ },
+ "karthikeyan": {
+  "code": "KAR",
+  "name": "Narain Karthikeyan",
+  "nationality": "Indian",
+  "dob": "1977-01-14",
+  "debut": 2005,
+  "bio": {
+   "text": "Кумар Рам Нараин Картикеян (англ. Kumar Ram Narain Karthikeyan; 14 января 1977, Коимбатур, Индия) — индийский автогонщик, первый пилот Формулы-1 из Индии. Единственный гонщик в истории Гран-при, финишировавший 24-м.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BA%D0%B5%D1%8F%D0%BD,_%D0%9D%D0%B0%D1%80%D0%B0%D0%B8%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.319,
+    "pace_dry": -0.207,
+    "duels_wet": [
+     1,
+     3
+    ],
+    "duels_dry": [
+     2,
+     14
+    ],
+    "best": [
+     2011,
+     7,
+     17,
+     22
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 5,
+     "rel": 0.0
+    },
+    "street": {
+     "races": 6,
+     "rel": 0.0
+    },
+    "technical": {
+     "races": 10,
+     "rel": 0.0
     }
    }
   }
@@ -847,36 +1546,130 @@
   },
   "conditions": {
    "wet": {
-    "races": 12,
-    "pace_wet": -0.018,
-    "pace_dry": -0.086,
+    "races": 19,
+    "pace_wet": -0.053,
+    "pace_dry": -0.087,
     "duels_wet": [
-     4,
-     10
+     5,
+     13
     ],
     "duels_dry": [
-     34,
-     78
+     49,
+     118
     ],
     "best": [
-     2019,
-     11,
+     2017,
+     2,
      8,
      12
     ]
    },
    "tracks": {
     "fast": {
-     "races": 40,
-     "rel": 0.38
+     "races": 53,
+     "rel": 0.31
     },
     "street": {
-     "races": 26,
-     "rel": -1.21
+     "races": 37,
+     "rel": -0.7
     },
     "technical": {
-     "races": 36,
-     "rel": 0.45
+     "races": 62,
+     "rel": 0.15
+    }
+   }
+  }
+ },
+ "kobayashi": {
+  "code": "KOB",
+  "name": "Kamui Kobayashi",
+  "nationality": "Japanese",
+  "dob": "1986-09-13",
+  "debut": 2009,
+  "bio": {
+   "text": "Камуи Кобаяси (яп. 小林 可夢偉 Кобаяси Камуи, родился 13 сентября 1986 года в Амагасаки, Япония) — японский автогонщик, выступавший в Формуле-1 с 2009 по 2012 годы и в 2014 году. Принял участие в двух этапах сезона 2017/2018 Формулы-E под гоночной лицензией Монако. Двукратный чемпион мира по автогонкам на выносливость (2019/2020 — в классе LMP1, 2021 — в классе гиперкаров), двукратный победитель 24 часов Ле-Мана (2021, 2026).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B1%D0%B0%D1%8F%D1%81%D0%B8,_%D0%9A%D0%B0%D0%BC%D1%83%D0%B8",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 7,
+    "pace_wet": 0.255,
+    "pace_dry": -0.072,
+    "duels_wet": [
+     2,
+     3
+    ],
+    "duels_dry": [
+     16,
+     26
+    ],
+    "best": [
+     2011,
+     7,
+     7,
+     13
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 13,
+     "rel": -0.36
+    },
+    "street": {
+     "races": 8,
+     "rel": 0.7
+    },
+    "technical": {
+     "races": 18,
+     "rel": -0.05
+    }
+   }
+  }
+ },
+ "kovalainen": {
+  "code": "KOV",
+  "name": "Heikki Kovalainen",
+  "nationality": "Finnish",
+  "dob": "1981-10-19",
+  "debut": 2007,
+  "bio": {
+   "text": "Хейкки Йоханнес Ковалайнен (фин. Heikki Johannes Kovalainen; род. 19 октября 1981, Суомуссалми, Финляндия) — финский автогонщик, пилот Формулы-1 в сезонах 2007-2013.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B2%D0%B0%D0%BB%D0%B0%D0%B9%D0%BD%D0%B5%D0%BD,_%D0%A5%D0%B5%D0%B9%D0%BA%D0%BA%D0%B8",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": 0.128,
+    "pace_dry": 0.263,
+    "duels_wet": [
+     0,
+     2
+    ],
+    "duels_dry": [
+     16,
+     29
+    ],
+    "best": [
+     2012,
+     20,
+     14,
+     20
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 11,
+     "rel": 0.28
+    },
+    "street": {
+     "races": 7,
+     "rel": -0.3
+    },
+    "technical": {
+     "races": 18,
+     "rel": -0.05
     }
    }
   }
@@ -914,16 +1707,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 9,
-     "rel": -0.01
+     "races": 8,
+     "rel": -0.24
     },
     "street": {
      "races": 5,
-     "rel": 0.2
+     "rel": 0.17
     },
     "technical": {
-     "races": 7,
-     "rel": -0.12
+     "races": 8,
+     "rel": 0.14
     }
    }
   }
@@ -941,16 +1734,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 3,
-    "pace_wet": 0.015,
-    "pace_dry": -0.027,
+    "races": 12,
+    "pace_wet": -0.337,
+    "pace_dry": -0.121,
     "duels_wet": [
      2,
-     2
+     8
     ],
     "duels_dry": [
-     12,
-     27
+     29,
+     68
     ],
     "best": [
      2019,
@@ -961,16 +1754,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 16,
-     "rel": 1.35
+     "races": 39,
+     "rel": -0.31
     },
     "street": {
-     "races": 4,
-     "rel": -0.1
+     "races": 13,
+     "rel": 0.12
     },
     "technical": {
-     "races": 14,
-     "rel": -1.52
+     "races": 39,
+     "rel": 0.27
     }
    }
   }
@@ -1008,16 +1801,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 23,
-     "rel": -0.1
+     "races": 26,
+     "rel": -0.09
     },
     "street": {
      "races": 10,
-     "rel": -0.26
+     "rel": -0.3
     },
     "technical": {
-     "races": 20,
-     "rel": 0.25
+     "races": 17,
+     "rel": 0.31
     }
    }
   }
@@ -1055,16 +1848,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 16,
-     "rel": -0.99
+     "races": 17,
+     "rel": -0.82
     },
     "street": {
      "races": 14,
-     "rel": 1.01
+     "rel": 0.96
     },
     "technical": {
-     "races": 18,
-     "rel": 0.09
+     "races": 17,
+     "rel": 0.03
     }
    }
   }
@@ -1102,16 +1895,169 @@
    },
    "tracks": {
     "fast": {
-     "races": 70,
-     "rel": 0.44
+     "races": 68,
+     "rel": 0.66
     },
     "street": {
      "races": 45,
-     "rel": -0.91
+     "rel": -0.95
     },
     "technical": {
-     "races": 53,
-     "rel": 0.19
+     "races": 55,
+     "rel": -0.03
+    }
+   }
+  }
+ },
+ "liuzzi": {
+  "code": "LIU",
+  "name": "Vitantonio Liuzzi",
+  "nationality": "Italian",
+  "dob": "1980-08-06",
+  "debut": 2005,
+  "bio": {
+   "text": "Витантонио (Тонио) Льюцци (итал. Vitantonio \"Tonio\" Liuzzi); родился 6 августа 1981, в Локоротондо, Италия) — итальянский автогонщик.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9B%D1%8C%D1%8E%D1%86%D1%86%D0%B8,_%D0%92%D0%B8%D1%82%D0%B0%D0%BD%D1%82%D0%BE%D0%BD%D0%B8%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": 0.328,
+    "pace_dry": -0.072,
+    "duels_wet": [
+     2,
+     3
+    ],
+    "duels_dry": [
+     3,
+     7
+    ],
+    "best": [
+     2011,
+     7,
+     13,
+     20
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 4,
+     "rel": 0.0
+    },
+    "street": {
+     "races": 4,
+     "rel": 0.0
+    },
+    "technical": {
+     "races": 4,
+     "rel": 0.0
+    }
+   }
+  }
+ },
+ "lotterer": {
+  "code": "LOT",
+  "name": "André Lotterer",
+  "nationality": "German",
+  "dob": "1981-11-19",
+  "debut": 2014,
+  "bio": {
+   "text": "Андре Лоттерер (нем. Andre Lotterer; род. 19 ноября 1981, Дуйсбург, Германия) — немецкий автогонщик, двукратный чемпион мира по автогонкам на выносливость (2012, 2024), трёхкратный победитель 24 часов Ле-Мана (2011, 2012, 2014). В 2014 году принял участие в своей единственной гонке Формулы-1 — Гран-при Бельгии 2014 года.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D1%82%D1%82%D0%B5%D1%80%D0%B5%D1%80,_%D0%90%D0%BD%D0%B4%D1%80%D0%B5",
+   "lang": "ru"
+  }
+ },
+ "maldonado": {
+  "code": "MAL",
+  "name": "Pastor Maldonado",
+  "nationality": "Venezuelan",
+  "dob": "1985-03-09",
+  "debut": 2011,
+  "bio": {
+   "text": "Пастор Рафаэль Мальдонадо Мотта (исп. Pastor Rafael Maldonado Motta; 9 марта 1985, Маракай, Венесуэла) — венесуэльский автогонщик, чемпион серии GP2 (2010), бронзовый призёр чемпионата Формулы-Рено 3.5 (2006), пилот Формулы-1 (2011—2015).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D0%BB%D1%8C%D0%B4%D0%BE%D0%BD%D0%B0%D0%B4%D0%BE,_%D0%9F%D0%B0%D1%81%D1%82%D0%BE%D1%80",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 10,
+    "pace_wet": -0.198,
+    "pace_dry": 0.058,
+    "duels_wet": [
+     1,
+     5
+    ],
+    "duels_dry": [
+     26,
+     50
+    ],
+    "best": [
+     2015,
+     16,
+     8,
+     12
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 23,
+     "rel": 0.25
+    },
+    "street": {
+     "races": 12,
+     "rel": -0.73
+    },
+    "technical": {
+     "races": 32,
+     "rel": 0.09
+    }
+   }
+  }
+ },
+ "massa": {
+  "code": "MAS",
+  "name": "Felipe Massa",
+  "nationality": "Brazilian",
+  "dob": "1981-04-25",
+  "debut": 2002,
+  "bio": {
+   "text": "Фелипе Масса (порт. Felipe Massa; родился 25 апреля 1981 года в Сан-Паулу, Бразилия) — бразильский автогонщик, пилот Формулы-E. В 2002 году и с 2004 по 2017 годы выступал в Формуле-1, одержал 11 побед за команду Ferrari, стал вице-чемпионом в 2008 году и бронзовым призёром в 2006 году.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D1%81%D1%81%D0%B0,_%D0%A4%D0%B5%D0%BB%D0%B8%D0%BF%D0%B5",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 15,
+    "pace_wet": -0.121,
+    "pace_dry": -0.258,
+    "duels_wet": [
+     4,
+     11
+    ],
+    "duels_dry": [
+     28,
+     93
+    ],
+    "best": [
+     2012,
+     20,
+     3,
+     5
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 41,
+     "rel": 1.37
+    },
+    "street": {
+     "races": 24,
+     "rel": -1.55
+    },
+    "technical": {
+     "races": 54,
+     "rel": -0.35
     }
    }
   }
@@ -1129,16 +2075,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 21,
-    "pace_wet": 0.97,
-    "pace_dry": 0.62,
+    "races": 28,
+    "pace_wet": 0.86,
+    "pace_dry": 0.511,
     "duels_wet": [
-     16,
-     18
+     20,
+     23
     ],
     "duels_dry": [
-     121,
-     134
+     135,
+     163
     ],
     "best": [
      2024,
@@ -1149,16 +2095,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 66,
-     "rel": 0.91
+     "races": 85,
+     "rel": 0.16
     },
     "street": {
-     "races": 46,
-     "rel": -0.77
+     "races": 55,
+     "rel": -1.03
     },
     "technical": {
-     "races": 62,
-     "rel": -0.39
+     "races": 81,
+     "rel": 0.53
     }
    }
   }
@@ -1196,12 +2142,102 @@
    },
    "tracks": {
     "fast": {
-     "races": 8,
+     "races": 11,
+     "rel": -0.0
+    },
+    "technical": {
+     "races": 4,
+     "rel": 0.11
+    }
+   }
+  }
+ },
+ "merhi": {
+  "code": "MER",
+  "name": "Roberto Merhi",
+  "nationality": "Spanish",
+  "dob": "1991-03-22",
+  "debut": 2015,
+  "bio": {
+   "text": "Роберто Мери Мутан (исп. Roberto Merhi Muntan; родился 22 марта 1991 года в Кастельоне-де-ла-Плана, Испания) — испанский автогонщик, победитель Евросерии Формулы-3 (2011), бронзовый призёр чемпионата Формулы-Рено 3.5 (2014), пилот Формулы-1 (2015).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%80%D0%B8,_%D0%A0%D0%BE%D0%B1%D0%B5%D1%80%D1%82%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 1,
+    "pace_wet": -0.486,
+    "pace_dry": -0.097,
+    "duels_wet": [
+     1,
+     1
+    ],
+    "duels_dry": [
+     3,
+     8
+    ],
+    "best": [
+     2015,
+     9,
+     12,
+     20
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 5,
      "rel": 0.0
     },
     "technical": {
-     "races": 7,
+     "races": 6,
      "rel": 0.0
+    }
+   }
+  }
+ },
+ "michael_schumacher": {
+  "code": "MSC",
+  "name": "Michael Schumacher",
+  "nationality": "German",
+  "dob": "1969-01-03",
+  "debut": 1991,
+  "bio": {
+   "text": "Михаэль Шумахер (нем. Michael Schumacher; МФА:; род. 3 января 1969, Хюрт-Хермюльхайм, Северный Рейн-Вестфалия) — немецкий автогонщик, семикратный чемпион мира «Формулы-1». Считается одним из лучших гонщиков «Формулы-1» в истории. Обладатель многочисленных рекордов чемпионата мира Формулы-1: по числу быстрых кругов (77), а также чемпионских титулов подряд (5). Также занимает второе место по победам (91), подиумам (155) и поул-позициям (68), уступая по этим показателям лишь Льюису Хэмилтону.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A8%D1%83%D0%BC%D0%B0%D1%85%D0%B5%D1%80,_%D0%9C%D0%B8%D1%85%D0%B0%D1%8D%D0%BB%D1%8C",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": 0.72,
+    "pace_dry": -0.156,
+    "duels_wet": [
+     3,
+     4
+    ],
+    "duels_dry": [
+     10,
+     18
+    ],
+    "best": [
+     2011,
+     7,
+     4,
+     8
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 11,
+     "rel": 0.37
+    },
+    "street": {
+     "races": 3,
+     "rel": 3.74
+    },
+    "technical": {
+     "races": 12,
+     "rel": -1.28
     }
    }
   }
@@ -1239,16 +2275,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 17,
-     "rel": 0.49
+     "races": 19,
+     "rel": 0.48
     },
     "street": {
      "races": 8,
-     "rel": -0.62
+     "rel": -0.61
     },
     "technical": {
-     "races": 15,
-     "rel": -0.22
+     "races": 13,
+     "rel": -0.33
+    }
+   }
+  }
+ },
+ "nasr": {
+  "code": "NAS",
+  "name": "Felipe Nasr",
+  "nationality": "Brazilian",
+  "dob": "1992-08-21",
+  "debut": 2015,
+  "bio": {
+   "text": "Луис Фелипе де Оливейра Наср (порт. Luiz Felipe de Oliveira Nasr, род. 21 августа 1992, Бразилиа) — бразильский автогонщик, трёхкратный победитель 24 часов Дейтоны (2024,2025,2026),12 часов Себринга (2019); пилот Формулы-1 (2015—2016) и Формулы-E (2018/2019).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9D%D0%B0%D1%81%D1%80,_%D0%A4%D0%B5%D0%BB%D0%B8%D0%BF%D0%B5",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": -0.499,
+    "pace_dry": -0.047,
+    "duels_wet": [
+     1,
+     1
+    ],
+    "duels_dry": [
+     13,
+     27
+    ],
+    "best": [
+     2016,
+     20,
+     9,
+     21
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 11,
+     "rel": 0.18
+    },
+    "street": {
+     "races": 8,
+     "rel": 0.5
+    },
+    "technical": {
+     "races": 14,
+     "rel": -0.43
     }
    }
   }
@@ -1286,16 +2369,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 62,
-     "rel": 0.29
+     "races": 64,
+     "rel": 0.22
     },
     "street": {
      "races": 40,
-     "rel": -0.87
+     "rel": -0.94
     },
     "technical": {
-     "races": 52,
-     "rel": 0.32
+     "races": 50,
+     "rel": 0.47
     }
    }
   }
@@ -1313,16 +2396,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 20,
-    "pace_wet": -0.143,
-    "pace_dry": -0.087,
+    "races": 23,
+    "pace_wet": -0.136,
+    "pace_dry": -0.116,
     "duels_wet": [
-     7,
-     17
+     8,
+     20
     ],
     "duels_dry": [
-     54,
-     110
+     62,
+     130
     ],
     "best": [
      2021,
@@ -1333,16 +2416,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 53,
-     "rel": 0.55
+     "races": 67,
+     "rel": 0.53
     },
     "street": {
-     "races": 40,
-     "rel": -0.31
+     "races": 46,
+     "rel": -0.5
     },
     "technical": {
-     "races": 51,
-     "rel": -0.33
+     "races": 59,
+     "rel": -0.21
     }
    }
   }
@@ -1360,16 +2443,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 18,
-    "pace_wet": -0.521,
-    "pace_dry": -0.092,
+    "races": 32,
+    "pace_wet": -0.242,
+    "pace_dry": -0.043,
     "duels_wet": [
-     5,
-     17
+     10,
+     25
     ],
     "duels_dry": [
-     34,
-     108
+     75,
+     197
     ],
     "best": [
      2022,
@@ -1380,16 +2463,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 55,
-     "rel": 0.05
+     "races": 96,
+     "rel": 0.39
     },
     "street": {
-     "races": 36,
-     "rel": -0.18
+     "races": 61,
+     "rel": -0.2
     },
     "technical": {
-     "races": 53,
-     "rel": 0.07
+     "races": 104,
+     "rel": -0.24
+    }
+   }
+  }
+ },
+ "petrov": {
+  "code": "PET",
+  "name": "Vitaly Petrov",
+  "nationality": "Russian",
+  "dob": "1984-09-08",
+  "debut": 2010,
+  "bio": {
+   "text": "Виталий Александрович Петров (род. 8 сентября 1984, Выборг) — российский автогонщик. Известен под прозвищем «Выборгская ракета». С 31 января 2010 года по 9 декабря 2011 гонщик команды «Рено» в Формуле-1. С 17 февраля 2012 года по 1 февраля 2013 гонщик команды Caterham F1 Team. Первый российский гонщик, выступавший в гонках чемпионата мира «Формулы-1» и первый российский гонщик, завоевавший подиум на Гран-при «Формулы-1». Заслуженный мастер спорта России (2015).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%82%D1%80%D0%BE%D0%B2,_%D0%92%D0%B8%D1%82%D0%B0%D0%BB%D0%B8%D0%B9_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": 0.079,
+    "pace_dry": 0.129,
+    "duels_wet": [
+     3,
+     4
+    ],
+    "duels_dry": [
+     15,
+     27
+    ],
+    "best": [
+     2011,
+     7,
+     5,
+     10
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 9,
+     "rel": 0.35
+    },
+    "street": {
+     "races": 7,
+     "rel": 2.06
+    },
+    "technical": {
+     "races": 17,
+     "rel": -1.03
     }
    }
   }
@@ -1428,15 +2558,62 @@
    "tracks": {
     "fast": {
      "races": 27,
-     "rel": 0.65
+     "rel": 0.47
     },
     "street": {
      "races": 30,
-     "rel": -0.49
+     "rel": -0.46
     },
     "technical": {
      "races": 26,
-     "rel": -0.1
+     "rel": 0.05
+    }
+   }
+  }
+ },
+ "pic": {
+  "code": "PIC",
+  "name": "Charles Pic",
+  "nationality": "French",
+  "dob": "1990-02-15",
+  "debut": 2012,
+  "bio": {
+   "text": "Шарль Пик (фр. Charles Pic; родился 15 февраля 1990 года в Монтелимаре, Франция) — французский автогонщик. Бронзовый призёр чемпионата Формулы-Рено 3.5 2009 года.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B8%D0%BA,_%D0%A8%D0%B0%D1%80%D0%BB%D1%8C",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.005,
+    "pace_dry": 0.085,
+    "duels_wet": [
+     2,
+     3
+    ],
+    "duels_dry": [
+     11,
+     21
+    ],
+    "best": [
+     2012,
+     20,
+     12,
+     22
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 7,
+     "rel": 0.16
+    },
+    "street": {
+     "races": 6,
+     "rel": 0.04
+    },
+    "technical": {
+     "races": 16,
+     "rel": -0.08
     }
    }
   }
@@ -1466,16 +2643,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 8,
-    "pace_wet": 0.102,
-    "pace_dry": 0.025,
+    "races": 20,
+    "pace_wet": -0.048,
+    "pace_dry": -0.071,
     "duels_wet": [
-     6,
-     7
+     9,
+     16
     ],
     "duels_dry": [
-     40,
-     61
+     65,
+     137
     ],
     "best": [
      2018,
@@ -1486,16 +2663,63 @@
    },
    "tracks": {
     "fast": {
-     "races": 33,
-     "rel": -0.29
+     "races": 70,
+     "rel": -0.4
     },
     "street": {
-     "races": 12,
-     "rel": -0.45
+     "races": 35,
+     "rel": -1.37
     },
     "technical": {
-     "races": 25,
-     "rel": 0.6
+     "races": 68,
+     "rel": 1.12
+    }
+   }
+  }
+ },
+ "resta": {
+  "code": "DIR",
+  "name": "Paul di Resta",
+  "nationality": "British",
+  "dob": "1986-04-16",
+  "debut": 2011,
+  "bio": {
+   "text": "Пол ди Реста (англ. Paul di Resta, род. 16 апреля 1986, Апхолл, Шотландия) — британский автогонщик, чемпион DTM в сезоне 2010 года. С 2011 по 2013 годы выступал в Формуле-1 в составе команды Force India, в 2017 году участвовал в Гран-при Венгрии в составе Williams.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B8_%D0%A0%D0%B5%D1%81%D1%82%D0%B0,_%D0%9F%D0%BE%D0%BB",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 6,
+    "pace_wet": -0.085,
+    "pace_dry": -0.167,
+    "duels_wet": [
+     2,
+     4
+    ],
+    "duels_dry": [
+     18,
+     40
+    ],
+    "best": [
+     2012,
+     2,
+     7,
+     14
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 12,
+     "rel": -0.18
+    },
+    "street": {
+     "races": 14,
+     "rel": 0.74
+    },
+    "technical": {
+     "races": 26,
+     "rel": -0.32
     }
    }
   }
@@ -1513,37 +2737,164 @@
   },
   "conditions": {
    "wet": {
-    "races": 14,
-    "pace_wet": -0.731,
-    "pace_dry": -0.093,
+    "races": 28,
+    "pace_wet": -0.509,
+    "pace_dry": 0.024,
     "duels_wet": [
-     4,
-     11
+     8,
+     22
     ],
     "duels_dry": [
-     36,
-     85
+     81,
+     159
     ],
     "best": [
-     2021,
-     15,
-     4,
-     5
+     2014,
+     11,
+     1,
+     4
     ]
    },
    "tracks": {
     "fast": {
-     "races": 44,
+     "races": 83,
+     "rel": -0.36
+    },
+    "street": {
+     "races": 48,
+     "rel": 0.47
+    },
+    "technical": {
+     "races": 88,
+     "rel": 0.08
+    }
+   }
+  }
+ },
+ "rosa": {
+  "code": "DLR",
+  "name": "Pedro de la Rosa",
+  "nationality": "Spanish",
+  "dob": "1971-02-24",
+  "debut": 1999,
+  "bio": {
+   "text": "Педро Мартинес де ла Роса (исп. Pedro Martinez de la Rosa) — испанский автогонщик, выступавший в чемпионате Формула-1. Де ла Роса дебютировал в 1999 году и добился лучшего результата в 2006 году — 11 место в чемпионате, старт с четвёртого места и финиш на втором месте в Гран-при Венгрии. С 2008 года по 2010 год и с 2012 года по 2014 год — председатель Ассоциации пилотов Гран-при (GPDA).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B5_%D0%BB%D0%B0_%D0%A0%D0%BE%D1%81%D0%B0,_%D0%9F%D0%B5%D0%B4%D1%80%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": -0.293,
+    "pace_dry": 0.13,
+    "duels_wet": [
+     1,
+     3
+    ],
+    "duels_dry": [
+     9,
+     9
+    ],
+    "best": [
+     2011,
+     7,
+     12,
+     17
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 5,
+     "rel": 0.09
+    },
+    "street": {
+     "races": 3,
+     "rel": -0.39
+    },
+    "technical": {
+     "races": 8,
+     "rel": 0.09
+    }
+   }
+  }
+ },
+ "rosberg": {
+  "code": "ROS",
+  "name": "Nico Rosberg",
+  "nationality": "German",
+  "dob": "1985-06-27",
+  "debut": 2006,
+  "bio": {
+   "text": "Нико Эрик Росберг (нем. Nico Erik Rosberg; 27 июня 1985, Висбаден, Германия) — финско-немецкий автогонщик, который соревновался в Формуле-1 с 2006 по 2016 год. Чемпион мира в Формуле-1 2016 года вместе с командой Mercedes, и победитель 23 гран-при Формулы. Сын чемпиона мира 1982 года в гонках Формулы-1 Кеке Росберга. После успешной карьеры в картинге и победы в серии GP2, Росберг дебютировал в Формуле-1 в 2006 году в команде Williams и поднялся на несколько подиумов в сезоне 2008 года.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A0%D0%BE%D1%81%D0%B1%D0%B5%D1%80%D0%B3,_%D0%9D%D0%B8%D0%BA%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 13,
+    "pace_wet": -0.434,
+    "pace_dry": 0.031,
+    "duels_wet": [
+     1,
+     12
+    ],
+    "duels_dry": [
+     35,
+     74
+    ],
+    "best": [
+     2015,
+     9,
+     2,
+     2
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 32,
      "rel": 0.91
     },
     "street": {
-     "races": 25,
-     "rel": -0.47
+     "races": 24,
+     "rel": 1.07
     },
     "technical": {
-     "races": 40,
-     "rel": -0.7
+     "races": 48,
+     "rel": -1.14
     }
+   }
+  }
+ },
+ "rossi": {
+  "code": "RSS",
+  "name": "Alexander Rossi",
+  "nationality": "American",
+  "dob": "1991-09-25",
+  "debut": 2015,
+  "bio": {
+   "text": "Александр Росси (англ. Alexander Rossi; родился 25 сентября 1991 года в Оберне, США) — американский автогонщик, бронзовый призёр чемпионата Формулы-Рено 3.5 (2011), пилот Формулы-1 (2015), победитель гонки «500 миль Индианаполиса» (2016).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A0%D0%BE%D1%81%D1%81%D0%B8,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 1,
+    "pace_wet": null,
+    "pace_dry": 0.066,
+    "duels_wet": [
+     0,
+     0
+    ],
+    "duels_dry": [
+     3,
+     4
+    ],
+    "best": [
+     2015,
+     16,
+     12,
+     17
+    ]
    }
   }
  },
@@ -1580,16 +2931,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 55,
-     "rel": 0.33
+     "races": 57,
+     "rel": 0.57
     },
     "street": {
      "races": 40,
-     "rel": 0.5
+     "rel": 0.39
     },
     "technical": {
-     "races": 56,
-     "rel": -0.68
+     "races": 54,
+     "rel": -0.9
     }
    }
   }
@@ -1619,16 +2970,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 21,
-    "pace_wet": 0.051,
-    "pace_dry": -0.056,
+    "races": 28,
+    "pace_wet": 0.172,
+    "pace_dry": -0.048,
     "duels_wet": [
-     5,
-     15
+     8,
+     19
     ],
     "duels_dry": [
-     55,
-     128
+     72,
+     155
     ],
     "best": [
      2022,
@@ -1639,16 +2990,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 62,
-     "rel": 0.64
+     "races": 77,
+     "rel": -0.19
     },
     "street": {
-     "races": 45,
-     "rel": -0.7
+     "races": 57,
+     "rel": -0.54
     },
     "technical": {
-     "races": 63,
-     "rel": -0.13
+     "races": 78,
+     "rel": 0.58
     }
    }
   }
@@ -1687,15 +3038,15 @@
    "tracks": {
     "fast": {
      "races": 10,
-     "rel": -0.91
+     "rel": -0.53
     },
     "street": {
      "races": 9,
-     "rel": 0.38
+     "rel": 0.34
     },
     "technical": {
      "races": 9,
-     "rel": 0.64
+     "rel": 0.25
     }
    }
   }
@@ -1729,15 +3080,62 @@
    "tracks": {
     "fast": {
      "races": 8,
-     "rel": 0.28
+     "rel": 0.29
     },
     "street": {
      "races": 3,
-     "rel": -0.16
+     "rel": -0.42
     },
     "technical": {
      "races": 7,
-     "rel": -0.25
+     "rel": -0.15
+    }
+   }
+  }
+ },
+ "stevens": {
+  "code": "STE",
+  "name": "Will Stevens",
+  "nationality": "British",
+  "dob": "1991-06-28",
+  "debut": 2014,
+  "bio": {
+   "text": "Уильям Стивенс, известен как Уилл Стивенс (англ. Will Stevens; 28 июня 1991, Рочфорд, Эссекс), британский автогонщик, выступавший в Формуле-1 за команды Caterham и Manor Marussia F1.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D0%B8%D0%B2%D0%B5%D0%BD%D1%81,_%D0%A3%D0%B8%D0%BB%D0%BB",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 2,
+    "pace_wet": 0.486,
+    "pace_dry": 0.016,
+    "duels_wet": [
+     0,
+     1
+    ],
+    "duels_dry": [
+     6,
+     12
+    ],
+    "best": [
+     2015,
+     9,
+     13,
+     19
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 6,
+     "rel": 0.04
+    },
+    "street": {
+     "races": 3,
+     "rel": 0.04
+    },
+    "technical": {
+     "races": 6,
+     "rel": -0.06
     }
    }
   }
@@ -1755,16 +3153,16 @@
   },
   "conditions": {
    "wet": {
-    "races": 21,
-    "pace_wet": -0.181,
-    "pace_dry": -0.179,
+    "races": 23,
+    "pace_wet": -0.167,
+    "pace_dry": -0.194,
     "duels_wet": [
-     9,
-     18
+     10,
+     19
     ],
     "duels_dry": [
-     39,
-     122
+     42,
+     133
     ],
     "best": [
      2019,
@@ -1775,16 +3173,110 @@
    },
    "tracks": {
     "fast": {
-     "races": 62,
-     "rel": 0.27
+     "races": 69,
+     "rel": -0.06
     },
     "street": {
-     "races": 41,
-     "rel": -0.29
+     "races": 44,
+     "rel": 0.04
     },
     "technical": {
-     "races": 56,
-     "rel": -0.08
+     "races": 61,
+     "rel": 0.04
+    }
+   }
+  }
+ },
+ "sutil": {
+  "code": "SUT",
+  "name": "Adrian Sutil",
+  "nationality": "German",
+  "dob": "1983-01-11",
+  "debut": 2007,
+  "bio": {
+   "text": "Адриан Сутиль (нем. Adrian Sutil, родился 11 января 1983 года в Штарнберге, ФРГ) — немецкий автогонщик уругвайского происхождения; победитель чемпионата Японской Формулы-3 (2006). Обладатель рекорда Формулы-1 по количеству проведённых Гран-при без единого подиума (128 гонок).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D1%83%D1%82%D0%B8%D0%BB%D1%8C,_%D0%90%D0%B4%D1%80%D0%B8%D0%B0%D0%BD",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 6,
+    "pace_wet": -0.138,
+    "pace_dry": 0.107,
+    "duels_wet": [
+     1,
+     3
+    ],
+    "duels_dry": [
+     17,
+     35
+    ],
+    "best": [
+     2011,
+     9,
+     11,
+     11
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 16,
+     "rel": 0.34
+    },
+    "street": {
+     "races": 12,
+     "rel": 0.96
+    },
+    "technical": {
+     "races": 17,
+     "rel": -0.99
+    }
+   }
+  }
+ },
+ "trulli": {
+  "code": "TRU",
+  "name": "Jarno Trulli",
+  "nationality": "Italian",
+  "dob": "1974-07-13",
+  "debut": 1997,
+  "bio": {
+   "text": "Ярно Трулли (итал. Jarno Trulli; род. 13 июля 1974, Пескара, Абруцци) — итальянский автогонщик, пилот Формулы-1 (1997—2011). Победитель Гран-при Монако 2004 года. Обладатель Премии имени Лоренцо Бандини (в 2000 году за 1999).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%80%D1%83%D0%BB%D0%BB%D0%B8,_%D0%AF%D1%80%D0%BD%D0%BE",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 3,
+    "pace_wet": null,
+    "pace_dry": -0.462,
+    "duels_wet": [
+     0,
+     0
+    ],
+    "duels_dry": [
+     4,
+     12
+    ],
+    "best": [
+     2011,
+     7,
+     16,
+     18
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 5,
+     "rel": 0.0
+    },
+    "street": {
+     "races": 4,
+     "rel": 0.0
+    },
+    "technical": {
+     "races": 5,
+     "rel": 0.0
     }
    }
   }
@@ -1822,16 +3314,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 38,
-     "rel": 0.17
+     "races": 40,
+     "rel": -0.34
     },
     "street": {
      "races": 30,
-     "rel": 0.22
+     "rel": 0.19
     },
     "technical": {
-     "races": 33,
-     "rel": -0.4
+     "races": 31,
+     "rel": 0.25
     }
    }
   }
@@ -1849,36 +3341,83 @@
   },
   "conditions": {
    "wet": {
-    "races": 1,
+    "races": 3,
     "pace_wet": -0.441,
-    "pace_dry": -0.417,
+    "pace_dry": -0.317,
     "duels_wet": [
      0,
      0
     ],
     "duels_dry": [
-     1,
-     10
+     2,
+     17
     ],
     "best": [
-     2018,
-     11,
-     13,
-     19
+     2017,
+     14,
+     7,
+     9
     ]
    },
    "tracks": {
     "fast": {
-     "races": 8,
-     "rel": -0.34
+     "races": 12,
+     "rel": -0.36
     },
     "street": {
-     "races": 5,
-     "rel": -0.7
+     "races": 10,
+     "rel": -0.08
     },
     "technical": {
-     "races": 5,
-     "rel": 1.23
+     "races": 13,
+     "rel": 0.39
+    }
+   }
+  }
+ },
+ "vergne": {
+  "code": "VER",
+  "name": "Jean-Éric Vergne",
+  "nationality": "French",
+  "dob": "1990-04-25",
+  "debut": 2012,
+  "bio": {
+   "text": "Жан-Эрик Серж Раймон Вернь (фр. Jean-Eric Serge Raymond Vergne; род. 25 апреля 1990, Понтуаз, Франция) — французский автогонщик; чемпион британской Формулы-3 (2010). С 2012 по 2014 выступал в Формуле-1 за Toro Rosso. Двукратный чемпион Формулы-E в сезоне 2017/2018 и в сезоне 2018/2019.",
+   "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D1%80%D0%BD%D1%8C,_%D0%96%D0%B0%D0%BD-%D0%AD%D1%80%D0%B8%D0%BA",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 5,
+    "pace_wet": 0.537,
+    "pace_dry": -0.095,
+    "duels_wet": [
+     4,
+     4
+    ],
+    "duels_dry": [
+     13,
+     32
+    ],
+    "best": [
+     2012,
+     2,
+     8,
+     18
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 13,
+     "rel": -0.13
+    },
+    "street": {
+     "races": 10,
+     "rel": 1.14
+    },
+    "technical": {
+     "races": 20,
+     "rel": -0.49
     }
    }
   }
@@ -1896,36 +3435,130 @@
   },
   "conditions": {
    "wet": {
-    "races": 12,
-    "pace_wet": -0.335,
-    "pace_dry": 0.02,
+    "races": 27,
+    "pace_wet": -0.093,
+    "pace_dry": 0.148,
     "duels_wet": [
-     6,
-     10
+     15,
+     23
     ],
     "duels_dry": [
-     32,
-     70
+     101,
+     161
     ],
     "best": [
-     2019,
-     11,
+     2013,
      2,
-     20
+     1,
+     1
     ]
    },
    "tracks": {
     "fast": {
-     "races": 39,
-     "rel": -1.36
+     "races": 76,
+     "rel": -1.1
     },
     "street": {
-     "races": 17,
-     "rel": 4.32
+     "races": 45,
+     "rel": 2.04
     },
     "technical": {
-     "races": 33,
-     "rel": -0.62
+     "races": 91,
+     "rel": -0.09
+    }
+   }
+  }
+ },
+ "webber": {
+  "code": "WEB",
+  "name": "Mark Webber",
+  "nationality": "Australian",
+  "dob": "1976-08-27",
+  "debut": 2002,
+  "bio": {
+   "text": "Марк Алан Уэббер (англ. Mark Alan Webber) — австралийский автогонщик, чемпион мира по автогонкам на выносливость в составе заводской команды Порше (2015). Гонщик Формулы-1 с 2002 по 2013; победитель девяти Гран-при, трижды занимал третье место по итогам чемпионата (2010, 2011, 2013).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%A3%D1%8D%D0%B1%D0%B1%D0%B5%D1%80,_%D0%9C%D0%B0%D1%80%D0%BA_(%D0%B0%D0%B2%D1%82%D0%BE%D0%B3%D0%BE%D0%BD%D1%89%D0%B8%D0%BA)",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 6,
+    "pace_wet": -0.28,
+    "pace_dry": -0.358,
+    "duels_wet": [
+     2,
+     6
+    ],
+    "duels_dry": [
+     5,
+     41
+    ],
+    "best": [
+     2013,
+     2,
+     2,
+     5
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 15,
+     "rel": 2.21
+    },
+    "street": {
+     "races": 13,
+     "rel": -0.38
+    },
+    "technical": {
+     "races": 23,
+     "rel": -1.23
+    }
+   }
+  }
+ },
+ "wehrlein": {
+  "code": "WEH",
+  "name": "Pascal Wehrlein",
+  "nationality": "German",
+  "dob": "1994-10-18",
+  "debut": 2016,
+  "bio": {
+   "text": "Паскаль Верляйн (нем. Pascal Wehrlein; род. 18 октября 1994, Зигмаринген, Германия) — немецкий автогонщик. Чемпион серии Deutsche Tourenwagen Masters 2015 года. В 2016 и 2017 годы выступал в Формуле-1, с февраля 2019 года — тест-пилот команды Формулы-1 Ferrari. С сезона 2020/2021 выступает в Formula E за команду TAG Heuer Porsche Formula E Team. Двукратный чемпион Formula E (2023/2024; 2025/2026).",
+   "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D1%80%D0%BB%D1%8F%D0%B9%D0%BD,_%D0%9F%D0%B0%D1%81%D0%BA%D0%B0%D0%BB%D1%8C",
+   "lang": "ru"
+  },
+  "conditions": {
+   "wet": {
+    "races": 4,
+    "pace_wet": -0.6,
+    "pace_dry": 0.205,
+    "duels_wet": [
+     2,
+     3
+    ],
+    "duels_dry": [
+     17,
+     23
+    ],
+    "best": [
+     2017,
+     14,
+     12,
+     19
+    ]
+   },
+   "tracks": {
+    "fast": {
+     "races": 11,
+     "rel": -0.02
+    },
+    "street": {
+     "races": 7,
+     "rel": -0.14
+    },
+    "technical": {
+     "races": 14,
+     "rel": 0.08
     }
    }
   }
@@ -1963,16 +3596,16 @@
    },
    "tracks": {
     "fast": {
-     "races": 19,
-     "rel": -0.23
+     "races": 18,
+     "rel": -0.17
     },
     "street": {
      "races": 19,
-     "rel": 0.26
+     "rel": 0.2
     },
     "technical": {
-     "races": 20,
-     "rel": -0.03
+     "races": 21,
+     "rel": -0.04
     }
    }
   }

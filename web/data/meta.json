@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-08T11:56:50+00:00",
+ "generated_at": "2026-11-08T14:00:08+00:00",
  "data_through": {
   "season": 2026,
   "round": 19,
@@ -16,13 +16,48 @@
   "2021",
   "2020",
   "2019",
-  "2018"
+  "2018",
+  "2017",
+  "2016",
+  "2015",
+  "2014",
+  "2013",
+  "2012",
+  "2011"
  ],
  "period": [
-  2018,
+  2011,
   2026
  ],
  "season_races": {
+  "2011": {
+   "completed": 19,
+   "scheduled": 19
+  },
+  "2012": {
+   "completed": 20,
+   "scheduled": 20
+  },
+  "2013": {
+   "completed": 19,
+   "scheduled": 19
+  },
+  "2014": {
+   "completed": 19,
+   "scheduled": 19
+  },
+  "2015": {
+   "completed": 19,
+   "scheduled": 19
+  },
+  "2016": {
+   "completed": 21,
+   "scheduled": 21
+  },
+  "2017": {
+   "completed": 20,
+   "scheduled": 20
+  },
   "2018": {
    "completed": 21,
    "scheduled": 21
@@ -61,6 +96,157 @@
   }
  },
  "race_names": {
+  "2011": {
+   "1": "Australian Grand Prix",
+   "2": "Malaysian Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Turkish Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "European Grand Prix",
+   "9": "British Grand Prix",
+   "10": "German Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Italian Grand Prix",
+   "14": "Singapore Grand Prix",
+   "15": "Japanese Grand Prix",
+   "16": "Korean Grand Prix",
+   "17": "Indian Grand Prix",
+   "18": "Abu Dhabi Grand Prix",
+   "19": "Brazilian Grand Prix"
+  },
+  "2012": {
+   "1": "Australian Grand Prix",
+   "2": "Malaysian Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Bahrain Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "European Grand Prix",
+   "9": "British Grand Prix",
+   "10": "German Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Italian Grand Prix",
+   "14": "Singapore Grand Prix",
+   "15": "Japanese Grand Prix",
+   "16": "Korean Grand Prix",
+   "17": "Indian Grand Prix",
+   "18": "Abu Dhabi Grand Prix",
+   "19": "United States Grand Prix",
+   "20": "Brazilian Grand Prix"
+  },
+  "2013": {
+   "1": "Australian Grand Prix",
+   "2": "Malaysian Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Bahrain Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "British Grand Prix",
+   "9": "German Grand Prix",
+   "10": "Hungarian Grand Prix",
+   "11": "Belgian Grand Prix",
+   "12": "Italian Grand Prix",
+   "13": "Singapore Grand Prix",
+   "14": "Korean Grand Prix",
+   "15": "Japanese Grand Prix",
+   "16": "Indian Grand Prix",
+   "17": "Abu Dhabi Grand Prix",
+   "18": "United States Grand Prix",
+   "19": "Brazilian Grand Prix"
+  },
+  "2014": {
+   "1": "Australian Grand Prix",
+   "2": "Malaysian Grand Prix",
+   "3": "Bahrain Grand Prix",
+   "4": "Chinese Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "Austrian Grand Prix",
+   "9": "British Grand Prix",
+   "10": "German Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Italian Grand Prix",
+   "14": "Singapore Grand Prix",
+   "15": "Japanese Grand Prix",
+   "16": "Russian Grand Prix",
+   "17": "United States Grand Prix",
+   "18": "Brazilian Grand Prix",
+   "19": "Abu Dhabi Grand Prix"
+  },
+  "2015": {
+   "1": "Australian Grand Prix",
+   "2": "Malaysian Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Bahrain Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "Austrian Grand Prix",
+   "9": "British Grand Prix",
+   "10": "Hungarian Grand Prix",
+   "11": "Belgian Grand Prix",
+   "12": "Italian Grand Prix",
+   "13": "Singapore Grand Prix",
+   "14": "Japanese Grand Prix",
+   "15": "Russian Grand Prix",
+   "16": "United States Grand Prix",
+   "17": "Mexican Grand Prix",
+   "18": "Brazilian Grand Prix",
+   "19": "Abu Dhabi Grand Prix"
+  },
+  "2016": {
+   "1": "Australian Grand Prix",
+   "2": "Bahrain Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Russian Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "European Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "German Grand Prix",
+   "13": "Belgian Grand Prix",
+   "14": "Italian Grand Prix",
+   "15": "Singapore Grand Prix",
+   "16": "Malaysian Grand Prix",
+   "17": "Japanese Grand Prix",
+   "18": "United States Grand Prix",
+   "19": "Mexican Grand Prix",
+   "20": "Brazilian Grand Prix",
+   "21": "Abu Dhabi Grand Prix"
+  },
+  "2017": {
+   "1": "Australian Grand Prix",
+   "2": "Chinese Grand Prix",
+   "3": "Bahrain Grand Prix",
+   "4": "Russian Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "Azerbaijan Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Italian Grand Prix",
+   "14": "Singapore Grand Prix",
+   "15": "Malaysian Grand Prix",
+   "16": "Japanese Grand Prix",
+   "17": "United States Grand Prix",
+   "18": "Mexican Grand Prix",
+   "19": "Brazilian Grand Prix",
+   "20": "Abu Dhabi Grand Prix"
+  },
   "2018": {
    "1": "Australian Grand Prix",
    "2": "Bahrain Grand Prix",
@@ -542,191 +728,195 @@
  "quali_max_gap_pct": 3.0,
  "models": {
   "quali": {
-   "sigma": 0.4236,
-   "tau0": 0.2659,
-   "tau_rw": 0.0542,
-   "tau_dev": 0.1253,
-   "mu_rookie": -0.1521,
-   "mu_dev": 0.0986,
-   "n_obs": 1839,
-   "log_evidence": -1207.1952,
-   "iterations": 12,
-   "downweighted": 342
+   "sigma": 0.4501,
+   "tau0": 0.2428,
+   "tau_rw": 0.0458,
+   "tau_dev": 0.1527,
+   "mu_rookie": -0.1274,
+   "mu_dev": 0.0813,
+   "n_obs": 3271,
+   "log_evidence": -2334.1512,
+   "iterations": 10,
+   "downweighted": 632
   },
   "race": {
-   "tau0": 0.7035,
-   "tau_rw": 0.1707,
-   "tau_dev": 0.001,
-   "mu_rookie": -0.5324,
-   "mu_dev": 0.3354,
-   "n_obs": 1747,
-   "log_evidence": -1001.0863
+   "tau0": 0.6119,
+   "tau_rw": 0.1678,
+   "tau_dev": 0.1214,
+   "mu_rookie": -0.3279,
+   "mu_dev": 0.3052,
+   "n_obs": 2763,
+   "log_evidence": -1661.0317
   },
   "pace": {
-   "sigma": 0.379,
-   "tau0": 0.1934,
-   "tau_rw": 0.0843,
-   "tau_dev": 0.1672,
-   "mu_rookie": -0.0395,
-   "mu_dev": 0.0463,
-   "n_obs": 1715,
-   "log_evidence": -947.9019,
-   "iterations": 11,
-   "downweighted": 353
+   "sigma": 0.3917,
+   "tau0": 0.1527,
+   "tau_rw": 0.0614,
+   "tau_dev": 0.1166,
+   "mu_rookie": -0.028,
+   "mu_dev": 0.04,
+   "n_obs": 2999,
+   "log_evidence": -1723.0436,
+   "iterations": 10,
+   "downweighted": 633
   }
  },
  "counts": {
-  "quali_valid": 1839,
-  "quali_total": 1940,
-  "race_valid": 1747,
-  "race_total": 2243,
+  "quali_valid": 3271,
+  "quali_total": 3420,
+  "race_valid": 2763,
+  "race_total": 3741,
   "race_excluded": {
-   "техника": 298,
-   "неясный сход": 143,
+   "техника": 626,
+   "неясный сход": 290,
    "чужая ошибка": 40,
-   "дисквалификация": 14,
-   "оба сошли по своей ошибке": 1
+   "дисквалификация": 17,
+   "оба сошли по своей ошибке": 5
   },
-  "starts": 3876,
-  "pace_pairs_valid": 1715,
-  "overtakes": 7116
+  "starts": 6873,
+  "pace_pairs_valid": 2999,
+  "overtakes": 12633
  },
  "car_expectations": {
   "gap_from": [
    0.0,
    0.0,
-   0.26,
-   0.57,
-   0.83,
-   1.02,
-   1.17,
-   1.35,
-   1.53,
-   1.73,
-   1.96,
-   2.28
+   0.31,
+   0.59,
+   0.84,
+   1.07,
+   1.25,
+   1.44,
+   1.63,
+   1.81,
+   2.06,
+   2.58
   ],
   "gap_to": [
    0.0,
-   0.26,
-   0.57,
-   0.83,
-   1.02,
-   1.17,
-   1.35,
-   1.53,
-   1.73,
-   1.96,
-   2.28,
-   4.0
+   0.31,
+   0.59,
+   0.84,
+   1.07,
+   1.25,
+   1.44,
+   1.63,
+   1.81,
+   2.06,
+   2.58,
+   5.94
   ],
   "points": [
-   16.54,
-   12.7,
-   10.19,
-   5.94,
-   4.56,
-   3.26,
-   3.11,
-   2.26,
-   2.45,
-   2.12,
-   1.14,
-   0.19
+   17.27,
+   12.96,
+   9.89,
+   6.33,
+   4.25,
+   3.69,
+   2.91,
+   2.23,
+   2.03,
+   1.45,
+   0.62,
+   0.02
   ],
   "position": [
-   2.99,
-   4.38,
-   5.67,
-   8.38,
-   9.82,
-   10.32,
+   2.76,
+   4.33,
+   5.78,
+   7.95,
+   9.65,
+   9.77,
    10.5,
-   11.34,
-   10.83,
-   11.09,
-   12.31,
-   15.13
+   10.75,
+   11.23,
+   11.87,
+   13.45,
+   16.9
   ]
  },
  "validation": {
   "groups": {
    "results": {
-    "reliability": 0.9653,
-    "moved": -0.1029,
-    "stayed": 0.8099
+    "reliability": 0.9632,
+    "moved": 0.1516,
+    "stayed": 0.8187
    },
    "above_car": {
-    "reliability": 0.9243,
-    "moved": 0.4317,
-    "stayed": 0.8334
+    "reliability": 0.8758,
+    "moved": 0.2603,
+    "stayed": 0.7784
    },
    "quali": {
-    "reliability": 0.9773,
-    "moved": 0.144,
-    "stayed": 0.835
+    "reliability": 0.9835,
+    "moved": 0.4675,
+    "stayed": 0.8519
    },
    "pace": {
-    "reliability": 0.8638,
-    "moved": 0.0143,
-    "stayed": 0.6188
+    "reliability": 0.9113,
+    "moved": 0.2116,
+    "stayed": 0.6599
    },
    "racecraft": {
-    "reliability": 0.8593,
-    "moved": 0.197,
-    "stayed": 0.5757
+    "reliability": 0.8354,
+    "moved": 0.2839,
+    "stayed": 0.566
    },
    "clean": {
-    "reliability": 0.1764,
-    "moved": -0.2344,
-    "stayed": 0.0981
+    "reliability": 0.1638,
+    "moved": -0.0672,
+    "stayed": 0.1593
    },
    "teammate": {
-    "reliability": 0.9848,
-    "moved": 0.3733,
-    "stayed": 0.8668
+    "reliability": 0.9817,
+    "moved": 0.7216,
+    "stayed": 0.8622
    },
    "overall": {
-    "reliability": 0.96,
-    "moved": 0.4252,
-    "stayed": 0.8756
+    "reliability": 0.9556,
+    "moved": 0.5146,
+    "stayed": 0.8737
    }
   },
-  "n_moved": 24,
-  "n_stayed": 114,
+  "n_moved": 51,
+  "n_stayed": 206,
   "data_weights": {
-   "results": 0.0,
-   "above_car": 0.372,
-   "quali": 0.124,
-   "pace": 0.012,
-   "racecraft": 0.17,
+   "results": 0.072,
+   "above_car": 0.124,
+   "quali": 0.223,
+   "pace": 0.101,
+   "racecraft": 0.135,
    "clean": 0.0,
-   "teammate": 0.322,
+   "teammate": 0.344,
    "career": 0.0
   },
-  "expert_spearman": 0.8836
+  "expert_spearman": 0.903
  },
  "track_types": {
   "fast": [
    [
-    "hockenheimring",
-    216.0
+    "interlagos",
+    211.0
    ],
    [
-    "yas-marina",
-    217.0
+    "portimao",
+    211.0
+   ],
+   [
+    "istanbul",
+    212.0
    ],
    [
     "sirius",
-    218.0
+    217.0
+   ],
+   [
+    "suzuka",
+    221.0
    ],
    [
     "paul-ricard",
     221.0
-   ],
-   [
-    "suzuka",
-    226.0
    ],
    [
     "imola",
@@ -734,19 +924,19 @@
    ],
    [
     "spielberg",
-    231.0
+    230.0
+   ],
+   [
+    "spa-francorchamps",
+    232.0
+   ],
+   [
+    "silverstone",
+    234.0
    ],
    [
     "lusail",
     234.0
-   ],
-   [
-    "spa-francorchamps",
-    236.0
-   ],
-   [
-    "silverstone",
-    238.0
    ],
    [
     "mugello",
@@ -754,17 +944,21 @@
    ],
    [
     "monza",
-    252.0
+    247.0
    ]
   ],
   "street": [
    [
     "monaco",
-    162.0
+    161.0
    ],
    [
     "marina-bay",
-    186.0
+    172.0
+   ],
+   [
+    "valencia",
+    191.0
    ],
    [
     "madring",
@@ -776,7 +970,7 @@
    ],
    [
     "montreal",
-    212.0
+    209.0
    ],
    [
     "miami",
@@ -784,7 +978,7 @@
    ],
    [
     "melbourne",
-    231.0
+    221.0
    ],
    [
     "las-vegas",
@@ -798,60 +992,71 @@
   "technical": [
    [
     "mexico-city",
-    196.0
+    195.0
    ],
    [
     "hungaroring",
-    197.0
+    195.0
+   ],
+   [
+    "nurburgring",
+    198.0
+   ],
+   [
+    "yas-marina",
+    198.0
+   ],
+   [
+    "yeongam",
+    199.0
    ],
    [
     "sepang",
-    203.0
-   ],
-   [
-    "austin",
-    203.0
+    200.0
    ],
    [
     "shanghai",
-    206.0
+    202.0
    ],
    [
-    "istanbul",
-    206.0
+    "austin",
+    202.0
+   ],
+   [
+    "catalunya",
+    205.0
+   ],
+   [
+    "bahrain",
+    207.0
    ],
    [
     "zandvoort",
     208.0
    ],
    [
-    "bahrain",
-    209.0
-   ],
-   [
-    "nurburgring",
+    "hockenheimring",
     210.0
    ],
    [
-    "portimao",
-    211.0
-   ],
-   [
-    "interlagos",
-    214.0
-   ],
-   [
-    "catalunya",
-    214.0
+    "buddh",
+    210.0
    ]
   ]
  },
  "wet": {
-  "races": 21,
-  "checked": 21
+  "races": 36,
+  "checked": 36
  },
  "backtest": {
   "seasons": [
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
    2019,
    2020,
    2021,
@@ -863,63 +1068,63 @@
   ],
   "quali": {
    "all": {
-    "n": 1640,
-    "mae_model": 0.4604,
+    "n": 3054,
+    "mae_model": 0.4614,
     "mae_baseline": 0.4851,
-    "sign_accuracy": 0.6397,
-    "season_pairs": 87,
-    "season_sign_accuracy": 0.7126,
-    "season_corr": 0.5077
+    "sign_accuracy": 0.6368,
+    "season_pairs": 158,
+    "season_sign_accuracy": 0.7785,
+    "season_corr": 0.5756
    },
    "known": {
-    "n": 1336,
-    "mae_model": 0.4368,
-    "mae_baseline": 0.4697,
-    "sign_accuracy": 0.6355,
-    "season_pairs": 70,
-    "season_sign_accuracy": 0.7286,
-    "season_corr": 0.6002
+    "n": 2414,
+    "mae_model": 0.4338,
+    "mae_baseline": 0.4627,
+    "sign_accuracy": 0.6437,
+    "season_pairs": 128,
+    "season_sign_accuracy": 0.7969,
+    "season_corr": 0.6265
    },
    "new_pairs": {
-    "n": 479,
-    "mae_model": 0.4925,
-    "mae_baseline": 0.4965,
-    "sign_accuracy": 0.5678,
-    "season_pairs": 25,
-    "season_sign_accuracy": 0.6,
-    "season_corr": 0.3528
+    "n": 923,
+    "mae_model": 0.4818,
+    "mae_baseline": 0.4888,
+    "sign_accuracy": 0.6067,
+    "season_pairs": 50,
+    "season_sign_accuracy": 0.76,
+    "season_corr": 0.4753
    }
   },
   "race": {
    "all": {
-    "n": 1341,
-    "accuracy": 0.5958,
-    "log_loss": 0.6571,
+    "n": 2333,
+    "accuracy": 0.6121,
+    "log_loss": 0.6513,
     "log_loss_coin": 0.6931,
-    "brier": 0.233,
+    "brier": 0.2303,
     "brier_coin": 0.25,
-    "season_pairs": 79,
-    "season_accuracy": 0.6203
+    "season_pairs": 143,
+    "season_accuracy": 0.7203
    },
    "known": {
-    "n": 1094,
-    "accuracy": 0.5996,
-    "log_loss": 0.6518,
+    "n": 1855,
+    "accuracy": 0.614,
+    "log_loss": 0.646,
     "log_loss_coin": 0.6931,
-    "brier": 0.2308,
+    "brier": 0.2279,
     "brier_coin": 0.25,
-    "season_pairs": 64,
-    "season_accuracy": 0.6562
+    "season_pairs": 115,
+    "season_accuracy": 0.7217
    },
    "new_pairs": {
-    "n": 399,
-    "accuracy": 0.5514,
-    "log_loss": 0.6693,
+    "n": 725,
+    "accuracy": 0.5917,
+    "log_loss": 0.673,
     "log_loss_coin": 0.6931,
-    "brier": 0.2399,
+    "brier": 0.2405,
     "brier_coin": 0.25,
-    "season_pairs": 24,
-    "season_accuracy": 0.5
+    "season_pairs": 45,
+    "season_accuracy": 0.6889
    }
   }
  },
@@ -951,7 +1156,7 @@
      "sainz": 7,
      "leclerc": 5,
      "bearman": 10,
-     "hadjar": 12,
+     "hadjar": 13,
      "hulkenberg": 11
     }
    },
@@ -969,9 +1174,9 @@
      "gasly"
     ],
     "overlap": 9,
-    "overlap_old": 8,
+    "overlap_old": 9,
     "spearman": 0.9515,
-    "spearman_old": 0.7212,
+    "spearman_old": 0.7939,
     "our_ranks": {
      "max_verstappen": 1,
      "norris": 2,
@@ -1000,19 +1205,19 @@
     ],
     "overlap": 9,
     "overlap_old": 8,
-    "spearman": 0.7091,
+    "spearman": 0.8424,
     "spearman_old": 0.8667,
     "our_ranks": {
      "max_verstappen": 1,
      "alonso": 2,
-     "norris": 6,
+     "norris": 5,
      "leclerc": 3,
      "hamilton": 4,
-     "sainz": 7,
+     "sainz": 6,
      "piastri": 12,
      "albon": 10,
      "russell": 8,
-     "perez": 5
+     "perez": 7
     }
    },
    "2022": {
@@ -1030,18 +1235,18 @@
     ],
     "overlap": 9,
     "overlap_old": 8,
-    "spearman": 0.9273,
+    "spearman": 0.8909,
     "spearman_old": 0.6364,
     "our_ranks": {
      "max_verstappen": 1,
      "leclerc": 2,
-     "russell": 4,
+     "russell": 5,
      "hamilton": 6,
      "perez": 3,
-     "norris": 5,
+     "norris": 4,
      "sainz": 7,
      "alonso": 8,
-     "bottas": 12,
+     "bottas": 11,
      "vettel": 10
     }
    },
@@ -1061,7 +1266,7 @@
     "overlap": 8,
     "overlap_old": 9,
     "spearman": 0.8909,
-    "spearman_old": 0.8909,
+    "spearman_old": 0.903,
     "our_ranks": {
      "max_verstappen": 1,
      "hamilton": 2,
