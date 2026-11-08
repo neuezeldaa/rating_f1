@@ -326,6 +326,7 @@
       renderScopeNote();
     });
     $("#footer").textContent =
+      "Неофициальный фан-проект, не связан с Formula 1 и FIA. " +
       `Данные: Jolpica F1 API и F1DB (CC BY 4.0), биографии — Википедия (CC BY-SA 4.0). ` +
       `По состоянию на ${through.race_name} ${through.season}. ` +
       `Сгенерировано ${new Date(meta.generated_at).toLocaleString("ru-RU")}.`;

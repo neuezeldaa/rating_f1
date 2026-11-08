@@ -1,0 +1,74 @@
+# Пересчёт рейтинга и публикация сайта на GitHub Pages.
+#
+# Запускается каждый понедельник после гоночных выходных, при каждом push в main
+# и по кнопке Run workflow на вкладке Actions. Скачанные данные (data/raw) хранятся
+# в кэше Actions между запусками: первый запуск — около 15–20 минут, дальше 6–8.
+# Отчёт запуска (Summary): данные по какой гонке, топ и проверки рейтинга.
+#
+# В настройках репозитория: Settings → Pages → Source: GitHub Actions.
+
+name: Обновление рейтинга
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # понедельник, 06:00 UTC (09:00 по Москве)
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Один запуск за раз: новый ждёт окончания текущего, а не отменяет его.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            constraints.txt
+
+      - name: Зависимости (версии — как в constraints.txt)
+        run: pip install -c constraints.txt -e .
+
+      - name: Кэш скачанных данных
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+          restore-keys: raw-
+
+      - name: Пайплайн
+        run: python -I -m rating_f1.pipeline
+
+      - name: Отчёт запуска
+        run: python -I -m rating_f1.report >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

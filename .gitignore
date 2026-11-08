@@ -10,3 +10,7 @@ data/raw/
 data/processed/
 data/*.duckdb
 data/*.duckdb.wal
+
+# Данные сайта: локально их пишет пайплайн, на GitHub Pages — workflow «Обновление рейтинга».
+# В git не храним, иначе репозиторий растёт на несколько мегабайт с каждым пересчётом.
+web/data/
