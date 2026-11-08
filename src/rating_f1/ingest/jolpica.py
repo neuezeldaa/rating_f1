@@ -16,6 +16,7 @@ from ..config import JOLPICA_RAW
 
 BASE_URL = "https://api.jolpi.ca/ergast/f1"
 PAGE_LIMIT = 100  # больше Jolpica не отдаёт за один запрос
+MAX_WAIT_S = 120  # потолок ожидания перед повтором, даже если сервер просит больше
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class JolpicaClient:
                 continue
             if resp.status_code == 429 or resp.status_code >= 500:
                 retry_after = resp.headers.get("Retry-After", "")
-                delay = float(retry_after) if retry_after.isdigit() else 2 ** (attempt + 1)
+                delay = min(float(retry_after) if retry_after.isdigit() else 2 ** (attempt + 1), MAX_WAIT_S)
                 log.warning("Jolpica: ответ %s, повтор через %s с", resp.status_code, delay)
                 time.sleep(delay)
                 continue
@@ -65,8 +66,17 @@ class JolpicaClient:
                 data = json.loads(path.read_text(encoding="utf-8"))
             else:
                 url = f"{BASE_URL}/{season}/{endpoint}/"
-                data = self._get(url, {"limit": PAGE_LIMIT, "offset": offset})
-                path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+                try:
+                    data = self._get(url, {"limit": PAGE_LIMIT, "offset": offset})
+                except RuntimeError:
+                    if not path.exists():
+                        raise
+                    # Jolpica так и не ответила — берём сохранённую страницу: рейтинг обновится
+                    # без последней гонки, но не упадёт.
+                    log.warning("Jolpica: не ответила — беру сохранённую страницу %s/%s", season, path.name)
+                    data = json.loads(path.read_text(encoding="utf-8"))
+                else:
+                    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
             pages.append(data)
             offset += PAGE_LIMIT
             if offset >= int(data["MRData"]["total"]):

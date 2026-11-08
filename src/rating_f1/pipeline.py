@@ -5,13 +5,16 @@
     python -m rating_f1.pipeline --refresh    # перекачает все сезоны
     python -m rating_f1.pipeline --offline    # без сети, из data/processed
     python -m rating_f1.pipeline --no-backtest
+    python -m rating_f1.pipeline --reuse-backtest   # проверку прогнозом — из прошлого прогона, если свежая
 """
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 import time
+from datetime import date
 
 import numpy as np
 import pandas as pd
@@ -22,9 +25,10 @@ from .clean.enrich import enrich_results
 from .clean.overrides import load_overrides
 from .clean.status import classify_status
 from .composite import GROUPS, PERIOD, build_scopes, expert_agreement
-from .config import (FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH, REFERENCE_LAP_S, ROOT, SEED,
-                     WEIGHTS_PERIOD, WEIGHTS_SEASON)
+from .config import (FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH, RAW, REFERENCE_LAP_S, ROOT,
+                     SEED, WEIGHTS_PERIOD, WEIGHTS_SEASON)
 from .evaluate import backtest
+from .export import _clean as clean_json
 from .export import export_web
 from .features.car_level import above_car, car_levels, sprint_records
 from .features.conditions import driver_conditions, track_types, wet_races
@@ -47,6 +51,23 @@ from .validate import report as validation_report
 EXPERT_PATH = ROOT / "annotations" / "expert_rankings.yaml"
 WET_PATH = ROOT / "annotations" / "wet_races.yaml"
 log = logging.getLogger("rating_f1")
+# Проверка прогнозом — самая долгая часть (модель напарников заново обучается для каждого
+# сезона), а её цифры от недели к неделе почти не меняются: автообновление берёт прошлый
+# результат, пока ему меньше месяца.
+BACKTEST_CACHE = RAW / "backtest.json"
+BACKTEST_MAX_AGE_DAYS = 35
+
+
+def _cached_backtest():
+    """Проверка прогнозом из прошлого прогона, если она свежая; иначе None."""
+    if not BACKTEST_CACHE.exists():
+        return None
+    saved = json.loads(BACKTEST_CACHE.read_text(encoding="utf-8"))
+    age = (date.today() - date.fromisoformat(saved["date"])).days
+    if age > BACKTEST_MAX_AGE_DAYS:
+        return None
+    log.info("Проверка прогнозом — из прогона %s (%s дн. назад)", saved["date"], age)
+    return saved["result"]
 
 
 def teammate_model(qp: pd.DataFrame, rd: pd.DataFrame, pp: pd.DataFrame, results: pd.DataFrame, debut: dict):
@@ -114,6 +135,8 @@ def main(argv=None) -> None:
     parser.add_argument("--refresh", action="store_true", help="перекачать все сезоны из Jolpica")
     parser.add_argument("--offline", action="store_true", help="не ходить в сеть, взять таблицы из data/processed")
     parser.add_argument("--no-backtest", action="store_true", help="пропустить проверку прогнозом")
+    parser.add_argument("--reuse-backtest", action="store_true",
+                        help=f"взять проверку прогнозом из прошлого прогона, если ей меньше {BACKTEST_MAX_AGE_DAYS} дней")
     parser.add_argument("--no-intervals", action="store_true",
                         help="не считать вилки балла и места (пересчёты на перевыбранных этапах)")
     args = parser.parse_args(argv)
@@ -234,7 +257,13 @@ def main(argv=None) -> None:
 
     check = None
     if not args.no_backtest:
-        check = backtest(qp, rd, seasons, debut)
+        check = _cached_backtest() if args.reuse_backtest else None
+        if check is None:
+            check = backtest(qp, rd, seasons, debut)
+            BACKTEST_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            check = clean_json(check)  # обычные числа и строковые ключи: и для кэша, и для сайта
+            BACKTEST_CACHE.write_text(json.dumps({"date": date.today().isoformat(), "result": check}),
+                                      encoding="utf-8")
         q_new, r_new = check["quali"]["new_pairs"], check["race"]["new_pairs"]
         log.info("Модель напарников, новые пары: квала — сильнейший угадан в %.0f%% из %s пар; "
                  "гонка — в %.0f%% из %s пар", 100 * q_new["season_sign_accuracy"], q_new["season_pairs"],

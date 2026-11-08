@@ -2,7 +2,7 @@
 #
 # Запускается каждый понедельник после гоночных выходных, при каждом push в main
 # и по кнопке Run workflow на вкладке Actions. Скачанные данные (data/raw) хранятся
-# в кэше Actions между запусками: первый запуск — около 15–20 минут, дальше 6–8.
+# в кэше Actions между запусками, прошлые сезоны есть ещё и в data/seed.zip.
 # Отчёт запуска (Summary): данные по какой гонке, топ и проверки рейтинга.
 #
 # В настройках репозитория: Settings → Pages → Source: GitHub Actions.
@@ -51,8 +51,20 @@ jobs:
           key: raw-${{ github.run_id }}
           restore-keys: raw-
 
+      # Если кэш пропал (GitHub удаляет его через 7 дней без обращений), прошлые сезоны берутся
+      # из data/seed.zip, а не скачиваются заново.
+      - name: Начальные данные
+        run: python -I -m rating_f1.seed unpack
+
+      # Проверка прогнозом — самая долгая часть: при ручном запуске считается заново,
+      # в остальных — берётся из прошлого прогона, пока ей меньше 35 дней.
       - name: Пайплайн
-        run: python -I -m rating_f1.pipeline
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python -I -m rating_f1.pipeline
+          else
+            python -I -m rating_f1.pipeline --reuse-backtest
+          fi
 
       - name: Отчёт запуска
         run: python -I -m rating_f1.report >> "$GITHUB_STEP_SUMMARY"

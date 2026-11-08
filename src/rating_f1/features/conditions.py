@@ -85,10 +85,12 @@ def driver_conditions(records: pd.DataFrame, pace_pairs: pd.DataFrame, duels: pd
     """Справка для карточек: ({пилот: за все сезоны}, {(пилот, сезон): дождевые гонки сезона})."""
     rain = wet[wet["wet"] & ~wet["no_racing"]][KEY]
     r = records.merge(rain.assign(rainy=True), on=KEY, how="left").merge(tracks[KEY + ["track_type"]], on=KEY, how="left")
-    r["rainy"] = r["rainy"].fillna(False).astype(bool)
+    r["rainy"] = r["rainy"].eq(True)  # после left join у сухих гонок NaN → False
     pace, duel = _teammate_long(pace_pairs, duels)
-    pace = pace.merge(rain.assign(rainy=True), on=KEY, how="left").fillna({"rainy": False})
-    duel = duel.merge(rain.assign(rainy=True), on=KEY, how="left").fillna({"rainy": False})
+    pace = pace.merge(rain.assign(rainy=True), on=KEY, how="left")
+    pace["rainy"] = pace["rainy"].eq(True)
+    duel = duel.merge(rain.assign(rainy=True), on=KEY, how="left")
+    duel["rainy"] = duel["rainy"].eq(True)
 
     period = {}
     for driver, g in r.groupby("driver_id"):
