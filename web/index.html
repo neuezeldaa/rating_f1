@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Рейтинг пилотов F1</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <header class="page-header">
@@ -85,16 +85,19 @@
       <div class="table-wrap"><table class="mini" id="graph-mates"></table></div>
     </section>
 
-    <section class="card method" aria-labelledby="method-title">
-      <h2 id="method-title">Как это посчитано</h2>
+    <details class="card method" id="method">
+      <summary>
+        <span class="summary-title">Как это посчитано</span>
+        <span class="summary-value">группы признаков, вилки, сверка с экспертами, источники</span>
+      </summary>
       <div id="method-body"></div>
-    </section>
+    </details>
   </main>
 
   <footer id="footer"></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <script src="data/data.js"></script>
-  <script src="app.js?v=7"></script>
+  <script src="data/data.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

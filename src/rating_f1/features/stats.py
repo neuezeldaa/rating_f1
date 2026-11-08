@@ -13,7 +13,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..clean.status import DRIVER_ERROR, FINISHED, MECHANICAL, classify_status
+from ..clean.status import (DISQUALIFIED, DRIVER_ERROR, FINISHED, MECHANICAL, UNCLEAR, classify_status,
+                            is_collision)
 from .car_level import summarize_above_car
 
 BASE_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
@@ -67,6 +68,7 @@ def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.
     r["mate_points"] = team - r["base_points"]
     r["driver_error"] = r["category"] == DRIVER_ERROR
     r["mechanical"] = r["category"] == MECHANICAL
+    r["contact"] = (r["category"] == UNCLEAR) & r["status_detail"].map(is_collision)
     r["finished"] = finished
     r["penalty"] = r["time_penalty_s"].fillna(0) > 0
     r["dotd"] = r["driver_of_the_day"]
@@ -102,6 +104,7 @@ def summarize(records: pd.DataFrame, sprints: pd.DataFrame) -> pd.DataFrame:
         "finish_pos": g["finish_pos"].mean(),
         "finished": g["finished"].sum(),
         "driver_errors": g["driver_error"].sum(),
+        "contacts": g["contact"].sum(),
         "mechanical": g["mechanical"].sum(),
         "penalties": g["penalty"].sum(),
         "dotd": g["dotd"].sum(),
@@ -110,3 +113,25 @@ def summarize(records: pd.DataFrame, sprints: pd.DataFrame) -> pd.DataFrame:
         "mate_points": g["mate_points"].sum(),
     })
     return out.join(summarize_above_car(records, sprints))
+
+
+def incident_lists(records: pd.DataFrame) -> dict:
+    """Что пошло не так в гонках пилота — для карточки «Аккуратность».
+
+    {(пилот, сезон): [[этап, вид, причина или секунды штрафа, круг схода], …]};
+    вид: error — своя ошибка, contact — столкновение, penalty — штраф по времени,
+    mech — поломка, dsq — дисквалификация (последние два в балл не идут).
+    """
+    out: dict = {}
+    for rec in records.itertuples(index=False):
+        items = []
+        lap = None if pd.isna(rec.laps) else int(rec.laps) + 1
+        kind = ("error" if rec.driver_error else "contact" if rec.contact else "mech" if rec.mechanical
+                else "dsq" if rec.category == DISQUALIFIED else None)
+        if kind:
+            items.append([int(rec.round), kind, str(rec.status_detail), lap])
+        if rec.penalty:
+            items.append([int(rec.round), "penalty", float(rec.time_penalty_s), None])
+        if items:
+            out.setdefault((rec.driver_id, int(rec.season)), []).extend(items)
+    return out

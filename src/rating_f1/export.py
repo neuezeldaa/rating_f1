@@ -21,9 +21,11 @@ from .config import (
     WEIGHTS_PERIOD,
     WEIGHTS_SEASON,
 )
+from .intervals import encode
 
 STAT_COLS = ["points", "wins", "podiums", "top10", "poles", "fastest_laps", "grand_slams", "dotd",
-             "driver_errors", "mechanical", "penalties", "finished", "overtakes_total", "standouts"]
+             "driver_errors", "contacts", "mechanical", "penalties", "finished", "overtakes_total", "standouts"]
+WIKI_LINK = ("https://ru.wikipedia.org/", "https://en.wikipedia.org/")
 
 
 def _clean(obj):
@@ -91,7 +93,14 @@ def _entries(table: pd.DataFrame, teams: dict, extra: dict) -> list:
 
 
 def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, context: pd.DataFrame,
-               models: dict, backtest, expert: dict, counts: dict, expectations: dict, graph: dict) -> dict:
+               models: dict, backtest, expert: dict, counts: dict, expectations: dict, graph: dict,
+               draws: dict | None = None, bios: dict | None = None, incidents: dict | None = None,
+               validation: dict | None = None) -> dict:
+    """draws — пересчёты для вилок балла и места (intervals.bootstrap); None — без вилок.
+    bios — краткие биографии из Википедии; incidents — происшествия по сезонам (stats.incident_lists);
+    validation — проверки рейтинга (validate.report).
+    """
+    bios, incidents = bios or {}, incidents or {}
     races = tables["races"]
     done = races[races["completed"]].sort_values(["season", "round"])
     last = done.iloc[-1]
@@ -128,7 +137,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
             extra = {}
             for d in table.index:
                 item = {"standing": _num(st["position"].get(d)) if d in st.index else None,
-                        "champion": bool(st["champion"].get(d, False)) if d in st.index else False}
+                        "champion": bool(st["champion"].get(d, False)) if d in st.index else False,
+                        "incidents": incidents.get((d, season), [])}
                 if d in tm_season.index:
                     rec = tm_season.loc[d].to_dict()
                     item["tm"] = _teammate_block(rec)
@@ -149,6 +159,9 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         }
         for d in sorted(rated) if d in drivers_df.index
     }
+    for d, bio in bios.items():
+        if d in drivers and bio["url"].startswith(WIKI_LINK):
+            drivers[d]["bio"] = bio
 
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -158,6 +171,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         "period": [int(races["season"].min()), int(races["season"].max())],
         "season_races": {str(int(s)): {"completed": int(g["completed"].sum()), "scheduled": int(len(g))}
                          for s, g in races.groupby("season")},
+        "race_names": {str(int(s)): {str(int(r)): n for r, n in zip(g["round"], g["race_name"])}
+                       for s, g in races.groupby("season")},
         "groups": [{"id": g.id, "name": g.name, "about": g.about} for g in GROUPS],
         "features": [{"id": f.id, "group": f.group, "name": f.name, "unit": f.unit, "better": f.better}
                      for f in FEATURES],
@@ -165,12 +180,14 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         "min_starts": {"period": MIN_RACES_PERIOD, "season": MIN_RACES_FOR_RANK},
         "shrink_races": SHRINK_RACES,
         "interval": INTERVAL,
+        "draws": next((d["z"].shape[2] for d in draws.values()), None) if draws else None,
         "reference_lap_s": REFERENCE_LAP_S,
         "sprint_weight": SPRINT_WEIGHT,
         "quali_max_gap_pct": QUALI_MAX_GAP_PCT,
         "models": models,
         "counts": counts,
         "car_expectations": expectations,
+        "validation": validation,
         "backtest": backtest,
         "expert": expert,
         "sources": [
@@ -181,14 +198,17 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
              "what": "позиции и время каждого пилота на каждом круге, пит-стопы"},
             {"name": "Опрос руководителей команд F1", "url": "https://www.formula1.com",
              "what": "только для сверки, 2021–2025"},
+            {"name": "Википедия", "url": "https://ru.wikipedia.org",
+             "what": "краткие биографии пилотов (CC BY-SA 4.0)"},
         ],
     }
 
     payload = _clean({"meta": meta, "drivers": drivers, "scopes": scope_json, "graph": graph})
+    payload["draws"] = encode(draws) if draws else {}
     WEB_DATA.mkdir(parents=True, exist_ok=True)
     for old in ("seasons.json",):
         (WEB_DATA / old).unlink(missing_ok=True)
-    for name in ("meta", "drivers", "scopes", "graph"):
+    for name in ("meta", "drivers", "scopes", "graph", "draws"):
         (WEB_DATA / f"{name}.json").write_text(
             json.dumps(payload[name], ensure_ascii=False, indent=1), encoding="utf-8")
     (WEB_DATA / "data.js").write_text(

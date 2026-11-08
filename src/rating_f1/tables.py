@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 BASE_TABLES = ("races", "drivers", "constructors", "results", "qualifying",
                "f1db_results", "fastest_laps", "standings", "laps", "pit_stops")
-DRIVER_COLS = ["driver_id", "code", "given_name", "family_name", "nationality", "dob", "permanent_number"]
+DRIVER_COLS = ["driver_id", "code", "given_name", "family_name", "nationality", "dob", "permanent_number", "wiki_url"]
 CONSTRUCTOR_COLS = ["constructor_id", "constructor_name", "constructor_nationality"]
 INT_COLS = ["number", "position", "grid", "laps", "time_ms", "permanent_number", "debut_season"]
 
@@ -79,6 +79,7 @@ def _entry(race: dict, item: dict) -> dict:
         "nationality": driver.get("nationality"),
         "dob": driver.get("dateOfBirth"),
         "permanent_number": _int(driver.get("permanentNumber")),
+        "wiki_url": driver.get("url"),  # статья в английской Википедии — для краткой биографии
         "constructor_id": constructor.get("constructorId"),
         "constructor_name": constructor.get("name"),
         "constructor_nationality": constructor.get("nationality"),

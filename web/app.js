@@ -50,6 +50,44 @@
   };
   const country = (nationality) => COUNTRIES[nationality] || nationality;
 
+  // Этапы и причины сходов по-русски — для списка происшествий в «Аккуратности».
+  const GP_RU = {
+    "70th Anniversary Grand Prix": "Гран-при 70-летия", "Abu Dhabi Grand Prix": "Абу-Даби",
+    "Australian Grand Prix": "Австралия", "Austrian Grand Prix": "Австрия", "Azerbaijan Grand Prix": "Азербайджан",
+    "Bahrain Grand Prix": "Бахрейн", "Bahrain Grand Prix in Malaysia": "Бахрейн (в Малайзии)",
+    "Barcelona Grand Prix": "Барселона", "Belgian Grand Prix": "Бельгия", "Brazilian Grand Prix": "Бразилия",
+    "British Grand Prix": "Великобритания", "Canadian Grand Prix": "Канада", "Chinese Grand Prix": "Китай",
+    "Dutch Grand Prix": "Нидерланды", "Eifel Grand Prix": "Айфель", "Emilia Romagna Grand Prix": "Эмилия-Романья",
+    "French Grand Prix": "Франция", "German Grand Prix": "Германия", "Hungarian Grand Prix": "Венгрия",
+    "Italian Grand Prix": "Италия", "Japanese Grand Prix": "Япония", "Las Vegas Grand Prix": "Лас-Вегас",
+    "Mexican Grand Prix": "Мексика", "Mexico City Grand Prix": "Мехико", "Miami Grand Prix": "Майами",
+    "Monaco Grand Prix": "Монако", "Portuguese Grand Prix": "Португалия", "Qatar Grand Prix": "Катар",
+    "Russian Grand Prix": "Россия", "Sakhir Grand Prix": "Сахир", "Saudi Arabian Grand Prix": "Саудовская Аравия",
+    "Singapore Grand Prix": "Сингапур", "Spanish Grand Prix": "Испания", "Styrian Grand Prix": "Штирия",
+    "São Paulo Grand Prix": "Сан-Паулу", "Turkish Grand Prix": "Турция", "Tuscan Grand Prix": "Тоскана",
+    "United States Grand Prix": "США",
+  };
+  const CAUSE_RU = {
+    Accident: "авария", "Spun off": "разворот", "Accident damage": "повреждения после аварии",
+    "Accident on formation lap": "авария на прогревочном круге", Collision: "столкновение",
+    "Collision damage": "повреждения после столкновения",
+    Engine: "двигатель", Gearbox: "коробка передач", Brakes: "тормоза", Hydraulics: "гидравлика",
+    "Power unit": "силовая установка", Suspension: "подвеска", Overheating: "перегрев", "Power loss": "потеря мощности",
+    "Oil leak": "утечка масла", Electrical: "электрика", Undertray: "днище", Puncture: "прокол",
+    "Water pressure": "давление воды", Wheel: "колесо", Mechanical: "техника", "Fuel system": "топливная система",
+    Battery: "батарея", Clutch: "сцепление", "Water leak": "утечка воды", Transmission: "трансмиссия",
+    Turbo: "турбина", Turbocharger: "турбина", Exhaust: "выхлоп", "Oil pressure": "давление масла",
+    "Fuel pump": "топливный насос", "Fuel leak": "утечка топлива", "Fuel pressure": "давление топлива",
+    "Rear wing": "заднее антикрыло", "Front wing": "переднее антикрыло", Vibrations: "вибрации",
+    Electronics: "электроника", "Coolant leak": "утечка охлаждающей жидкости", "Wheel nut": "колёсная гайка",
+    Handling: "управляемость", Tyre: "шина", Steering: "рулевое управление", Chassis: "шасси",
+    Disqualified: "дисквалификация",
+  };
+  function gpName(season, round) {
+    const en = ((meta.race_names || {})[season] || {})[round];
+    return en ? GP_RU[en] || en.replace(/ Grand Prix$/, "") : `${round}-й этап`;
+  }
+
   function fmtFeature(unit, v) {
     if (v == null) return "—";
     switch (unit) {
@@ -78,13 +116,20 @@
     return many;
   }
 
-  function meter(score, label) {
+  // band — вилка балла [от, до]: рисуется тонким «усом» поверх шкалы.
+  function meter(score, label, band) {
     const box = el("div", "meter");
     box.setAttribute("role", "img");
     box.setAttribute("aria-label", label);
     const fill = el("div", "fill");
     fill.style.width = `${Math.max(0, Math.min(100, score))}%`;
     box.append(fill, el("div", "mid"));
+    if (band) {
+      const whisker = el("div", "band");
+      whisker.style.left = `${band[0]}%`;
+      whisker.style.width = `${Math.max(0, band[1] - band[0])}%`;
+      box.append(whisker);
+    }
     return box;
   }
 
@@ -98,6 +143,13 @@
       w: { results: 5, above_car: 20, quali: 15, pace: 15, racecraft: 10, clean: 5, teammate: 30, career: 0 } },
     { id: "only", name: "Только результаты", w: { ...ZERO, results: 100 } },
   ];
+  // «По данным»: вес группы пропорционален тому, насколько её балл следует за пилотом при смене
+  // команды (validate.py). Округляем до 5%, как шаг ползунков.
+  const DATA_WEIGHTS = meta.validation && meta.validation.data_weights;
+  if (DATA_WEIGHTS) {
+    PRESETS.push({ id: "data", name: "По данным",
+      w: Object.fromEntries(Object.entries(DATA_WEIGHTS).map(([k, v]) => [k, 5 * Math.round(20 * v)])) });
+  }
 
   const TOP_N = 15;  // столько строк показывать в свёрнутой таблице
   const state = {
@@ -110,6 +162,99 @@
     if (preset && preset.w) return preset.w;
     const base = isPeriod ? meta.weights.period : meta.weights.season;
     return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, Math.round(100 * v)]));
+  }
+
+  // ---------- вилки: пересчёты рейтинга на перевыбранных этапах ----------
+  // DATA.draws[охват]: z групп каждого пилота в каждом пересчёте (int16 × 1000, base64),
+  // порядок — пилот × группа × пересчёт. Балл пересчёта собирается с текущими весами.
+  const DRAWS = DATA.draws || {};
+  const Q_LO = (1 - meta.interval) / 2;
+  const Q_HI = 1 - Q_LO;
+  const TIE_P = 0.6;  // «≈»: пилот строкой выше впереди меньше чем в 60% пересчётов — почти монетка
+  const decoded = new Map();
+
+  function drawsFor(key) {
+    if (!DRAWS[key]) return null;
+    if (!decoded.has(key)) {
+      const d = DRAWS[key];
+      const bin = atob(d.z);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+      decoded.set(key, { ...d, z: new Int16Array(bytes.buffer), row: new Map(d.ids.map((id, i) => [id, i])) });
+    }
+    return decoded.get(key);
+  }
+
+  function quantile(sorted, q) {
+    const pos = (sorted.length - 1) * q;
+    const lo = Math.floor(pos);
+    const hi = Math.ceil(pos);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  }
+
+  // Каждый пересчёт меряется той же линейкой, что и основной балл (среднее и разброс по пулу),
+  // поэтому вилка согласована с баллом при любых весах.
+  function addBands(key, entries, pool, groups, w, total, mean, sd) {
+    const d = drawsFor(key);
+    if (!d || !(sd > 0) || !(total > 0)) return;
+    const n = d.n;
+    const parts = groups.map((g) => [d.groups.indexOf(g.id), w[g.id] / total / d.scale]).filter(([i]) => i >= 0);
+    for (const e of entries) {
+      const row = d.row.get(e.id);
+      if (row == null) continue;
+      const z = new Float64Array(n);
+      for (const [gi, k] of parts) {
+        const base = (row * d.groups.length + gi) * n;
+        for (let b = 0; b < n; b += 1) z[b] += k * d.z[base + b];
+      }
+      for (let b = 0; b < n; b += 1) z[b] = (z[b] - mean) / sd;
+      const scores = Array.from(z, (x) => Math.max(0, Math.min(100, 50 + 15 * x))).sort((a, b) => a - b);
+      e.zDraws = z;
+      e.band = [quantile(scores, Q_LO), quantile(scores, Q_HI)];
+    }
+    const ranked = pool.filter((e) => e.zDraws);
+    const places = ranked.map(() => new Uint16Array(n));
+    const order = ranked.map((_, i) => i);
+    for (let b = 0; b < n; b += 1) {
+      order.sort((i, j) => ranked[j].zDraws[b] - ranked[i].zDraws[b]);
+      order.forEach((i, place) => { places[i][b] = place + 1; });
+    }
+    ranked.forEach((e, i) => {
+      const sorted = Array.from(places[i]).sort((a, b) => a - b);
+      e.rankBand = [sorted[Math.round((n - 1) * Q_LO)], sorted[Math.round((n - 1) * Q_HI)]];
+      e.pTop = places[i].filter((p) => p === 1).length / n;
+    });
+    const byPlace = ranked.slice().sort((a, b) => a.rankNow - b.rankNow);
+    for (let i = 0; i + 1 < byPlace.length; i += 1) {
+      const upper = byPlace[i];
+      const lower = byPlace[i + 1];
+      let ahead = 0;
+      for (let b = 0; b < n; b += 1) if (upper.zDraws[b] > lower.zDraws[b]) ahead += 1;
+      upper.next = { id: lower.id, place: lower.rankNow, p: ahead / n };
+      lower.prev = { id: upper.id, place: upper.rankNow, p: ahead / n };
+    }
+  }
+
+  // «в 62% пересчётов» / «во всех пересчётах»
+  function share(p) {
+    if (p >= 1) return "во всех пересчётах";
+    if (p <= 0) return "ни в одном пересчёте";
+    return `в ${Math.max(1, Math.min(99, Math.round(100 * p)))}% пересчётов`;
+  }
+  const placeText = (pair) => (pair[0] === pair[1] ? `${pair[0]}-е` : `с ${pair[0]}-го по ${pair[1]}-е`);
+
+  // Строка «точности» для карточек: вилка балла, места, шанс быть первым, соседи по таблице.
+  function precisionText(e) {
+    if (!e.band) return null;
+    const level = `${Math.round(100 * meta.interval)}% пересчётов`;
+    if (!e.rankBand) return `Вилка балла ${int(e.band[0])}–${int(e.band[1])} (так выходит в ${level}). Мало гонок, поэтому без места.`;
+    const parts = [`Вилка балла ${int(e.band[0])}–${int(e.band[1])}, место — ${placeText(e.rankBand)} (так выходит в ${level}).`];
+    if (e.pTop > 0) parts.push(`Первым оказывается ${share(e.pTop)}.`);
+    const mates = [];
+    if (e.prev) mates.push(`${name(e.prev.id)} (${e.prev.place}-е место) впереди ${share(e.prev.p)}`);
+    if (e.next) mates.push(`${name(e.next.id)} (${e.next.place}-е) позади ${share(e.next.p)}`);
+    if (mates.length) parts.push(`${mates.join(", ")}.`);
+    return parts.join(" ");
   }
 
   const cache = new Map();
@@ -133,6 +278,7 @@
       e.rankNow = null;
     }
     pool.sort((a, b) => b.score - a.score).forEach((e, i) => { e.rankNow = i + 1; });
+    addBands(key, entries, pool, groups, w, total, mean, sd);
     const result = { entries, byId: new Map(entries.map((e) => [e.id, e])) };
     cache.set(cacheKey, result);
     return result;
@@ -177,7 +323,8 @@
       renderScopeNote();
     });
     $("#footer").textContent =
-      `Данные: Jolpica F1 API и F1DB (CC BY 4.0). По состоянию на ${through.race_name} ${through.season}. ` +
+      `Данные: Jolpica F1 API и F1DB (CC BY 4.0), биографии — Википедия (CC BY-SA 4.0). ` +
+      `По состоянию на ${through.race_name} ${through.season}. ` +
       `Сгенерировано ${new Date(meta.generated_at).toLocaleString("ru-RU")}.`;
   }
 
@@ -232,6 +379,11 @@
     $("#ranking-title").textContent = isPeriod ? `Общий рейтинг ${meta.period[0]}–${meta.period[1]}` : `Сезон ${state.scope}`;
     $("#ranking-hint").textContent =
       "Рейтинг 0–100: 50 — средний пилот, +15 за каждое стандартное отклонение. " +
+      (DRAWS[state.scope]
+        ? `Тонкая линия на шкале — вилка балла, мелкие цифры под местом — диапазон мест: так выходит в ${Math.round(100 * meta.interval)}% ` +
+          `из ${meta.draws} пересчётов рейтинга на случайно перевыбранных этапах. «≈» — порядок с соседом строкой выше ` +
+          `держится меньше чем в ${Math.round(100 * TIE_P)}% пересчётов. `
+        : "") +
       "Колонки групп — баллы по той же шкале. Нажмите на заголовок, чтобы отсортировать, или на пилота — чтобы открыть карточку.";
     const notes = [];
     if (!isPeriod) {
@@ -250,7 +402,7 @@
   // ---------- таблица ----------
   const SHORT = {
     results: "Результ.", above_car: "Над маш.", quali: "Квала", pace: "Темп", racecraft: "Борьба",
-    clean: "Надёжн.", teammate: "Напарник", career: "Карьера",
+    clean: "Аккур.", teammate: "Напарник", career: "Карьера",
   };
 
   function columns() {
@@ -347,9 +499,22 @@
 
       const ratingCell = el("td", "rating-col");
       const wrap = el("div", "rating");
-      wrap.append(meter(e.score, `Рейтинг ${Math.round(e.score)} из 100`), el("div", "value", int(e.score)));
+      const label = `Рейтинг ${Math.round(e.score)} из 100` + (e.band ? `, вилка ${int(e.band[0])}–${int(e.band[1])}` : "");
+      wrap.append(meter(e.score, label, e.band), el("div", "value", int(e.score)));
       ratingCell.append(wrap);
-      tr.append(el("td", "num", e.rankNow ?? "—"), who, ratingCell);
+      const rankCell = el("td", "num rank");
+      if (state.sort === "score" && e.prev && e.prev.p < TIE_P) {
+        const tie = el("span", "tie", "≈");
+        tie.title = `Почти не отличается от пилота выше: ${name(e.prev.id)} впереди ${share(e.prev.p)}`;
+        rankCell.append(tie);
+      }
+      rankCell.append(document.createTextNode(e.rankNow ?? "—"));
+      if (e.rankBand && e.rankBand[0] !== e.rankBand[1]) {
+        const sub = el("span", "sub", `${e.rankBand[0]}–${e.rankBand[1]}`);
+        sub.title = `Место в ${Math.round(100 * meta.interval)}% пересчётов`;
+        rankCell.append(sub);
+      }
+      tr.append(rankCell, who, ratingCell);
       for (const g of groups) {
         const v = e.s[g.id];
         tr.append(el("td", `num col-group group${e.eligible && v >= tops[g.id] ? " top" : ""}`, int(v)));
@@ -430,6 +595,7 @@
     if (driver.debut) facts.push(`дебют в F1 — ${driver.debut}`);
     if (period) facts.push((period.teams || []).join(", "));
     box.append(el("p", "meta", facts.join(" · ")));
+    if (driver.bio) box.append(bioBlock(driver.bio));
 
     const stats = el("div", "stats");
     const where = isPeriod ? "за все сезоны" : `в сезоне ${state.scope}`;
@@ -443,6 +609,8 @@
     stats.append(stat("Победы / подиумы", `${int(current.stats.wins)} / ${int(current.stats.podiums)}`,
       `${current.starts} ${plural(current.starts, "гонка", "гонки", "гонок")}`));
     box.append(stats);
+    const precision = precisionText(current);
+    if (precision) box.append(el("p", "hint", precision));
     const gn = gNodes.get(id);
     if (gn) {
       box.append(el("p", "hint",
@@ -494,7 +662,67 @@
           meter(score, `${f.name}: ${score > 50 ? "лучше" : "хуже"} среднего`));
         block.append(row);
       }
+      if (g.id === "clean") block.append(incidentsNote(e));
       wrap.append(block);
+    }
+    return wrap;
+  }
+
+  // Из чего сложилась «Аккуратность»: в сезоне — сами гонки, в сводке — счёт за все сезоны.
+  function incidentsNote(e) {
+    const isPeriod = state.scope === PERIOD;
+    const kinds = { error: [], contact: [], penalty: [], mech: [], dsq: [] };
+    const seasons = isPeriod ? SEASON_KEYS : [state.scope];
+    for (const key of seasons) {
+      const entry = key === state.scope ? e : scopes[key].find((x) => x.id === e.id);
+      for (const [round, kind, detail, lap] of (entry && entry.incidents) || []) {
+        if (kinds[kind]) kinds[kind].push({ key, round, detail, lap });
+      }
+    }
+    const box = el("div", "incidents");
+    const cause = (x) => CAUSE_RU[x.detail] || String(x.detail).toLowerCase();
+    if (isPeriod) {
+      const count = (list, one, few, many) => `${list.length} ${plural(list.length, one, few, many)}`;
+      box.append(el("p", null, `За все сезоны: ${count(kinds.error, "сход", "схода", "сходов")} по своей ошибке, ` +
+        `${count(kinds.contact, "сход", "схода", "сходов")} после столкновений, ` +
+        `${count(kinds.penalty, "штраф", "штрафа", "штрафов")} по времени.`));
+      box.append(el("p", "muted", `Не в счёт: ${count(kinds.mech, "поломка", "поломки", "поломок")}` +
+        (kinds.dsq.length ? `, ${count(kinds.dsq, "дисквалификация", "дисквалификации", "дисквалификаций")}` : "") + "."));
+      return box;
+    }
+    const line = (label, list, fmt) => {
+      const p = el("p");
+      p.append(el("span", "muted", `${label}: `), list.length ? list.map(fmt).join("; ") : "нет");
+      return p;
+    };
+    const lapText = (x) => (x.lap ? `, ${x.lap}-й круг` : "");
+    box.append(
+      line("Сходы по своей ошибке", kinds.error, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
+      line("Сходы после столкновений", kinds.contact, (x) => `${gpName(x.key, x.round)} — ${cause(x)}${lapText(x)}`),
+      line("Штрафы по времени", kinds.penalty, (x) => `${gpName(x.key, x.round)} +${int(x.detail)} с`),
+    );
+    const outside = [...kinds.mech.map((x) => `${gpName(x.key, x.round)} (${CAUSE_RU[x.detail] || "поломка"})`),
+      ...kinds.dsq.map((x) => `${gpName(x.key, x.round)} (дисквалификация)`)];
+    if (outside.length) box.append(el("p", "muted", `Не в счёт — поломки и дисквалификации: ${outside.join("; ")}.`));
+    return box;
+  }
+
+  const WIKI = /^https:\/\/(ru|en)\.wikipedia\.org\//;
+  function bioBlock(bio) {
+    const wrap = el("div", "bio");
+    wrap.append(el("p", null, bio.text));
+    if (WIKI.test(bio.url)) {
+      const link = (text, href) => {
+        const a = el("a", null, text);
+        a.href = href;
+        a.target = "_blank";
+        a.rel = "noopener";
+        return a;
+      };
+      const source = el("p", "bio-source");
+      source.append("Из статьи «Википедии»", bio.lang === "ru" ? "" : " (англ.)", ": ",
+        link("читать полностью", bio.url), " · ", link("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"));
+      wrap.append(source);
     }
     return wrap;
   }
@@ -515,7 +743,11 @@
       const tr = el("tr");
       const first = el("td", null, String(season));
       first.append(el("span", "sub", e.teams.join(" → ")));
-      tr.append(first, el("td", "num", e.rankNow ?? "—"), el("td", "num", int(e.score)),
+      const place = el("td", "num", e.rankNow ?? "—");
+      if (e.rankBand && e.rankBand[0] !== e.rankBand[1]) place.append(el("span", "sub", `${e.rankBand[0]}–${e.rankBand[1]}`));
+      const rating = el("td", "num", int(e.score));
+      if (e.band) rating.append(el("span", "sub", `${int(e.band[0])}–${int(e.band[1])}`));
+      tr.append(first, place, rating,
         el("td", "num", e.standing ? `${e.standing}${e.champion ? " ★" : ""}` : "—"),
         el("td", "num", int(e.stats.wins)), el("td", "num", int(e.stats.podiums)));
       tbody.append(tr);
@@ -602,8 +834,9 @@
           const year = years[params[0].dataIndex];
           const e = bySeason.get(year);
           if (!e) return `${year}: не выступал`;
+          const band = e.band ? ` · вилка ${int(e.band[0])}–${int(e.band[1])}` : "";
           return `<div style="margin-bottom:4px">${year} · ${esc(e.teams.join(" → "))}</div>` +
-            `<div><b>${Math.round(e.score)}</b> <span style="color:${c.muted}">рейтинг сезона${e.rankNow ? `, ${e.rankNow}-е место` : ""}</span></div>` +
+            `<div><b>${Math.round(e.score)}</b> <span style="color:${c.muted}">рейтинг сезона${e.rankNow ? `, ${e.rankNow}-е место` : ""}${band}</span></div>` +
             `<div style="color:${c.muted};margin-top:4px">чемпионат ${e.standing ?? "—"} · побед ${e.stats.wins} · подиумов ${e.stats.podiums}</div>`;
         },
       },
@@ -611,12 +844,23 @@
         axisTick: { show: false }, axisLabel: { color: c.muted } },
       yAxis: { type: "value", min: 0, max: 100, interval: 25, axisLabel: { color: c.muted },
         splitLine: { lineStyle: { color: c.grid, width: 1 } } },
-      series: [{
-        name: "Рейтинг сезона", type: "line", color: c.s1, lineStyle: { width: 2 }, symbol: "circle", symbolSize: 8,
-        itemStyle: { borderColor: c.surface, borderWidth: 2 },
-        data: years.map((y) => (bySeason.has(y) ? Math.round(bySeason.get(y).score) : null)),
-      }],
+      series: [
+        // Вилка — полоса между нижней и верхней границей: невидимая нижняя линия + стопка высоты вилки.
+        { name: "Вилка от", type: "line", stack: "band", silent: true, symbol: "none", lineStyle: { opacity: 0 },
+          data: years.map((y) => bandAt(y, 0)) },
+        { name: "Вилка", type: "line", stack: "band", silent: true, symbol: "none", lineStyle: { opacity: 0 },
+          areaStyle: { color: c.s1, opacity: 0.16 },
+          data: years.map((y) => (bandAt(y, 0) == null ? null : bandAt(y, 1) - bandAt(y, 0))) },
+        { name: "Рейтинг сезона", type: "line", color: c.s1, lineStyle: { width: 2 }, symbol: "circle", symbolSize: 8,
+          itemStyle: { borderColor: c.surface, borderWidth: 2 },
+          data: years.map((y) => (bySeason.has(y) ? Math.round(bySeason.get(y).score) : null)) },
+      ],
     });
+
+    function bandAt(year, i) {
+      const e = bySeason.get(year);
+      return e && e.band ? Math.round(10 * e.band[i]) / 10 : null;
+    }
   }
 
   // ---------- граф напарников ----------
@@ -820,8 +1064,11 @@
     const period = computeScope(PERIOD).byId.get(id);
     box.append(el("h3", null, name(id)));
     if (period) {
-      box.append(el("p", null, `Рейтинг ${int(period.score)}` +
-        (period.rankNow ? `, ${period.rankNow}-е место за ${meta.period[0]}–${meta.period[1]}` : "") +
+      const band = period.band ? ` (вилка ${int(period.band[0])}–${int(period.band[1])})` : "";
+      const placeBand = period.rankBand && period.rankBand[0] !== period.rankBand[1]
+        ? ` (${period.rankBand[0]}–${period.rankBand[1]})` : "";
+      box.append(el("p", null, `Рейтинг ${int(period.score)}${band}` +
+        (period.rankNow ? `, ${period.rankNow}-е место${placeBand} за ${meta.period[0]}–${meta.period[1]}` : "") +
         ` · титулов ${(period.titles || []).length}, побед ${int(period.stats.wins)}, гонок ${period.starts}`));
     }
     box.append(el("p", null, `Напарников ${n.teammates}, гонок с ними ${n.races_with_mates} · надёжность сравнения: ` +
@@ -975,12 +1222,24 @@
     const q = bt && bt.quali.new_pairs;
     const r = bt && bt.race.new_pairs;
     const unclear = meta.counts.race_excluded["неясный сход"] || 0;
-    const carExp = (meta.car_expectations && meta.car_expectations.points) || {};
-    const expText = [1, 3, 5, 8].filter((k) => carExp[k] != null)
-      .map((k) => `${k}-я машина — ${num(carExp[k], 1)}`).join(", ") + " очка за гонку";
+    const ce = meta.car_expectations || {};
+    const nBins = (ce.points || []).length;
+    const gapText = (i) => (i === 0 ? "лучшая машина этапа"
+      : i === nBins - 1 ? `отрыв больше ${num(ce.gap_from[i], 1)}%` : `${num(ce.gap_from[i], 1)}–${num(ce.gap_to[i], 1)}%`);
+    const expText = nBins
+      ? [...new Set([0, 1, 2, Math.round(nBins / 3), nBins - 1])]
+        .map((i) => `${gapText(i)} — ${num(ce.points[i], 1)}`).join(", ") + " очка за гонку"
+      : "";
+    const v = meta.validation;
+    const fmtR = (x) => (x == null ? "—" : num(x, 2).replace("-", MINUS));
+    const checkRows = v ? [...GROUPS.map((g) => [g.id, g.name]), ["overall", "Итог"]]
+      .filter(([id]) => v.groups[id])
+      .map(([id, label]) => `<tr><td>${id === "overall" ? `<strong>${label}</strong>` : esc(label)}</td>` +
+        `<td class="num">${fmtR(v.groups[id].reliability)}${id === "teammate" ? "*" : ""}</td>` +
+        `<td class="num">${fmtR(v.groups[id].moved)}</td><td class="num">${fmtR(v.groups[id].stayed)}</td></tr>`).join("") : "";
     body.innerHTML = `
       <p><strong>Идея.</strong> Рейтинг собирает в один балл всё, что видно по протоколам: результаты,
-        квалификацию, гонку, надёжность и то, насколько пилот выжимает из своей машины. Машина объясняет
+        квалификацию, гонку, аккуратность и то, насколько пилот выжимает из своей машины. Машина объясняет
         бо́льшую часть результата (по исследованиям — около 86–88%), поэтому одних результатов мало,
         но и одного сравнения с напарником тоже мало: чемпион в лучшей машине должен быть наверху.</p>
       <table class="mini"><thead><tr><th>Группа</th><th>Признаки</th><th class="num">Вес: сводка / сезон</th></tr></thead>
@@ -993,11 +1252,14 @@
           будто к реальным гонкам добавили ${meta.shrink_races} гонок среднего пилота.</li>
         <li><strong>Очки</strong> считаются по единой шкале 25-18-15-…-1 только за гонки, без спринтов и бонуса
           за лучший круг, чтобы сезоны 2018–2026 были сравнимы.</li>
-        <li><strong>Сверх уровня машины.</strong> Уровень машины на каждом этапе — средний темп двух её пилотов
-          на чистых кругах; машины ранжируются от самой быстрой. По всем гонкам считается, сколько очков обычно
-          привозит машина каждого ранга (${expText}), и пилот получает разницу между фактом и этим ожиданием.
-          «Яркая гонка» — хотя бы на 8 очков больше ожидаемого: например, подиум на 4–5-й по скорости машине.
-          Спринты учитываются с весом 0,5.</li>
+        <li><strong>Сверх уровня машины.</strong> Уровень машины на этапе — темп, который она показала бы
+          со средним пилотом: средний темп двух её пилотов на чистых кругах с поправкой на их навык из модели
+          напарников, сглаженный по соседним этапам (машина не меняется скачками). По всем гонкам считается,
+          сколько очков обычно привозит машина с таким отрывом от лучшей (${expText}), и пилот получает
+          разницу между фактом и этим ожиданием — сколько он привёз сверх среднего пилота на той же машине.
+          Без поправки на навык сильный пилот «ускорял» свою машину, и балл группы не сохранялся при смене
+          команды (см. проверки ниже). «Яркая гонка» — хотя бы на 8 очков больше ожидаемого, яркий спринт —
+          подиум на машине, которая обычно финиширует 7-й и ниже. Спринты учитываются с весом 0,5.</li>
         <li><strong>Темп и борьба</strong> — по позициям и времени каждого круга. Чистый круг — без сейфти-кара
           и VSC (их видно по резкому замедлению всего поля), без заезда в боксы и выезда из них. Темп
           сравнивается с медианой поля на тех же кругах, поэтому топливо и эволюция трассы сокращаются.
@@ -1011,16 +1273,47 @@
           сравнения двух пилотов пропорциональна эффективному сопротивлению между ними в сети, где каждая
           совместная гонка — проводник. Отсюда «надёжность сравнения» каждого пилота и оценка «сколько гонок
           прямой дуэли стоит это сравнение» для любой пары.</li>
+        <li><strong>Аккуратность</strong> — три вида происшествий без пересечений: сходы по своей ошибке, сходы
+          после столкновений (виновника по протоколу не видно, поэтому это мера участия в инцидентах, а не вины)
+          и штрафы по времени. Поломки не в счёт. Балл группы относительный: у большинства пилотов за сезон нет
+          ни одного схода по своей ошибке, поэтому даже два заметно опускают балл. В карточке пилота под группой
+          перечислены сами гонки.</li>
         <li><strong>Сходы</strong> классифицируются по причинам из F1DB: авария или разворот — ошибка пилота,
-          поломка — не его вина. Столкновения без разбора виновника не засчитываются никому
-          (${unclear} ${plural(unclear, "гоночная дуэль", "гоночные дуэли", "гоночных дуэлей")}).</li>
-        <li><strong>Веса</strong> — это мнение, а не измерение: ползунки над таблицей пересчитывают всё на лету.</li>
+          поломка — не его вина. В дуэлях с напарником столкновения без разбора виновника не засчитываются
+          никому (${unclear} ${plural(unclear, "гоночная дуэль", "гоночные дуэли", "гоночных дуэлей")}).</li>
+        <li><strong>Веса</strong> — это мнение, а не измерение: ползунки над таблицей пересчитывают всё на лету.
+          Пресет «По данным» опирается на проверки ниже: больше веса тем группам, которые меряют пилота, а не машину.</li>
+        ${meta.draws ? `<li><strong>Вилки балла и места.</strong> Рейтинг пересчитан ${meta.draws} раз. В каждом пересчёте
+          этапы сезона выбираются случайно с повторениями (уикенд целиком — гонка и спринт всех пилотов, поэтому
+          в каждой гонке по-прежнему один победитель), чемпионат и титулы пересчитываются по очкам выбранных этапов,
+          а группа «Против напарника» берёт один из вариантов модели напарников. ${meta.shrink_races} воображаемых
+          гонок, которыми сжимаются доли, в пересчёте «проезжает» случайный пилот пула, а не идеально средний:
+          так у пилота с одной-двумя гонками вилка выходит широкой, а не узкой. Все пересчёты меряются той же
+          линейкой, что и основной балл (средние и разбросы по пулу). Вилка — границы, в которые попадают
+          ${Math.round(100 * meta.interval)}% пересчётов; «≈» — порядок пары держится меньше чем
+          в ${Math.round(100 * TIE_P)}% пересчётов. Вилка ловит только случайность: веса групп в неё не входят
+          (при их смене она пересчитывается вместе с баллом), систематические ошибки — например, неточный
+          уровень машины целой команды — тоже, а модель напарников на пересчётах не перестраивается.</li>` : ""}
       </ul>
       ${expRows ? `<p><strong>Сверка с экспертами.</strong> Для сезонов 2021–2025 сравнили наш топ-10 с опросом
         руководителей команд F1 (каждый называет свой топ-10, голоса суммируются). В скобках — прошлая версия,
         где рейтинг строился только на сравнении с напарником.</p>
         <table class="mini"><thead><tr><th>Сезон</th><th class="num">Совпало в топ-10</th>
         <th class="num">Корреляция мест</th></tr></thead><tbody>${expRows}</tbody></table>` : ""}
+      ${checkRows ? `<p><strong>Проверки рейтинга.</strong> Каждый прогон проверяет, что меряют группы.
+        <em>Повторяемость</em> — насколько совпадают баллы, посчитанные отдельно по нечётным и по чётным этапам
+        сезона (1 — полностью, 0 — шум). <em>После смены команды</em> — связь баллов пилота в соседних сезонах
+        у тех, кто перешёл в другую команду (${v.n_moved} ${plural(v.n_moved, "пара", "пары", "пар")} сезонов;
+        смена названия команды переходом не считается): группа, которая меряет пилота, сохраняется, а та,
+        что меряет машину, — нет. <em>Остались</em> — то же у оставшихся (${v.n_stayed}).</p>
+        <table class="mini"><thead><tr><th>Группа</th><th class="num">Повторяемость</th>
+        <th class="num">После смены команды</th><th class="num">Остались</th></tr></thead>
+        <tbody>${checkRows}</tbody></table>
+        <p class="hint">* Модель напарников обучена на всех гонках сезона, поэтому её повторяемость завышена.
+        «Результаты», «Квалификация» и «Темп» меряют в основном машину: так и задумано, это то, что пилот привёз.
+        Пресет «По данным» над таблицей даёт группе вес пропорционально связи после смены команды
+        (отрицательная — ноль, «Карьеру» так не проверить). Переходов немного, поэтому цифры приблизительные:
+        погрешность около ±0,2.</p>` : ""}
       ${q && r ? `<p><strong>Проверка прогнозом модели напарников.</strong> Для пар, которые раньше не ездили вместе,
         модель угадала более быстрого в квалификации по итогам сезона в ${Math.round(100 * q.season_sign_accuracy)}% случаев
         (${q.season_pairs} ${plural(q.season_pairs, "пара", "пары", "пар")}), а победителя сезонной гоночной дуэли —
@@ -1039,7 +1332,9 @@
         <a href="https://github.com/f1db/f1db" target="_blank" rel="noopener">F1DB</a> — причины сходов, штрафы,
         таблицы чемпионатов (CC BY 4.0);
         <a href="https://github.com/TracingInsights/RaceData" target="_blank" rel="noopener">TracingInsights RaceData</a> —
-        позиция и время каждого пилота на каждом круге, пит-стопы.</p>
+        позиция и время каждого пилота на каждом круге, пит-стопы;
+        <a href="https://ru.wikipedia.org" target="_blank" rel="noopener">Википедия</a> — краткие биографии пилотов
+        (вводная часть статьи, CC BY-SA 4.0).</p>
       <p><strong>Чего пока нет.</strong> Шин (составы и износ — есть только в тяжёлых сезонных архивах
         TracingInsights), погоды и дождевых гонок отдельно, виновников столкновений. Уровень машины берётся
         из темпа её же пилотов, поэтому сильный пилот слегка «ускоряет» свою машину в глазах модели.</p>`;

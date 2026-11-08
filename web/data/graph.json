@@ -10,7 +10,7 @@
    "strength": 0.5,
    "reliability": 7.6858,
    "bridge_cut": 0,
-   "rating": 46.3252,
+   "rating": 46.3608,
    "rank": null,
    "starts": 1
   },
@@ -24,8 +24,8 @@
    "strength": 147.0,
    "reliability": 98.5389,
    "bridge_cut": 1,
-   "rating": 48.6222,
-   "rank": 22,
+   "rating": 48.5376,
+   "rank": 21,
    "starts": 148
   },
   {
@@ -38,8 +38,8 @@
    "strength": 153.0,
    "reliability": 96.2978,
    "bridge_cut": 1,
-   "rating": 59.6262,
-   "rank": 9,
+   "rating": 56.9761,
+   "rank": 11,
    "starts": 154
   },
   {
@@ -52,7 +52,7 @@
    "strength": 43.0,
    "reliability": 82.6929,
    "bridge_cut": 0,
-   "rating": 68.2721,
+   "rating": 67.2948,
    "rank": 5,
    "starts": 43
   },
@@ -66,7 +66,7 @@
    "strength": 17.5,
    "reliability": 65.8346,
    "bridge_cut": 0,
-   "rating": 48.2159,
+   "rating": 47.1691,
    "rank": null,
    "starts": 19
   },
@@ -80,8 +80,8 @@
    "strength": 44.0,
    "reliability": 87.8539,
    "bridge_cut": 1,
-   "rating": 51.1793,
-   "rank": 17,
+   "rating": 49.1961,
+   "rank": 19,
    "starts": 46
   },
   {
@@ -94,7 +94,7 @@
    "strength": 43.0,
    "reliability": 82.9779,
    "bridge_cut": 0,
-   "rating": 42.3594,
+   "rating": 42.5234,
    "rank": 24,
    "starts": 43
   },
@@ -108,8 +108,8 @@
    "strength": 167.5,
    "reliability": 93.9439,
    "bridge_cut": 1,
-   "rating": 49.474,
-   "rank": 19,
+   "rating": 48.6296,
+   "rank": 20,
    "starts": 168
   },
   {
@@ -122,8 +122,8 @@
    "strength": 21.0,
    "reliability": 76.9264,
    "bridge_cut": 0,
-   "rating": 37.0091,
-   "rank": 34,
+   "rating": 37.9734,
+   "rank": 33,
    "starts": 21
   },
   {
@@ -136,8 +136,8 @@
    "strength": 46.0,
    "reliability": 88.9809,
    "bridge_cut": 0,
-   "rating": 39.0903,
-   "rank": 29,
+   "rating": 39.3244,
+   "rank": 31,
    "starts": 46
   },
   {
@@ -150,7 +150,7 @@
    "strength": 10.5,
    "reliability": 63.0598,
    "bridge_cut": 0,
-   "rating": 36.6859,
+   "rating": 35.5825,
    "rank": null,
    "starts": 11
   },
@@ -164,7 +164,7 @@
    "strength": 6.5,
    "reliability": 51.7483,
    "bridge_cut": 0,
-   "rating": 36.0568,
+   "rating": 35.2621,
    "rank": null,
    "starts": 7
   },
@@ -178,7 +178,7 @@
    "strength": 21.0,
    "reliability": 77.4104,
    "bridge_cut": 0,
-   "rating": 39.7655,
+   "rating": 40.5345,
    "rank": 28,
    "starts": 21
   },
@@ -192,8 +192,8 @@
    "strength": 191.5,
    "reliability": 98.3849,
    "bridge_cut": 2,
-   "rating": 54.0521,
-   "rank": 13,
+   "rating": 52.1544,
+   "rank": 14,
    "starts": 192
   },
   {
@@ -206,7 +206,7 @@
    "strength": 59.0,
    "reliability": 72.1335,
    "bridge_cut": 0,
-   "rating": 41.2232,
+   "rating": 41.4905,
    "rank": 26,
    "starts": 60
   },
@@ -220,8 +220,8 @@
    "strength": 57.0,
    "reliability": 78.0473,
    "bridge_cut": 0,
-   "rating": 38.9041,
-   "rank": 30,
+   "rating": 40.0219,
+   "rank": 29,
    "starts": 57
   },
   {
@@ -234,8 +234,8 @@
    "strength": 39.0,
    "reliability": 82.9801,
    "bridge_cut": 0,
-   "rating": 52.0733,
-   "rank": 16,
+   "rating": 52.7311,
+   "rank": 13,
    "starts": 40
   },
   {
@@ -248,7 +248,7 @@
    "strength": 191.0,
    "reliability": 96.3519,
    "bridge_cut": 0,
-   "rating": 82.6581,
+   "rating": 80.8342,
    "rank": 2,
    "starts": 191
   },
@@ -262,8 +262,8 @@
    "strength": 132.5,
    "reliability": 93.7495,
    "bridge_cut": 6,
-   "rating": 50.1984,
-   "rank": 18,
+   "rating": 49.9214,
+   "rank": 17,
    "starts": 136
   },
   {
@@ -276,7 +276,7 @@
    "strength": 124.0,
    "reliability": 84.975,
    "bridge_cut": 4,
-   "rating": 43.7479,
+   "rating": 42.6536,
    "rank": 23,
    "starts": 125
   },
@@ -290,7 +290,7 @@
    "strength": 22.0,
    "reliability": 75.1758,
    "bridge_cut": 0,
-   "rating": 29.0013,
+   "rating": 29.8009,
    "rank": 38,
    "starts": 23
   },
@@ -304,8 +304,8 @@
    "strength": 38.0,
    "reliability": 87.5043,
    "bridge_cut": 0,
-   "rating": 48.7073,
-   "rank": 21,
+   "rating": 49.4676,
+   "rank": 18,
    "starts": 38
   },
   {
@@ -318,7 +318,7 @@
    "strength": 60.0,
    "reliability": 90.6684,
    "bridge_cut": 1,
-   "rating": 30.3217,
+   "rating": 30.0484,
    "rank": 37,
    "starts": 61
   },
@@ -332,8 +332,8 @@
    "strength": 51.5,
    "reliability": 82.1967,
    "bridge_cut": 0,
-   "rating": 49.2469,
-   "rank": 20,
+   "rating": 47.2106,
+   "rank": 22,
    "starts": 54
   },
   {
@@ -346,7 +346,7 @@
    "strength": 191.5,
    "reliability": 99.1779,
    "bridge_cut": 1,
-   "rating": 71.5486,
+   "rating": 72.1284,
    "rank": 4,
    "starts": 192
   },
@@ -360,7 +360,7 @@
    "strength": 189.5,
    "reliability": 100.0,
    "bridge_cut": 0,
-   "rating": 99.9581,
+   "rating": 100.0,
    "rank": 1,
    "starts": 192
   },
@@ -374,7 +374,7 @@
    "strength": 22.0,
    "reliability": 58.6335,
    "bridge_cut": 0,
-   "rating": 26.8229,
+   "rating": 27.842,
    "rank": 39,
    "starts": 22
   },
@@ -388,8 +388,8 @@
    "strength": 44.0,
    "reliability": 69.6928,
    "bridge_cut": 1,
-   "rating": 37.599,
-   "rank": 33,
+   "rating": 38.4083,
+   "rank": 32,
    "starts": 44
   },
   {
@@ -402,7 +402,7 @@
    "strength": 171.0,
    "reliability": 95.4595,
    "bridge_cut": 1,
-   "rating": 73.0624,
+   "rating": 73.7843,
    "rank": 3,
    "starts": 171
   },
@@ -416,8 +416,8 @@
    "strength": 169.0,
    "reliability": 98.6661,
    "bridge_cut": 0,
-   "rating": 52.1867,
-   "rank": 15,
+   "rating": 51.573,
+   "rank": 16,
    "starts": 169
   },
   {
@@ -430,8 +430,8 @@
    "strength": 165.5,
    "reliability": 99.4437,
    "bridge_cut": 0,
-   "rating": 57.2614,
-   "rank": 10,
+   "rating": 60.6068,
+   "rank": 8,
    "starts": 166
   },
   {
@@ -444,7 +444,7 @@
    "strength": 89.0,
    "reliability": 89.7292,
    "bridge_cut": 0,
-   "rating": 63.0565,
+   "rating": 64.2705,
    "rank": 6,
    "starts": 89
   },
@@ -458,7 +458,7 @@
    "strength": 1.0,
    "reliability": 14.0235,
    "bridge_cut": 0,
-   "rating": 43.4726,
+   "rating": 43.691,
    "rank": null,
    "starts": 2
   },
@@ -472,8 +472,8 @@
    "strength": 79.0,
    "reliability": 77.0909,
    "bridge_cut": 0,
-   "rating": 54.6035,
-   "rank": 12,
+   "rating": 52.143,
+   "rank": 15,
    "starts": 79
   },
   {
@@ -486,8 +486,8 @@
    "strength": 128.0,
    "reliability": 98.8004,
    "bridge_cut": 0,
-   "rating": 53.9772,
-   "rank": 14,
+   "rating": 56.456,
+   "rank": 12,
    "starts": 128
   },
   {
@@ -500,8 +500,8 @@
    "strength": 170.5,
    "reliability": 93.3858,
    "bridge_cut": 1,
-   "rating": 61.3399,
-   "rank": 7,
+   "rating": 59.7752,
+   "rank": 9,
    "starts": 171
   },
   {
@@ -514,7 +514,7 @@
    "strength": 0.5,
    "reliability": 7.6649,
    "bridge_cut": 0,
-   "rating": 48.9812,
+   "rating": 48.688,
    "rank": null,
    "starts": 1
   },
@@ -528,8 +528,8 @@
    "strength": 191.0,
    "reliability": 99.9454,
    "bridge_cut": 0,
-   "rating": 60.3248,
-   "rank": 8,
+   "rating": 61.7759,
+   "rank": 7,
    "starts": 191
   },
   {
@@ -542,7 +542,7 @@
    "strength": 36.0,
    "reliability": 84.7301,
    "bridge_cut": 0,
-   "rating": 30.533,
+   "rating": 30.1167,
    "rank": 36,
    "starts": 36
   },
@@ -556,8 +556,8 @@
    "strength": 21.0,
    "reliability": 76.5278,
    "bridge_cut": 0,
-   "rating": 37.605,
-   "rank": 32,
+   "rating": 37.7745,
+   "rank": 34,
    "starts": 21
   },
   {
@@ -570,7 +570,7 @@
    "strength": 188.0,
    "reliability": 97.7338,
    "bridge_cut": 1,
-   "rating": 41.9909,
+   "rating": 42.472,
    "rank": 25,
    "starts": 190
   },
@@ -584,8 +584,8 @@
    "strength": 114.5,
    "reliability": 97.2837,
    "bridge_cut": 0,
-   "rating": 38.5806,
-   "rank": 31,
+   "rating": 39.6441,
+   "rank": 30,
    "starts": 117
   },
   {
@@ -598,7 +598,7 @@
    "strength": 21.0,
    "reliability": 75.6445,
    "bridge_cut": 0,
-   "rating": 40.6887,
+   "rating": 41.0587,
    "rank": 27,
    "starts": 21
   },
@@ -612,8 +612,8 @@
    "strength": 101.0,
    "reliability": 95.472,
    "bridge_cut": 0,
-   "rating": 57.0985,
-   "rank": 11,
+   "rating": 58.6764,
+   "rank": 10,
    "starts": 101
   },
   {
@@ -626,7 +626,7 @@
    "strength": 68.0,
    "reliability": 86.8036,
    "bridge_cut": 0,
-   "rating": 36.2303,
+   "rating": 33.2621,
    "rank": 35,
    "starts": 68
   }
@@ -1594,7 +1594,7 @@
    ],
    "race": [
     1,
-    0
+    1
    ],
    "pace": [
     0.161,

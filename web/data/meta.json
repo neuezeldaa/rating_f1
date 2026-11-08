@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-07T21:21:58+00:00",
+ "generated_at": "2026-11-08T11:04:24+00:00",
  "data_through": {
   "season": 2026,
   "round": 19,
@@ -60,6 +60,222 @@
    "scheduled": 23
   }
  },
+ "race_names": {
+  "2018": {
+   "1": "Australian Grand Prix",
+   "2": "Bahrain Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Azerbaijan Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "French Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "German Grand Prix",
+   "12": "Hungarian Grand Prix",
+   "13": "Belgian Grand Prix",
+   "14": "Italian Grand Prix",
+   "15": "Singapore Grand Prix",
+   "16": "Russian Grand Prix",
+   "17": "Japanese Grand Prix",
+   "18": "United States Grand Prix",
+   "19": "Mexican Grand Prix",
+   "20": "Brazilian Grand Prix",
+   "21": "Abu Dhabi Grand Prix"
+  },
+  "2019": {
+   "1": "Australian Grand Prix",
+   "2": "Bahrain Grand Prix",
+   "3": "Chinese Grand Prix",
+   "4": "Azerbaijan Grand Prix",
+   "5": "Spanish Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Canadian Grand Prix",
+   "8": "French Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "German Grand Prix",
+   "12": "Hungarian Grand Prix",
+   "13": "Belgian Grand Prix",
+   "14": "Italian Grand Prix",
+   "15": "Singapore Grand Prix",
+   "16": "Russian Grand Prix",
+   "17": "Japanese Grand Prix",
+   "18": "Mexican Grand Prix",
+   "19": "United States Grand Prix",
+   "20": "Brazilian Grand Prix",
+   "21": "Abu Dhabi Grand Prix"
+  },
+  "2020": {
+   "1": "Austrian Grand Prix",
+   "2": "Styrian Grand Prix",
+   "3": "Hungarian Grand Prix",
+   "4": "British Grand Prix",
+   "5": "70th Anniversary Grand Prix",
+   "6": "Spanish Grand Prix",
+   "7": "Belgian Grand Prix",
+   "8": "Italian Grand Prix",
+   "9": "Tuscan Grand Prix",
+   "10": "Russian Grand Prix",
+   "11": "Eifel Grand Prix",
+   "12": "Portuguese Grand Prix",
+   "13": "Emilia Romagna Grand Prix",
+   "14": "Turkish Grand Prix",
+   "15": "Bahrain Grand Prix",
+   "16": "Sakhir Grand Prix",
+   "17": "Abu Dhabi Grand Prix"
+  },
+  "2021": {
+   "1": "Bahrain Grand Prix",
+   "2": "Emilia Romagna Grand Prix",
+   "3": "Portuguese Grand Prix",
+   "4": "Spanish Grand Prix",
+   "5": "Monaco Grand Prix",
+   "6": "Azerbaijan Grand Prix",
+   "7": "French Grand Prix",
+   "8": "Styrian Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Dutch Grand Prix",
+   "14": "Italian Grand Prix",
+   "15": "Russian Grand Prix",
+   "16": "Turkish Grand Prix",
+   "17": "United States Grand Prix",
+   "18": "Mexico City Grand Prix",
+   "19": "São Paulo Grand Prix",
+   "20": "Qatar Grand Prix",
+   "21": "Saudi Arabian Grand Prix",
+   "22": "Abu Dhabi Grand Prix"
+  },
+  "2022": {
+   "1": "Bahrain Grand Prix",
+   "2": "Saudi Arabian Grand Prix",
+   "3": "Australian Grand Prix",
+   "4": "Emilia Romagna Grand Prix",
+   "5": "Miami Grand Prix",
+   "6": "Spanish Grand Prix",
+   "7": "Monaco Grand Prix",
+   "8": "Azerbaijan Grand Prix",
+   "9": "Canadian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "Austrian Grand Prix",
+   "12": "French Grand Prix",
+   "13": "Hungarian Grand Prix",
+   "14": "Belgian Grand Prix",
+   "15": "Dutch Grand Prix",
+   "16": "Italian Grand Prix",
+   "17": "Singapore Grand Prix",
+   "18": "Japanese Grand Prix",
+   "19": "United States Grand Prix",
+   "20": "Mexico City Grand Prix",
+   "21": "São Paulo Grand Prix",
+   "22": "Abu Dhabi Grand Prix"
+  },
+  "2023": {
+   "1": "Bahrain Grand Prix",
+   "2": "Saudi Arabian Grand Prix",
+   "3": "Australian Grand Prix",
+   "4": "Azerbaijan Grand Prix",
+   "5": "Miami Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Spanish Grand Prix",
+   "8": "Canadian Grand Prix",
+   "9": "Austrian Grand Prix",
+   "10": "British Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Belgian Grand Prix",
+   "13": "Dutch Grand Prix",
+   "14": "Italian Grand Prix",
+   "15": "Singapore Grand Prix",
+   "16": "Japanese Grand Prix",
+   "17": "Qatar Grand Prix",
+   "18": "United States Grand Prix",
+   "19": "Mexico City Grand Prix",
+   "20": "São Paulo Grand Prix",
+   "21": "Las Vegas Grand Prix",
+   "22": "Abu Dhabi Grand Prix"
+  },
+  "2024": {
+   "1": "Bahrain Grand Prix",
+   "2": "Saudi Arabian Grand Prix",
+   "3": "Australian Grand Prix",
+   "4": "Japanese Grand Prix",
+   "5": "Chinese Grand Prix",
+   "6": "Miami Grand Prix",
+   "7": "Emilia Romagna Grand Prix",
+   "8": "Monaco Grand Prix",
+   "9": "Canadian Grand Prix",
+   "10": "Spanish Grand Prix",
+   "11": "Austrian Grand Prix",
+   "12": "British Grand Prix",
+   "13": "Hungarian Grand Prix",
+   "14": "Belgian Grand Prix",
+   "15": "Dutch Grand Prix",
+   "16": "Italian Grand Prix",
+   "17": "Azerbaijan Grand Prix",
+   "18": "Singapore Grand Prix",
+   "19": "United States Grand Prix",
+   "20": "Mexico City Grand Prix",
+   "21": "São Paulo Grand Prix",
+   "22": "Las Vegas Grand Prix",
+   "23": "Qatar Grand Prix",
+   "24": "Abu Dhabi Grand Prix"
+  },
+  "2025": {
+   "1": "Australian Grand Prix",
+   "2": "Chinese Grand Prix",
+   "3": "Japanese Grand Prix",
+   "4": "Bahrain Grand Prix",
+   "5": "Saudi Arabian Grand Prix",
+   "6": "Miami Grand Prix",
+   "7": "Emilia Romagna Grand Prix",
+   "8": "Monaco Grand Prix",
+   "9": "Spanish Grand Prix",
+   "10": "Canadian Grand Prix",
+   "11": "Austrian Grand Prix",
+   "12": "British Grand Prix",
+   "13": "Belgian Grand Prix",
+   "14": "Hungarian Grand Prix",
+   "15": "Dutch Grand Prix",
+   "16": "Italian Grand Prix",
+   "17": "Azerbaijan Grand Prix",
+   "18": "Singapore Grand Prix",
+   "19": "United States Grand Prix",
+   "20": "Mexico City Grand Prix",
+   "21": "São Paulo Grand Prix",
+   "22": "Las Vegas Grand Prix",
+   "23": "Qatar Grand Prix",
+   "24": "Abu Dhabi Grand Prix"
+  },
+  "2026": {
+   "1": "Australian Grand Prix",
+   "2": "Chinese Grand Prix",
+   "3": "Japanese Grand Prix",
+   "4": "Miami Grand Prix",
+   "5": "Canadian Grand Prix",
+   "6": "Monaco Grand Prix",
+   "7": "Barcelona Grand Prix",
+   "8": "Austrian Grand Prix",
+   "9": "British Grand Prix",
+   "10": "Belgian Grand Prix",
+   "11": "Hungarian Grand Prix",
+   "12": "Dutch Grand Prix",
+   "13": "Italian Grand Prix",
+   "14": "Spanish Grand Prix",
+   "15": "Azerbaijan Grand Prix",
+   "16": "Bahrain Grand Prix in Malaysia",
+   "17": "Singapore Grand Prix",
+   "18": "United States Grand Prix",
+   "19": "Mexico City Grand Prix",
+   "20": "Brazilian Grand Prix",
+   "21": "Las Vegas Grand Prix",
+   "22": "Qatar Grand Prix",
+   "23": "Abu Dhabi Grand Prix"
+  }
+ },
  "groups": [
   {
    "id": "results",
@@ -88,8 +304,8 @@
   },
   {
    "id": "clean",
-   "name": "Надёжность",
-   "about": "Сходы по своей ошибке, финиши без поломок, штрафы по времени."
+   "name": "Аккуратность",
+   "about": "Сходы по своей ошибке, сходы после столкновений, штрафы по времени. Поломки не в счёт."
   },
   {
    "id": "teammate",
@@ -230,11 +446,11 @@
    "better": -1
   },
   {
-   "id": "finish_rate",
+   "id": "contact_rate",
    "group": "clean",
-   "name": "Финиши без поломок",
+   "name": "Сходы после столкновений",
    "unit": "pct",
-   "better": 1
+   "better": -1
   },
   {
    "id": "penalty_rate",
@@ -320,6 +536,7 @@
  },
  "shrink_races": 10,
  "interval": 0.8,
+ "draws": 200,
  "reference_lap_s": 90.0,
  "sprint_weight": 0.5,
  "quali_max_gap_pct": 3.0,
@@ -337,13 +554,13 @@
    "downweighted": 342
   },
   "race": {
-   "tau0": 0.7135,
-   "tau_rw": 0.1803,
+   "tau0": 0.7123,
+   "tau_rw": 0.1778,
    "tau_dev": 0.001,
-   "mu_rookie": -0.5329,
-   "mu_dev": 0.3374,
-   "n_obs": 1727,
-   "log_evidence": -985.8969
+   "mu_rookie": -0.5376,
+   "mu_dev": 0.3399,
+   "n_obs": 1728,
+   "log_evidence": -986.332
   },
   "pace": {
    "sigma": 0.379,
@@ -360,12 +577,12 @@
  },
  "counts": {
   "quali_valid": 1839,
-  "quali_total": 1929,
-  "race_valid": 1727,
+  "quali_total": 1940,
+  "race_valid": 1728,
   "race_total": 2243,
   "race_excluded": {
-   "техника": 301,
-   "неясный сход": 201,
+   "техника": 298,
+   "неясный сход": 203,
    "дисквалификация": 14
   },
   "starts": 3876,
@@ -373,32 +590,119 @@
   "overtakes": 7116
  },
  "car_expectations": {
-  "points": {
-   "1": 17.66,
-   "2": 13.35,
-   "3": 10.32,
-   "4": 6.46,
-   "5": 3.61,
-   "6": 2.2,
-   "7": 1.34,
-   "8": 0.66,
-   "9": 0.42,
-   "10": 0.11,
-   "11": 0.0
+  "gap_from": [
+   0.0,
+   0.0,
+   0.26,
+   0.57,
+   0.83,
+   1.02,
+   1.17,
+   1.35,
+   1.53,
+   1.73,
+   1.96,
+   2.28
+  ],
+  "gap_to": [
+   0.0,
+   0.26,
+   0.57,
+   0.83,
+   1.02,
+   1.17,
+   1.35,
+   1.53,
+   1.73,
+   1.96,
+   2.28,
+   4.0
+  ],
+  "points": [
+   16.63,
+   12.7,
+   10.19,
+   6.07,
+   4.61,
+   3.28,
+   3.12,
+   2.28,
+   2.45,
+   2.14,
+   1.15,
+   0.19
+  ],
+  "position": [
+   2.99,
+   4.38,
+   5.67,
+   8.38,
+   9.82,
+   10.32,
+   10.5,
+   11.34,
+   10.83,
+   11.09,
+   12.31,
+   15.13
+  ]
+ },
+ "validation": {
+  "groups": {
+   "results": {
+    "reliability": 0.9653,
+    "moved": -0.1029,
+    "stayed": 0.8099
+   },
+   "above_car": {
+    "reliability": 0.9235,
+    "moved": 0.4338,
+    "stayed": 0.8332
+   },
+   "quali": {
+    "reliability": 0.9773,
+    "moved": 0.144,
+    "stayed": 0.835
+   },
+   "pace": {
+    "reliability": 0.8638,
+    "moved": 0.0143,
+    "stayed": 0.6188
+   },
+   "racecraft": {
+    "reliability": 0.8593,
+    "moved": 0.197,
+    "stayed": 0.5757
+   },
+   "clean": {
+    "reliability": 0.3152,
+    "moved": -0.0572,
+    "stayed": 0.2969
+   },
+   "teammate": {
+    "reliability": 0.9848,
+    "moved": 0.3737,
+    "stayed": 0.8662
+   },
+   "overall": {
+    "reliability": 0.9615,
+    "moved": 0.4196,
+    "stayed": 0.8751
+   }
   },
-  "position": {
-   "1": 2.74,
-   "2": 4.04,
-   "3": 5.37,
-   "4": 7.28,
-   "5": 9.25,
-   "6": 10.44,
-   "7": 11.47,
-   "8": 12.79,
-   "9": 13.84,
-   "10": 15.6,
-   "11": 17.4
-  }
+  "n_moved": 24,
+  "n_stayed": 114,
+  "data_weights": {
+   "results": 0.0,
+   "above_car": 0.373,
+   "quali": 0.124,
+   "pace": 0.012,
+   "racecraft": 0.169,
+   "clean": 0.0,
+   "teammate": 0.321,
+   "career": 0.0
+  },
+  "expert_spearman": 0.8836
  },
  "backtest": {
   "seasons": [
@@ -442,11 +746,11 @@
   },
   "race": {
    "all": {
-    "n": 1322,
-    "accuracy": 0.5991,
-    "log_loss": 0.6544,
+    "n": 1323,
+    "accuracy": 0.5994,
+    "log_loss": 0.6543,
     "log_loss_coin": 0.6931,
-    "brier": 0.2321,
+    "brier": 0.232,
     "brier_coin": 0.25,
     "season_pairs": 79,
     "season_accuracy": 0.6329
@@ -464,7 +768,7 @@
    "new_pairs": {
     "n": 395,
     "accuracy": 0.5671,
-    "log_loss": 0.6608,
+    "log_loss": 0.6607,
     "log_loss_coin": 0.6931,
     "brier": 0.2367,
     "brier_coin": 0.25,
@@ -490,7 +794,7 @@
     ],
     "overlap": 8,
     "overlap_old": 8,
-    "spearman": 0.9152,
+    "spearman": 0.9394,
     "spearman_old": 0.8061,
     "our_ranks": {
      "max_verstappen": 1,
@@ -498,11 +802,11 @@
      "piastri": 3,
      "russell": 4,
      "alonso": 9,
-     "sainz": 6,
+     "sainz": 7,
      "leclerc": 5,
-     "bearman": 8,
-     "hadjar": 11,
-     "hulkenberg": 12
+     "bearman": 10,
+     "hadjar": 12,
+     "hulkenberg": 11
     }
    },
    "2024": {
@@ -526,11 +830,11 @@
      "max_verstappen": 1,
      "norris": 2,
      "leclerc": 3,
-     "piastri": 5,
-     "sainz": 6,
-     "russell": 4,
+     "piastri": 6,
+     "sainz": 4,
+     "russell": 5,
      "hamilton": 7,
-     "hulkenberg": 9,
+     "hulkenberg": 10,
      "alonso": 8,
      "gasly": 11
     }
@@ -550,19 +854,19 @@
     ],
     "overlap": 9,
     "overlap_old": 8,
-    "spearman": 0.8424,
+    "spearman": 0.7091,
     "spearman_old": 0.8667,
     "our_ranks": {
      "max_verstappen": 1,
      "alonso": 2,
-     "norris": 5,
+     "norris": 6,
      "leclerc": 3,
      "hamilton": 4,
-     "sainz": 6,
+     "sainz": 7,
      "piastri": 13,
-     "albon": 10,
+     "albon": 9,
      "russell": 8,
-     "perez": 7
+     "perez": 5
     }
    },
    "2022": {
@@ -580,18 +884,18 @@
     ],
     "overlap": 9,
     "overlap_old": 8,
-    "spearman": 0.9515,
+    "spearman": 0.9273,
     "spearman_old": 0.6364,
     "our_ranks": {
      "max_verstappen": 1,
      "leclerc": 2,
-     "russell": 3,
+     "russell": 4,
      "hamilton": 6,
-     "perez": 4,
+     "perez": 3,
      "norris": 5,
      "sainz": 7,
      "alonso": 9,
-     "bottas": 13,
+     "bottas": 11,
      "vettel": 10
     }
    },
@@ -610,19 +914,19 @@
     ],
     "overlap": 8,
     "overlap_old": 9,
-    "spearman": 0.8182,
+    "spearman": 0.8909,
     "spearman_old": 0.8909,
     "our_ranks": {
      "max_verstappen": 1,
      "hamilton": 2,
      "norris": 3,
-     "sainz": 6,
+     "sainz": 4,
      "leclerc": 5,
      "alonso": 10,
-     "gasly": 4,
+     "gasly": 6,
      "russell": 13,
      "bottas": 11,
-     "ocon": 7
+     "ocon": 9
     }
    }
   },
@@ -654,6 +958,11 @@
    "name": "Опрос руководителей команд F1",
    "url": "https://www.formula1.com",
    "what": "только для сверки, 2021–2025"
+  },
+  {
+   "name": "Википедия",
+   "url": "https://ru.wikipedia.org",
+   "what": "краткие биографии пилотов (CC BY-SA 4.0)"
   }
  ]
 }

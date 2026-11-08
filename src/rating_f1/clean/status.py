@@ -21,7 +21,7 @@ VICTIM = "victim"
 CATEGORIES = (FINISHED, DRIVER_ERROR, MECHANICAL, UNCLEAR, DISQUALIFIED, VICTIM)
 
 _FINISHED_RE = re.compile(r"^(finished|lapped|\+\d+ laps?)$", re.IGNORECASE)
-_DRIVER_ERROR = {"accident", "spun off", "accident damage"}
+_DRIVER_ERROR = {"accident", "spun off", "accident damage", "accident on formation lap"}
 _DISQUALIFIED = {
     "disqualified",
     "excluded",
@@ -46,7 +46,14 @@ _UNCLEAR = {
     "injury",
     "debris",
     "accident in qualifying",
+    "car damaged in qualifying",
 }
+_COLLISION = {"collision", "collision damage"}
+
+
+def is_collision(status) -> bool:
+    """Сход после столкновения с другой машиной (виновник по статусу неизвестен)."""
+    return isinstance(status, str) and status.strip().lower() in _COLLISION
 
 
 def classify_status(status) -> str:

@@ -93,7 +93,7 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--series-1
 
 /* Веса групп */
 .weights { margin-bottom: 16px; padding: 12px 16px; }
-.weights summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.weights summary, .method summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
 .summary-title { font-weight: 600; }
 .summary-value { color: var(--text-2); font-size: 13px; }
 .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
@@ -153,6 +153,14 @@ td.group.top { color: var(--text-1); font-weight: 600; }
 .meter .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--series-1); }
 .meter .mid { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--axis); left: 50%; }
 .ineligible .meter .fill { background: var(--muted); }
+/* Вилка балла: тонкий «ус» с засечками на концах поверх шкалы. */
+.meter .band { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text-1); border-radius: 1px; }
+.meter .band::before, .meter .band::after {
+  content: ""; position: absolute; top: -3px; width: 2px; height: 8px; border-radius: 1px; background: var(--text-1);
+}
+.meter .band::before { left: -1px; }
+.meter .band::after { right: -1px; }
+td.rank .tie { color: var(--text-2); margin-right: 4px; cursor: help; }
 
 .season-note { margin: 12px 0 0; color: var(--text-2); font-size: 13px; }
 .table-more { margin-top: 12px; }
@@ -167,6 +175,13 @@ td.group.top { color: var(--text-1); font-weight: 600; }
 /* Карточка пилота */
 .driver h2 { font-size: 20px; }
 .driver .meta { color: var(--text-2); margin: 2px 0 12px; font-size: 13px; }
+.bio { margin: -4px 0 12px; }
+.bio p { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.5; }
+.bio .bio-source { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.bio a { color: var(--series-1); }
+.incidents { margin-top: 6px; display: grid; gap: 2px; }
+.incidents p { margin: 0; font-size: 12px; color: var(--text-1); }
+.incidents .muted { color: var(--muted); }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
 .stat { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
 .stat .label { font-size: 12px; color: var(--muted); }
@@ -220,6 +235,8 @@ td.group.top { color: var(--text-1); font-weight: 600; }
 .legend-ramp .bar { width: 120px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--ramp-low), var(--ramp-high)); }
 
 .method { margin: 16px 0 0; }
+.method .summary-title { font-size: 18px; }
+.method[open] summary { margin-bottom: 8px; }
 .method p, .method li { color: var(--text-2); max-width: 980px; }
 .method ul { padding-left: 20px; margin: 8px 0; }
 .method strong { color: var(--text-1); font-weight: 600; }

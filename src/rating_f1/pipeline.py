@@ -21,20 +21,24 @@ from .clean.enrich import enrich_results
 from .clean.overrides import load_overrides
 from .clean.status import classify_status
 from .composite import GROUPS, PERIOD, build_scopes, expert_agreement
-from .config import FIRST_SEASON, LAST_SEASON, N_DRAWS, OVERRIDES_PATH, ROOT, SEED
+from .config import (FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH, REFERENCE_LAP_S, ROOT, SEED,
+                     WEIGHTS_PERIOD, WEIGHTS_SEASON)
 from .evaluate import backtest
 from .export import export_web
-from .features.car_level import above_car, car_ranks, sprint_records
+from .features.car_level import above_car, car_levels, sprint_records
 from .features.laps import lap_features
 from .features.quali import quali_pairs
 from .features.race import race_duels
-from .features.stats import quali_records, race_records
+from .features.stats import incident_lists, race_records
 from .features.stints import stint_factor, stint_starts
 from .graph import build_graph
+from .ingest.wiki import driver_bios
+from .intervals import bands, bootstrap
 from .models.season import season_performance
 from .models.teammate import build_index, fit_quali, fit_race
-from .ratings import raw_stats, season_context, season_ratings
+from .ratings import raw_stats, season_context, season_ratings, teammate_draws
 from .tables import build_tables, load_tables, save_tables
+from .validate import report as validation_report
 
 EXPERT_PATH = ROOT / "annotations" / "expert_rankings.yaml"
 log = logging.getLogger("rating_f1")
@@ -79,7 +83,10 @@ def teammate_model(qp: pd.DataFrame, rd: pd.DataFrame, pp: pd.DataFrame, results
         columns={c: f"skill_{c}" for c in ("overall", "overall_lo", "overall_hi", "rank")})
     pace_skill = {key: float(value) for key, value in zip(index.keys, pace_model.mean)}
     models_hyper = {"quali": qh, "race": rh, "pace": ph}
-    return ratings.merge(skill, on=["driver_id", "season"], how="left"), models_hyper, pace_skill
+    # По одному варианту модели на каждый пересчёт общего рейтинга (вилки балла и места).
+    car_draws = teammate_draws(index.keys, q_perf, r_perf, p_perf, starts,
+                               rng.choice(N_DRAWS, size=N_BOOT, replace=False))
+    return ratings.merge(skill, on=["driver_id", "season"], how="left"), models_hyper, pace_skill, car_draws
 
 
 def _log_scope(table: pd.DataFrame, names: pd.Series, title: str, n: int) -> None:
@@ -88,8 +95,13 @@ def _log_scope(table: pd.DataFrame, names: pd.Series, title: str, n: int) -> Non
     log.info("%s (рейтинг 0–100; группы: %s):", title, ", ".join(g.name for g in groups))
     for driver, rec in top.iterrows():
         parts = " ".join(f"{rec[f's_{g.id}']:3.0f}" for g in groups)
-        log.info("  %2d. %-12s %5.1f | %s | побед %3d, подиумов %3d, гонок %3d", rec["rank"],
-                 names.get(driver, driver), rec["rating"], parts, rec["st_wins"], rec["st_podiums"], rec["starts"])
+        band = ""
+        if "rating_lo" in rec:
+            band = (f" ({rec['rating_lo']:2.0f}–{rec['rating_hi']:3.0f}, место {rec['rank_lo']:.0f}–{rec['rank_hi']:.0f},"
+                    f" первый {100 * rec['p_top1']:3.0f}%)")
+        log.info("  %2d. %-12s %5.1f%s | %s | побед %3d, подиумов %3d, гонок %3d", rec["rank"],
+                 names.get(driver, driver), rec["rating"], band, parts, rec["st_wins"], rec["st_podiums"],
+                 rec["starts"])
 
 
 def main(argv=None) -> None:
@@ -97,6 +109,8 @@ def main(argv=None) -> None:
     parser.add_argument("--refresh", action="store_true", help="перекачать все сезоны из Jolpica")
     parser.add_argument("--offline", action="store_true", help="не ходить в сеть, взять таблицы из data/processed")
     parser.add_argument("--no-backtest", action="store_true", help="пропустить проверку прогнозом")
+    parser.add_argument("--no-intervals", action="store_true",
+                        help="не считать вилки балла и места (пересчёты на перевыбранных этапах)")
     args = parser.parse_args(argv)
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -140,15 +154,25 @@ def main(argv=None) -> None:
              int(lap_stats["pace_gap"].notna().sum()), int(lap_stats["overtakes_made"].sum()),
              len(pace_pairs), int(pace_pairs["valid"].sum()))
 
-    teammate, models_hyper, pace_skill = teammate_model(qp, rd, pace_pairs, results, debut)
+    teammate, models_hyper, pace_skill, car_draws = teammate_model(qp, rd, pace_pairs, results, debut)
     records = race_records(results, qualifying, lap_stats)
     teams = results[results["session"] == "R"][["season", "round", "driver_id", "constructor_id"]]
-    ranks = car_ranks(lap_stats[["season", "round", "driver_id", "pace_gap"]].dropna(),
-                      quali_records(qualifying), teams)
-    records, sprints, expectations = above_car(records, sprint_records(results), ranks)
-    log.info("Ожидаемые очки за гонку по рангу машины: %s", expectations["points"])
-    scopes = build_scopes(records, sprints, tables["standings"],
-                          teammate[["driver_id", "season", "quali_s", "race_p", "pace_s"]])
+    # Навык в темпе из модели напарников (% быстрее среднего пилота в такой же машине) —
+    # чтобы уровень машины был уровнем машины со средним пилотом.
+    skill = teammate[["driver_id", "season"]].assign(skill=teammate["pace_s"] / (REFERENCE_LAP_S / 100))
+    levels = car_levels(lap_stats[["season", "round", "driver_id", "pace_gap"]], teams, skill)
+    records, sprints, expectations = above_car(records, sprint_records(results), levels)
+    log.info("Ожидаемые очки за гонку по отрыву машины от лучшей: %s",
+             ", ".join(f"{lo:.2f}–{hi:.2f}% → {p:.1f}" for lo, hi, p in
+                       zip(expectations["gap_from"], expectations["gap_to"], expectations["points"])))
+    car_features = teammate[["driver_id", "season", "quali_s", "race_p", "pace_s"]]
+    scopes, rulers = build_scopes(records, sprints, tables["standings"], car_features)
+    draws = None
+    if not args.no_intervals:
+        draws = bootstrap(records, sprints, results, tables["standings"], car_draws, rulers, N_BOOT,
+                          np.random.default_rng(SEED + 1))
+        for key, draw in draws.items():
+            scopes[key] = scopes[key].join(bands(scopes[key], draw, WEIGHTS_PERIOD if key == PERIOD else WEIGHTS_SEASON))
 
     graph = build_graph(results, tables["constructors"], qp, rd, pace_pairs, scopes[PERIOD], starts_map)
     gs = graph["stats"]
@@ -166,11 +190,20 @@ def main(argv=None) -> None:
                  "корреляция мест %.2f (было %.2f)", season, rep["overlap"], rep["overlap_old"],
                  rep["spearman"], rep["spearman_old"])
 
+    validation = validation_report(records, sprints, results, tables["standings"], car_features, scopes,
+                                   [g.id for g in GROUPS], agreement)
+    log.info("Проверки рейтинга: повторяемость в сезоне / после смены команды (%s пар сезонов) / у оставшихся (%s):",
+             validation["n_moved"], validation["n_stayed"])
+    group_names = {g.id: g.name for g in GROUPS}
+    for key, row in validation["groups"].items():
+        log.info("  %-20s %5.2f %6.2f %6.2f", group_names.get(key, "Итог"), row["reliability"], row["moved"],
+                 row["stayed"])
+
     raw = raw_stats(qp, rd)
     context = season_context(results, tables["constructors"])
     scores = pd.concat([df.assign(scope=k).reset_index() for k, df in scopes.items()], ignore_index=True)
     save_tables({"quali_pairs": qp, "race_duels": rd, "pace_pairs": pace_pairs, "teammate_ratings": teammate,
-                 "lap_stats": lap_stats, "car_ranks": ranks,
+                 "lap_stats": lap_stats, "car_levels": levels,
                  "race_records": records.drop(columns=["status_detail"]).assign(
                      status_detail=records["status_detail"].astype(str)),
                  "scores": scores})
@@ -193,7 +226,9 @@ def main(argv=None) -> None:
                    "sources": {str(s): v["source"] for s, v in expert_raw.items()}}
     counts["pace_pairs_valid"] = int(pace_pairs["valid"].sum())
     counts["overtakes"] = int(lap_stats["overtakes_made"].sum())
-    export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations, graph)
+    bios = driver_bios(tables["drivers"], offline=args.offline, refresh=args.refresh)
+    export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations, graph,
+               draws, bios, incident_lists(records), validation)
 
     _log_scope(scopes[PERIOD], names, f"Общий рейтинг {seasons[0]}–{seasons[-1]}", 15)
     _log_scope(scopes[str(seasons[-1])], names, f"Сезон {seasons[-1]}", 8)

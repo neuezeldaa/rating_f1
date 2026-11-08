@@ -21,6 +21,39 @@ def _band(draws: np.ndarray):
     return draws.mean(axis=1), lo, hi
 
 
+def _season_weights(keys: list, starts: dict):
+    """Для каждого сезона: строки его пилотов и веса по числу гонок (сумма 1)."""
+    seasons = np.array([season for _, season in keys])
+    for season in sorted(set(seasons.tolist())):
+        idx = np.flatnonzero(seasons == season)
+        w = np.array([starts.get(keys[i], 0) for i in idx], dtype=float)
+        yield season, idx, w, (w / w.sum() if w.sum() > 0 else np.full(len(idx), 1.0 / len(idx)))
+
+
+def _centered(keys: list, starts: dict, draws: np.ndarray) -> np.ndarray:
+    """Навык относительно среднего пилота своего сезона (с весом по числу гонок)."""
+    out = np.empty_like(draws)
+    for _, idx, _, wn in _season_weights(keys, starts):
+        out[idx] = draws[idx] - wn @ draws[idx]
+    return out
+
+
+def teammate_draws(keys: list, q_draws: np.ndarray, r_draws: np.ndarray, p_draws: np.ndarray,
+                   starts: dict, picks: np.ndarray) -> dict:
+    """Варианты признаков группы «Против напарника» для пересчётов интервалов.
+
+    Те же quali_s, race_p и pace_s, что в season_ratings, только не среднее по вариантам
+    модели, а по одному варианту (столбцы — номера вариантов из picks) на пересчёт.
+    """
+    return {
+        "driver_id": np.array([driver for driver, _ in keys]),
+        "season": np.array([int(season) for _, season in keys]),
+        "quali_s": _centered(keys, starts, q_draws[:, picks]) * REFERENCE_LAP_S / 100,
+        "race_p": special.expit(_centered(keys, starts, r_draws[:, picks])),
+        "pace_s": _centered(keys, starts, p_draws[:, picks]) * REFERENCE_LAP_S / 100,
+    }
+
+
 def season_ratings(keys: list, q_draws: np.ndarray, r_draws: np.ndarray, sigma: float,
                    starts: dict, p_draws: np.ndarray, sigma_p: float) -> pd.DataFrame:
     """Места и интервалы по выборкам (квала и темп в %, финиш в логитах) в порядке keys.
@@ -28,16 +61,11 @@ def season_ratings(keys: list, q_draws: np.ndarray, r_draws: np.ndarray, sigma: 
     sigma, sigma_p — шум одной сессии: переводят гэп в шанс опередить среднего пилота.
     Общая сила против напарника — среднее трёх шансов: квала, темп, финиш.
     """
-    seasons = np.array([season for _, season in keys])
+    q_all, r_all, p_all = (_centered(keys, starts, d) for d in (q_draws, r_draws, p_draws))
 
     records = []
-    for season in sorted(set(seasons.tolist())):
-        idx = np.flatnonzero(seasons == season)
-        w = np.array([starts.get(keys[i], 0) for i in idx], dtype=float)
-        wn = w / w.sum() if w.sum() > 0 else np.full(len(idx), 1.0 / len(idx))
-        q = q_draws[idx] - wn @ q_draws[idx]
-        r = r_draws[idx] - wn @ r_draws[idx]
-        pc = p_draws[idx] - wn @ p_draws[idx]
+    for season, idx, w, _ in _season_weights(keys, starts):
+        q, r, pc = q_all[idx], r_all[idx], p_all[idx]
         p_quali = special.ndtr(q / sigma)
         p_race = special.expit(r)
         p_pace = special.ndtr(pc / sigma_p)

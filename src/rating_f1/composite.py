@@ -7,9 +7,13 @@
    знак выбран так, что больше — лучше.
 4. Оценка группы — среднее z её признаков; итог — взвешенная сумма групп.
 5. Шкала 0–100: 50 — средний пилот пула, +15 за каждое стандартное отклонение.
+
+Средние и разбросы по пулу на каждом шаге — «линейка» охвата. Пересчёты для интервалов
+(intervals.py) меряются линейкой основного расчёта, а не своей.
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -28,6 +32,7 @@ from .config import (
 from .features.stats import STANDING_POINTS, summarize
 
 PERIOD = "all"
+SOLID_SEASON = 10  # гонок в сезоне, чтобы он шёл в «лучший сезон» без поправки
 
 
 @dataclass(frozen=True)
@@ -55,7 +60,8 @@ GROUPS = [
     Group("quali", "Квалификация", "Поулы, выход в Q3, отставание от лучшего времени, среднее место."),
     Group("pace", "Темп в гонке", "Отставание от медианы поля на чистых кругах и стабильность темпа."),
     Group("racecraft", "Борьба", "Первый круг, обгоны и защита на трассе, позиции сверх ожидаемого за гонку."),
-    Group("clean", "Надёжность", "Сходы по своей ошибке, финиши без поломок, штрафы по времени."),
+    Group("clean", "Аккуратность",
+          "Сходы по своей ошибке, сходы после столкновений, штрафы по времени. Поломки не в счёт."),
     Group("teammate", "Против напарника",
           "Модель сети напарников: квалификация, темп и финиш с поправкой на силу напарников; доля очков команды."),
     Group("career", "Карьера", "Только для общей сводки: титулы, лучший сезон, сезоны в топ-5."),
@@ -79,8 +85,9 @@ FEATURES = [
     Feature("overtakes", "racecraft", "Обгоны на трассе за гонку", "num1", +1, "ot_n"),
     Feature("overtaken", "racecraft", "Пропущено обгонов за гонку", "num1", -1, "ot_n"),
     Feature("gain_vs_exp", "racecraft", "Позиции за гонку сверх ожидаемого", "signed1", +1, "gain_n"),
+    # Три вида происшествий без пересечений: одна гонка попадает максимум в один вид схода.
     Feature("err_rate", "clean", "Сходы по своей ошибке", "pct", -1, "starts"),
-    Feature("finish_rate", "clean", "Финиши без поломок", "pct", +1, "finish_base"),
+    Feature("contact_rate", "clean", "Сходы после столкновений", "pct", -1, "starts"),
     Feature("penalty_rate", "clean", "Штрафы по времени", "pct", -1, "starts"),
     Feature("car_quali", "teammate", "Квала против напарников, с/круг", "sec", +1),
     Feature("car_pace", "teammate", "Темп против напарников, с/круг", "sec", +1),
@@ -90,6 +97,25 @@ FEATURES = [
     Feature("peak", "career", "Лучший сезон", "score", +1),
     Feature("elite", "career", "Сезонов в топ-5", "int", +1),
 ]
+
+
+@dataclass
+class Ruler:
+    """Линейка охвата из основного расчёта: кто в пуле и средние с разбросами на каждом шаге.
+
+    Пересчёты для интервалов меряются ею же. Если бы каждый пересчёт брал свои средние
+    и разбросы, баллы в нём сжимались бы к 50: к настоящей разнице между пилотами
+    в пересчёте добавляется случайная, и разброс по пулу растёт.
+    """
+    pool: pd.Series             # индекс — все пилоты охвата, значение — входит ли в пул
+    shrink_to: np.ndarray       # среднее сырого признака по пулу: к нему сжимаются доли
+    center: np.ndarray          # среднее признака после сжатия
+    sd: np.ndarray              # разброс признака после сжатия
+    group_center: np.ndarray
+    group_sd: np.ndarray
+    overall_center: float
+    overall_sd: float
+    pool_z: np.ndarray          # z признаков пилотов пула (до обрезки ±3): «случайный пилот пула»
 
 
 def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
@@ -116,8 +142,7 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
     raw["overtaken"] = s["overtaken"]
     raw["gain_vs_exp"] = s["gain_vs_exp"]
     raw["err_rate"] = s["driver_errors"] / n
-    finish_base = n - s["mechanical"]
-    raw["finish_rate"] = s["finished"] / finish_base.where(finish_base > 0)
+    raw["contact_rate"] = s["contacts"] / n
     raw["penalty_rate"] = s["penalties"] / n
     raw["car_quali"] = car["quali_s"].reindex(s.index)
     raw["car_pace"] = car["pace_s"].reindex(s.index)
@@ -137,62 +162,115 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
         "gain_n": s["gain_n"],
         "pac_n": s["pac_n"],
         "posac_n": s["posac_n"],
-        "finish_base": finish_base,
     })
     return raw, counts
 
 
-def _standardize(values: pd.Series, pool: pd.Series) -> pd.Series:
-    ref = values[pool]
-    sd = ref.std(ddof=0)
-    if not np.isfinite(sd) or sd == 0:
-        return pd.Series(0.0, index=values.index)
-    return (values - ref.mean()) / sd
+def _moments(values: np.ndarray, pool: np.ndarray):
+    """Среднее и разброс (ddof=0) по пулу, по столбцам; пропуски не учитываются."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)  # столбец без единого значения
+        return np.nanmean(values[pool], axis=0), np.nanstd(values[pool], axis=0)
+
+
+def _scaled(values: np.ndarray, center, sd) -> np.ndarray:
+    """(x − среднее) / разброс; где разброса нет — ноль."""
+    ok = np.isfinite(sd) & (sd > 0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        z = (values - center) / np.where(ok, sd, 1.0)
+    return np.where(ok, z, 0.0)
+
+
+def _grade(raw: pd.DataFrame, counts: pd.DataFrame, pool: np.ndarray, weights: dict,
+           ruler: Ruler | None = None, donors: np.ndarray | None = None):
+    """z признаков, z групп и итоговое z. Без ruler средние и разбросы берутся по этому пулу.
+
+    donors (только в пересчётах) — для каждого пилота номер случайного пилота пула. Сжатие —
+    это SHRINK_RACES воображаемых гонок среднего пилота; в пересчёте их «проезжает» этот
+    пилот пула. Иначе балл пилота с 1–2 гонками почти не менялся бы между пересчётами:
+    он почти целиком из воображаемых гонок, хотя о его уровне мы почти ничего не знаем.
+
+    Возвращает (признаки, группы, z признаков, z групп, итог, части линейки).
+    """
+    feats = [f for f in FEATURES if f.id in raw.columns]
+    groups = [g for g in GROUPS if any(f.group == g.id for f in feats)]
+    x = raw[[f.id for f in feats]].to_numpy(dtype=float)
+    if ruler is None:
+        shrink_to = _moments(x, pool)[0]
+    else:
+        shrink_to = ruler.shrink_to
+    n = np.column_stack([counts[f.count].to_numpy(dtype=float) if f.count else np.zeros(len(x))
+                         for f in feats])
+    n = np.nan_to_num(n, nan=0.0)
+    filled = np.where(np.isnan(x), shrink_to, x)
+    shrunk = (filled * n + shrink_to * SHRINK_RACES) / (n + SHRINK_RACES)
+    has_count = np.array([f.count is not None for f in feats])
+    x = np.where(has_count, shrunk, filled)
+
+    center, sd = _moments(x, pool) if ruler is None else (ruler.center, ruler.sd)
+    better = np.array([f.better for f in feats], dtype=float)
+    z = better * _scaled(x, center, sd)
+    pool_z = z[pool]
+    if donors is not None:
+        # Воображаемые гонки на уровне пилота пула вместо среднего: + доля сжатия × его z.
+        z = z + has_count * SHRINK_RACES / (n + SHRINK_RACES) * ruler.pool_z[donors]
+    z = np.nan_to_num(np.clip(z, -3, 3), nan=0.0)
+
+    members = [[i for i, f in enumerate(feats) if f.group == g.id] for g in groups]
+    group_mean = np.column_stack([z[:, m].mean(axis=1) for m in members])
+    gc, gs = _moments(group_mean, pool) if ruler is None else (ruler.group_center, ruler.group_sd)
+    gz = _scaled(group_mean, gc, gs)
+
+    w = np.array([weights.get(g.id, 0.0) for g in groups])
+    total = gz @ w / w.sum()
+    oc, os_ = _moments(total, pool) if ruler is None else (ruler.overall_center, ruler.overall_sd)
+    overall = _scaled(total, oc, os_)
+    parts = dict(shrink_to=shrink_to, center=center, sd=sd, group_center=gc, group_sd=gs,
+                 overall_center=float(oc), overall_sd=float(os_), pool_z=pool_z)
+    return feats, groups, z, gz, overall, parts
+
+
+def _ranks(rating: pd.Series, pool: np.ndarray) -> pd.Series:
+    """Место среди пула по рейтингу (равные делят место); вне пула — пусто."""
+    rank = pd.Series(pd.NA, index=rating.index, dtype="Int64")
+    rank[pool] = rating[pool].rank(ascending=False, method="min").astype(int)
+    return rank
 
 
 def score(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame, min_starts: int,
-          weights: dict, career: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Итоговая таблица охвата: значения, z-оценки признаков и групп, рейтинг и место."""
+          weights: dict, career: pd.DataFrame | None = None) -> tuple[pd.DataFrame, Ruler]:
+    """Итоговая таблица охвата и её линейка: значения, z-оценки признаков и групп, рейтинг и место."""
     raw, counts = _features(summary, champ, car, career)
-    pool = summary["starts"] >= min_starts
-    out = pd.DataFrame(index=summary.index)
-    out["starts"] = summary["starts"]
-    out["eligible"] = pool
+    pool = (summary["starts"] >= min_starts).to_numpy()
+    feats, groups, z, gz, overall, parts = _grade(raw, counts, pool, weights)
+    cols = {"starts": summary["starts"].to_numpy(), "eligible": pool}
+    for i, f in enumerate(feats):
+        cols[f"v_{f.id}"] = raw[f.id].to_numpy()
+        cols[f"z_{f.id}"] = z[:, i]
+    for j, g in enumerate(groups):
+        cols[f"g_{g.id}"] = gz[:, j]
+        cols[f"s_{g.id}"] = np.clip(RATING_CENTER + RATING_SCALE * gz[:, j], 0, 100)
+    cols["overall_z"] = overall
+    cols["rating"] = np.clip(RATING_CENTER + RATING_SCALE * overall, 0, 100)
+    out = pd.DataFrame(cols, index=summary.index)
+    out["rank"] = _ranks(out["rating"], pool)
+    ruler = Ruler(pool=pd.Series(pool, index=summary.index), **parts)
+    return out.join(summary.drop(columns=["starts"]).add_prefix("st_")), ruler
 
-    feature_z = {}
-    for feat in FEATURES:
-        if feat.id not in raw:
-            continue
-        x = raw[feat.id].astype(float)
-        mean = x[pool].mean()
-        if feat.count:
-            n = counts[feat.count].astype(float).fillna(0)
-            x = (x.fillna(mean) * n + mean * SHRINK_RACES) / (n + SHRINK_RACES)
-        x = x.fillna(mean)
-        z = (feat.better * _standardize(x, pool)).clip(-3, 3).fillna(0.0)
-        feature_z[feat.id] = z
-        out[f"v_{feat.id}"] = raw[feat.id]
-        out[f"z_{feat.id}"] = z
 
-    total = pd.Series(0.0, index=summary.index)
-    weight_sum = 0.0
-    for group in GROUPS:
-        members = [f.id for f in FEATURES if f.group == group.id and f.id in feature_z]
-        if not members:
-            continue
-        gz = _standardize(pd.concat([feature_z[m] for m in members], axis=1).mean(axis=1), pool)
-        out[f"g_{group.id}"] = gz
-        out[f"s_{group.id}"] = (RATING_CENTER + RATING_SCALE * gz).clip(0, 100)
-        w = weights.get(group.id, 0.0)
-        total += w * gz
-        weight_sum += w
-    overall = _standardize(total / weight_sum, pool)
-    out["overall_z"] = overall
-    out["rating"] = (RATING_CENTER + RATING_SCALE * overall).clip(0, 100)
-    out["rank"] = pd.Series(pd.NA, index=out.index, dtype="Int64")
-    ranked = out.loc[pool, "rating"].rank(ascending=False, method="min").astype(int)
-    out.loc[pool, "rank"] = ranked
-    return out.join(summary.drop(columns=["starts"]).add_prefix("st_"))
+def score_draw(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame, ruler: Ruler, weights: dict,
+               rng: np.random.Generator, career: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Один пересчёт для интервалов: z групп, рейтинг и место. Пилоты, пул и линейка — основного расчёта."""
+    summary = summary.reindex(ruler.pool.index)  # кому не досталось ни одной гонки — как при нуле гонок
+    raw, counts = _features(summary, champ, car, career)
+    pool = ruler.pool.to_numpy()
+    donors = rng.integers(0, len(ruler.pool_z), size=len(summary))
+    _, groups, _, gz, overall, _ = _grade(raw, counts, pool, weights, ruler, donors)
+    out = pd.DataFrame(gz, index=summary.index, columns=[f"g_{g.id}" for g in groups])
+    out["starts"] = summary["starts"].to_numpy()
+    out["rating"] = np.clip(RATING_CENTER + RATING_SCALE * overall, 0, 100)
+    out["rank"] = _ranks(out["rating"], pool)
+    return out
 
 
 def champ_points(standings: pd.DataFrame) -> pd.DataFrame:
@@ -202,20 +280,35 @@ def champ_points(standings: pd.DataFrame) -> pd.DataFrame:
     return s
 
 
-def build_scopes(records: pd.DataFrame, sprints: pd.DataFrame, standings: pd.DataFrame,
-                 car_by_season: pd.DataFrame) -> dict:
-    """Все охваты: каждый сезон и общий период. Возвращает {охват: DataFrame}."""
-    champ = champ_points(standings)
-    scopes = {}
-    seasons = sorted(int(s) for s in records["season"].unique())
-    for season in seasons:
-        rec = records[records["season"] == season]
-        summary = summarize(rec, sprints[sprints["season"] == season])
-        champ_s = champ[champ["season"] == season].set_index("driver_id")["champ"]
-        car = car_by_season[car_by_season["season"] == season].set_index("driver_id")
-        scopes[str(season)] = score(summary, champ_s, car, MIN_RACES_FOR_RANK, WEIGHTS_SEASON)
+def _season_parts(records, sprints, champ, car_by_season, season: int):
+    """Входы сезона: сводка по гонкам, очки за место в чемпионате, оценки против напарника."""
+    rec = records[records["season"] == season]
+    summary = summarize(rec, sprints[sprints["season"] == season])
+    champ_s = champ[champ["season"] == season].set_index("driver_id")["champ"]
+    car = car_by_season[car_by_season["season"] == season].set_index("driver_id")
+    return summary, champ_s, car
 
-    # Период: средние по сезонам с весом по числу гонок + признаки карьеры из сезонных рейтингов.
+
+def _career(season_tables: dict, standings: pd.DataFrame) -> pd.DataFrame:
+    """Признаки карьеры из сезонных рейтингов: лучший сезон, сезоны в топ-5, титулы."""
+    rows = pd.concat([df[["starts", "rating", "rank"]].rename_axis("driver_id").reset_index()
+                      for df in season_tables.values()], ignore_index=True)
+    by = rows["driver_id"]
+    starts = rows["starts"].astype(float)
+    # Сезон от 10 гонок идёт как есть; если таких нет — короткие сезоны тянем к среднему.
+    peak_solid = rows["rating"].where(starts >= SOLID_SEASON).groupby(by).max()
+    peak_short = (RATING_CENTER + (rows["rating"] - RATING_CENTER) * starts / SOLID_SEASON).groupby(by).max()
+    career = pd.DataFrame({
+        "peak": peak_solid.fillna(peak_short),
+        "elite": (rows["rank"].fillna(99) <= 5).groupby(by).sum().astype(int),
+    })
+    titles = standings[standings["champion"]].groupby("driver_id").size()
+    career["titles"] = titles.reindex(career.index).fillna(0).astype(int)
+    return career
+
+
+def _period_parts(records, sprints, champ, car_by_season, standings, season_tables: dict):
+    """Входы общей сводки: все гонки, средние по сезонам с весом по числу гонок, карьера."""
     summary = summarize(records, sprints)
     starts = records.groupby(["driver_id", "season"]).size().rename("n").reset_index()
 
@@ -227,25 +320,34 @@ def build_scopes(records: pd.DataFrame, sprints: pd.DataFrame, standings: pd.Dat
     champ_all = weighted(champ_w, ["champ"])["champ"]
     car_all = weighted(starts.merge(car_by_season, on=["driver_id", "season"], how="inner"),
                        ["quali_s", "race_p", "pace_s"])
+    return summary, champ_all, car_all, _career(season_tables, standings)
 
-    season_rows = pd.concat(
-        [df.assign(season=int(k)).reset_index() for k, df in scopes.items()], ignore_index=True)
-    rows = []
-    for driver, g in season_rows.groupby("driver_id"):
-        solid = g[g["starts"] >= 10]
-        if len(solid):
-            peak = solid["rating"].max()
-        else:  # только короткие сезоны — сильнее тянем к среднему
-            peak = (RATING_CENTER + (g["rating"] - RATING_CENTER) * g["starts"] / 10).max()
-        rows.append({
-            "driver_id": driver,
-            "peak": peak,
-            "elite": int((g["rank"].fillna(99) <= 5).sum()),
-            "titles": int(standings[(standings["driver_id"] == driver) & standings["champion"]].shape[0]),
-        })
-    career = pd.DataFrame(rows).set_index("driver_id")
-    scopes[PERIOD] = score(summary, champ_all, car_all, MIN_RACES_PERIOD, WEIGHTS_PERIOD, career)
-    return scopes
+
+def build_scopes(records: pd.DataFrame, sprints: pd.DataFrame, standings: pd.DataFrame,
+                 car_by_season: pd.DataFrame) -> tuple[dict, dict]:
+    """Все охваты: каждый сезон и общий период. Возвращает ({охват: таблица}, {охват: линейка})."""
+    champ = champ_points(standings)
+    scopes, rulers = {}, {}
+    for season in sorted(int(s) for s in records["season"].unique()):
+        parts = _season_parts(records, sprints, champ, car_by_season, season)
+        scopes[str(season)], rulers[str(season)] = score(*parts, MIN_RACES_FOR_RANK, WEIGHTS_SEASON)
+    summary, champ_all, car_all, career = _period_parts(records, sprints, champ, car_by_season, standings, scopes)
+    scopes[PERIOD], rulers[PERIOD] = score(summary, champ_all, car_all, MIN_RACES_PERIOD, WEIGHTS_PERIOD, career)
+    return scopes, rulers
+
+
+def draw_scopes(records: pd.DataFrame, sprints: pd.DataFrame, standings: pd.DataFrame,
+                car_by_season: pd.DataFrame, rulers: dict, rng: np.random.Generator) -> dict:
+    """Один пересчёт всех охватов для интервалов (те же шаги, линейки — из основного расчёта)."""
+    champ = champ_points(standings)
+    tables = {}
+    for key, ruler in rulers.items():
+        if key != PERIOD:
+            parts = _season_parts(records, sprints, champ, car_by_season, int(key))
+            tables[key] = score_draw(*parts, ruler, WEIGHTS_SEASON, rng)
+    summary, champ_all, car_all, career = _period_parts(records, sprints, champ, car_by_season, standings, tables)
+    tables[PERIOD] = score_draw(summary, champ_all, car_all, rulers[PERIOD], WEIGHTS_PERIOD, rng, career)
+    return tables
 
 
 def expert_agreement(scopes: dict, expert: dict, old_ranks: dict) -> dict:
