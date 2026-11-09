@@ -4,6 +4,7 @@
 # и по кнопке Run workflow на вкладке Actions. Скачанные данные (data/raw) хранятся
 # в кэше Actions между запусками, прошлые сезоны есть ещё и в data/seed.zip.
 # Отчёт запуска (Summary): данные по какой гонке, топ и проверки рейтинга.
+# Тесты идут до пересчёта, проверки данных — после: если что-то не так, сайт не обновляется.
 #
 # В настройках репозитория: Settings → Pages → Source: GitHub Actions.
 
@@ -29,7 +30,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # С 1996 года сезонов 31: обычный запуск — около 30 минут, с проверкой прогнозом (раз в 35 дней
+    # и при ручном запуске) — около 45. Лимит с запасом; для публичного репозитория это бесплатно.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +45,11 @@ jobs:
             constraints.txt
 
       - name: Зависимости (версии — как в constraints.txt)
-        run: pip install -c constraints.txt -e .
+        run: pip install -c constraints.txt -e ".[dev]"
+
+      # Тесты ключевых расчётов — до пересчёта: если что-то сломано в коде, сайт не трогаем.
+      - name: Тесты
+        run: python -I -m pytest -q
 
       - name: Кэш скачанных данных
         uses: actions/cache@v4
@@ -68,6 +75,10 @@ jobs:
 
       - name: Отчёт запуска
         run: python -I -m rating_f1.report >> "$GITHUB_STEP_SUMMARY"
+
+      # Проверки того, что увидит посетитель; не пройдены — выкладки нет, на сайте остаётся прошлая версия.
+      - name: Проверки перед публикацией
+        run: python -I -m rating_f1.checks
 
       - uses: actions/configure-pages@v5
 

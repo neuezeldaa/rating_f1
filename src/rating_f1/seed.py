@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import json
 import logging
 import sys
 import zipfile
@@ -20,7 +21,37 @@ from pathlib import Path
 from .config import DATA, RAW
 
 SEED = DATA / "seed.zip"
+# Общие файлы-словари (запись на гонку или пилота с датой загрузки fetched): если файл уже есть
+# (например, из кэша GitHub Actions), из архива дописываются недостающие записи и заменяются старые.
+MERGED = {"weather/races.json", "wiki/bios.json"}
 log = logging.getLogger("rating_f1")
+
+
+def _newer(seed_rec, old_rec) -> bool:
+    """Запись из архива свежее: скачана позже или в тот же день, но полнее (больше полей)."""
+    if not (isinstance(seed_rec, dict) and isinstance(old_rec, dict)):
+        return False
+    a, b = str(seed_rec.get("fetched", "")), str(old_rec.get("fetched", ""))
+    return a > b or (a == b and len(seed_rec) > len(old_rec))
+
+
+def merge_json(target: Path, data: bytes) -> int:
+    """Дописать в словарь target записи из архива, которых нет или которые там старее. → сколько записей."""
+    try:
+        current = json.loads(target.read_text(encoding="utf-8"))
+        seed = json.loads(data.decode("utf-8"))
+    except (OSError, ValueError):
+        return 0
+    if not isinstance(current, dict) or not isinstance(seed, dict):
+        return 0
+    changed = 0
+    for key, rec in seed.items():
+        if key not in current or _newer(rec, current[key]):
+            current[key] = rec
+            changed += 1
+    if changed:
+        target.write_text(json.dumps(current, ensure_ascii=False, indent=1), encoding="utf-8")
+    return changed
 
 
 def _members(today: date) -> list[Path]:
@@ -45,12 +76,13 @@ def pack(today: date | None = None) -> None:
 
 
 def unpack() -> None:
-    """Дописать недостающие файлы; то, что уже есть в data/raw (свежее), не трогается."""
+    """Дописать недостающие файлы; то, что уже есть в data/raw (свежее), не трогается.
+    В общих файлах-словарях (MERGED) дописываются недостающие и более свежие записи."""
     if not SEED.exists():
         log.info("Начальные данные: архива %s нет — всё будет скачано", SEED)
         return
     root = RAW.resolve()
-    added = 0
+    added = merged = 0
     with zipfile.ZipFile(SEED) as zf:
         for name in zf.namelist():
             target = (RAW / name).resolve()
@@ -60,7 +92,10 @@ def unpack() -> None:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(zf.read(name))
                 added += 1
-    log.info("Начальные данные: добавлено файлов %s из %s", added, len(zf.namelist()))
+            elif name in MERGED:
+                merged += merge_json(target, zf.read(name))
+    log.info("Начальные данные: добавлено файлов %s из %s, записей в общих файлах — %s",
+             added, len(zf.namelist()), merged)
 
 
 def main(argv=None) -> None:

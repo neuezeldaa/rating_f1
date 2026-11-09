@@ -62,6 +62,8 @@
 }
 
 * { box-sizing: border-box; }
+/* hidden прячет и блоки с display: grid / flex (вкладка «Все времена» переключает разделы) */
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -76,6 +78,12 @@ h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; }
 h2 { font-size: 18px; margin: 0; font-weight: 600; }
 h3 { font-size: 15px; margin: 20px 0 8px; font-weight: 600; }
 .subtitle { margin: 0; color: var(--text-2); }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.lang-switch {
+  font-size: 13px; color: var(--series-1); text-decoration: none; white-space: nowrap;
+  border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px;
+}
+.lang-switch:hover { background: var(--row-hover); }
 
 .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 20px 0 12px; }
 .field, .check { display: flex; align-items: center; gap: 8px; color: var(--text-2); }
@@ -129,6 +137,7 @@ th button {
   font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer;
 }
 th button[aria-sort] { color: var(--text-1); }
+th[title]:not(:has(button)) { cursor: help; text-decoration: underline dotted var(--axis); text-underline-offset: 3px; }
 td { padding: 8px 6px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #ranking tbody tr { cursor: pointer; }
@@ -178,6 +187,13 @@ td.rank .tie { color: var(--text-2); margin-right: 4px; cursor: help; }
 .bio { margin: -4px 0 12px; }
 .bio p { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.5; }
 .bio .bio-source { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.bio-text.clamped {
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.bio-more {
+  font: inherit; font-size: 12px; color: var(--series-1); background: none; border: 0;
+  padding: 2px 0 0; cursor: pointer;
+}
 .bio a { color: var(--series-1); }
 .incidents { margin-top: 6px; display: grid; gap: 2px; }
 .incidents p { margin: 0; font-size: 12px; color: var(--text-1); }
@@ -198,6 +214,63 @@ td.rank .tie { color: var(--text-2); margin-right: 4px; cursor: help; }
 .mini th, .mini td { padding: 6px 5px; font-size: 13px; }
 .mini td .sub { font-size: 11px; }
 .empty { color: var(--text-2); }
+
+/* Шапка карточки: фото, имя, ссылка на карточку */
+.driver-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.driver-head .photo {
+  width: 72px; height: 90px; flex: none; object-fit: cover; object-position: 50% 20%;
+  border-radius: 8px; background: var(--grid);
+}
+.driver-title { min-width: 0; }
+.driver .driver-title .meta { margin: 2px 0 4px; }
+.link-btn {
+  font: inherit; font-size: 12px; color: var(--series-1); background: none; border: 0; padding: 0; cursor: pointer;
+}
+.link-btn:hover { text-decoration: underline; }
+.photo-credit { margin: -6px 0 12px; font-size: 11px; color: var(--muted); }
+.photo-credit a { color: var(--series-1); }
+
+/* Сравнение двух пилотов */
+.compare-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.compare-controls select { max-width: 100%; min-width: 0; }
+.chip {
+  font: inherit; font-size: 12px; color: var(--text-1); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; cursor: pointer;
+}
+.chip:hover { background: var(--row-hover); }
+.chip[aria-pressed="true"] { border-color: var(--series-2); box-shadow: inset 0 0 0 1px var(--series-2); }
+.compare-result { margin-top: 10px; display: grid; gap: 6px; }
+.compare-result p { margin: 0; font-size: 13px; color: var(--text-2); }
+.compare-result .compare-head { color: var(--text-1); }
+.compare-result h4 { margin: 6px 0 0; font-size: 13px; font-weight: 600; }
+.compare-result .muted { color: var(--muted); font-size: 12px; }
+.compare-legend { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-2); }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.swatch.s1 { background: var(--series-1); }
+.swatch.s2 { background: var(--series-2); }
+.contrib {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 40px; gap: 8px;
+  align-items: center; font-size: 13px;
+}
+.contrib .cname { color: var(--text-2); }
+.contrib .cval { text-align: right; font-variant-numeric: tabular-nums; }
+/* Расходящаяся полоса: от нуля в середине вправо — в пользу выбранного пилота, влево — второго. */
+.cbar { position: relative; height: 10px; }
+.cbar::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--axis); }
+.cbar .pos, .cbar .neg { position: absolute; top: 0; bottom: 0; }
+.cbar .pos { left: 50%; background: var(--series-1); border-radius: 0 4px 4px 0; }
+.cbar .neg { right: 50%; background: var(--series-2); border-radius: 4px 0 0 4px; }
+.compare-table td { color: var(--text-2); }
+.compare-table td.better { font-weight: 600; color: var(--text-1); }
+#alltime-table tr.alltime-detail .link-btn { margin-top: 4px; font-size: 13px; }
+
+/* Все времена */
+.alltime-card { margin-top: 0; }
+#alltime-table tbody tr { cursor: pointer; }
+#alltime-table tbody tr:hover { background: var(--row-hover); }
+#alltime-table tbody tr.selected { background: var(--row-selected); }
+#alltime-table tr.alltime-detail { cursor: default; background: var(--row-hover); }
+#alltime-table tr.alltime-detail p { margin: 2px 0; font-size: 13px; color: var(--text-2); }
 
 /* Граф напарников */
 .graph-card { margin-top: 16px; }

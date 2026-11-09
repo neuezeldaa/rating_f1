@@ -9,6 +9,33 @@
 #
 # Названия — как у Jolpica (поле raceName).
 
+# 1996–1999. Сухими проверены, хотя по осадкам Open-Meteo похожи на дождевые: Сан-Марино-1997,
+# Бразилия-1998, Италия-1998; Франция-1997 (дождь в конце, но большинство осталось на сликах),
+# Аргентина-1998 (морось в последних кругах, резину не меняли).
+1996: {reviewed: 16, wet: [Brazilian Grand Prix, Spanish Grand Prix, Monaco Grand Prix]}
+1997: {reviewed: 17, wet: [Monaco Grand Prix, Belgian Grand Prix]}
+1998: {reviewed: 16, wet: [British Grand Prix, Belgian Grand Prix]}
+1999: {reviewed: 16, wet: [French Grand Prix, European Grand Prix]}
+
+# 2000–2010. Сухими проверены: Великобритания-2000 (дождливым был уик-энд, гонка — сухая),
+# Япония-2000 (морось без смены резины). Бельгия-2005: дождя в гонке не было, но трасса оставалась
+# мокрой — все стартовали и большинство доехало на промежуточной резине.
+2000:
+  reviewed: 17
+  wet: [European Grand Prix, Canadian Grand Prix, German Grand Prix, Belgian Grand Prix, United States Grand Prix]
+2001: {reviewed: 17, wet: [Malaysian Grand Prix, Brazilian Grand Prix]}
+2002: {reviewed: 17, wet: [British Grand Prix]}
+2003: {reviewed: 16, wet: [Australian Grand Prix, Brazilian Grand Prix, United States Grand Prix]}
+2004: {reviewed: 18, wet: [Brazilian Grand Prix]}
+2005: {reviewed: 19, wet: [Belgian Grand Prix]}
+2006: {reviewed: 18, wet: [Hungarian Grand Prix, Chinese Grand Prix]}
+2007: {reviewed: 17, wet: [European Grand Prix, Chinese Grand Prix, Japanese Grand Prix]}
+2008:
+  reviewed: 18
+  wet: [Monaco Grand Prix, British Grand Prix, Belgian Grand Prix, Italian Grand Prix, Brazilian Grand Prix]
+2009: {reviewed: 17, wet: [Malaysian Grand Prix, Chinese Grand Prix]}
+2010: {reviewed: 19, wet: [Australian Grand Prix, Chinese Grand Prix, Belgian Grand Prix, Korean Grand Prix]}
+
 # Сухими проверены, хотя по осадкам Open-Meteo похожи на дождевые: Малайзия и Бразилия-2011,
 # Германия-2011 (дождь так и не пришёл), Бразилия-2013 (морось в конце, без промежуточной резины).
 2011: {reviewed: 19, wet: [Canadian Grand Prix, British Grand Prix, Hungarian Grand Prix]}

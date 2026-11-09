@@ -4,38 +4,57 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Рейтинг пилотов F1</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
+  <!-- data-en / data-en-aria / data-en-title — английский текст: app.js подставляет его при ?lang=en -->
   <header class="page-header">
-    <h1>Рейтинг пилотов Формулы-1</h1>
+    <div class="title-row">
+      <h1 data-en="Formula 1 driver rating">Рейтинг пилотов Формулы-1</h1>
+      <a class="lang-switch" id="lang-switch" href="?lang=en" hreflang="en" lang="en">English</a>
+    </div>
     <p class="subtitle" id="subtitle">Общая сводка</p>
   </header>
 
   <main>
-    <div class="filters" role="group" aria-label="Фильтры">
-      <label class="field">Охват <select id="scope"></select></label>
-      <label class="check">
+    <div class="filters" role="group" aria-label="Фильтры" data-en-aria="Filters">
+      <label class="field"><span data-en="Scope">Охват</span> <select id="scope"></select></label>
+      <label class="check" id="show-all-field">
         <input type="checkbox" id="show-all">
-        <span>Показать пилотов, у которых меньше <span id="min-starts">20</span> гонок</span>
+        <span><span data-en="Show drivers with fewer than">Показать пилотов, у которых меньше</span>
+          <span id="min-starts">20</span> <span data-en="races">гонок</span></span>
       </label>
     </div>
 
     <details class="card weights" id="weights">
       <summary>
-        <span class="summary-title">Веса групп</span>
+        <span class="summary-title" data-en="Group weights">Веса групп</span>
         <span class="summary-value" id="weights-summary"></span>
       </summary>
-      <p class="hint">Итог — взвешенная сумма групп. Двигайте ползунки, чтобы посмотреть рейтинг под свой взгляд на «лучшего пилота».</p>
-      <div class="presets" id="presets" role="group" aria-label="Готовые наборы весов"></div>
+      <p class="hint" data-en="The total is a weighted sum of the groups. Move the sliders to see the rating under your own idea of the “best driver”.">Итог — взвешенная сумма групп. Двигайте ползунки, чтобы посмотреть рейтинг под свой взгляд на «лучшего пилота».</p>
+      <div class="presets" id="presets" role="group" aria-label="Готовые наборы весов" data-en-aria="Weight presets"></div>
       <div class="sliders" id="sliders"></div>
     </details>
 
-    <div class="layout">
+    <!-- «Все времена» — первая вкладка «Охвата»: при ней вместо таблицы и карточки — эта таблица -->
+    <section class="card alltime-card" id="alltime" aria-labelledby="alltime-title" hidden>
+      <div class="card-head">
+        <h2 id="alltime-title">Все времена</h2>
+        <p class="hint" id="alltime-hint"></p>
+      </div>
+      <div class="table-wrap">
+        <table id="alltime-table">
+          <thead><tr id="alltime-head"></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="table-more" id="alltime-more"></div>
+    </section>
+
+    <div class="layout" id="main-layout">
       <section class="card" aria-labelledby="ranking-title">
         <div class="card-head">
           <h2 id="ranking-title">Общий рейтинг</h2>
-          <p class="hint" id="ranking-hint"></p>
         </div>
         <div class="table-wrap">
           <table id="ranking">
@@ -55,24 +74,28 @@
         <h2 id="graph-title">Граф напарников</h2>
         <p class="hint" id="graph-hint"></p>
       </div>
-      <div class="filters graph-controls" role="group" aria-label="Пилот и путь сравнения">
-        <label class="field">Пилот <select id="graph-from"></select></label>
-        <label class="field">Путь до <select id="graph-to"></select></label>
+      <div class="filters graph-controls" role="group" aria-label="Пилот и путь сравнения" data-en-aria="Driver and comparison path">
+        <label class="field"><span data-en="Driver">Пилот</span> <select id="graph-from"></select></label>
+        <label class="field"><span data-en="Path to">Путь до</span> <select id="graph-to"></select></label>
         <label class="check">
           <input type="checkbox" id="graph-focus" checked>
-          <span>Подсветить окружение пилота</span>
+          <span data-en="Highlight the driver’s neighbourhood">Подсветить окружение пилота</span>
         </label>
       </div>
       <div class="graph-wrap">
         <div class="graph-stage">
-          <div class="zoom" role="group" aria-label="Масштаб графа">
-            <button type="button" id="graph-zoom-in" aria-label="Увеличить" title="Увеличить">+</button>
-            <button type="button" id="graph-zoom-out" aria-label="Уменьшить" title="Уменьшить">−</button>
-            <button type="button" id="graph-center" title="Приблизить выбранного пилота">К пилоту</button>
-            <button type="button" id="graph-reset" title="Показать граф целиком">Весь граф</button>
+          <div class="zoom" role="group" aria-label="Масштаб графа" data-en-aria="Graph zoom">
+            <button type="button" id="graph-zoom-in" aria-label="Увеличить" title="Увеличить"
+              data-en-aria="Zoom in" data-en-title="Zoom in">+</button>
+            <button type="button" id="graph-zoom-out" aria-label="Уменьшить" title="Уменьшить"
+              data-en-aria="Zoom out" data-en-title="Zoom out">−</button>
+            <button type="button" id="graph-center" title="Приблизить выбранного пилота"
+              data-en-title="Zoom to the selected driver" data-en="To driver">К пилоту</button>
+            <button type="button" id="graph-reset" title="Показать граф целиком"
+              data-en-title="Show the whole graph" data-en="Whole graph">Весь граф</button>
           </div>
           <div id="graph" class="graph-chart" role="img"></div>
-          <p class="hint">Колесо мыши — масштаб, перетаскивание — сдвиг, клик по узлу — выбрать пилота.</p>
+          <p class="hint" data-en="Mouse wheel — zoom, drag — pan, click a node — select the driver.">Колесо мыши — масштаб, перетаскивание — сдвиг, клик по узлу — выбрать пилота.</p>
         </div>
         <div class="graph-side">
           <div class="graph-driver" id="graph-driver"></div>
@@ -87,8 +110,8 @@
 
     <details class="card method" id="method">
       <summary>
-        <span class="summary-title">Как это посчитано</span>
-        <span class="summary-value">группы признаков, вилки, сверка с экспертами, источники</span>
+        <span class="summary-title" data-en="How it is calculated">Как это посчитано</span>
+        <span class="summary-value" data-en="feature groups, ranges, expert check, sources">группы признаков, вилки, сверка с экспертами, источники</span>
       </summary>
       <div id="method-body"></div>
     </details>
@@ -97,7 +120,7 @@
   <footer id="footer"></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <script src="data/data.js?v=12"></script>
-  <script src="app.js?v=14"></script>
+  <script src="data/data.js?v=20"></script>
+  <script src="app.js?v=35"></script>
 </body>
 </html>

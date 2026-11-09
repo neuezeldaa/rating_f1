@@ -49,6 +49,14 @@ _UNCLEAR = {
     "car damaged in qualifying",
 }
 _COLLISION = {"collision", "collision damage"}
+# Не вышел на старт — это не старт: снялся (Гран-при США 2005 — 14 машин), не стартовал, не прошёл
+# квалификацию. В статистику пилота такие записи не идут.
+_NOT_STARTED = {"withdrew", "did not start", "did not qualify", "did not prequalify"}
+NOT_STARTED_F1DB = {"DNS", "DNQ", "DNPQ", "DNP"}  # то же по F1DB (positionText)
+
+
+def did_not_start(status) -> bool:
+    return isinstance(status, str) and status.strip().lower() in _NOT_STARTED
 
 
 def is_collision(status) -> bool:

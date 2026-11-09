@@ -8,13 +8,14 @@ import numpy as np
 import pandas as pd
 
 from .config import DUCKDB_PATH, FIRST_SEASON, PROCESSED
+from .features.career import career_facts
 from .ingest import f1db, racedata
 from .ingest.jolpica import JolpicaClient
 
 log = logging.getLogger(__name__)
 
 BASE_TABLES = ("races", "drivers", "constructors", "results", "qualifying",
-               "f1db_results", "fastest_laps", "standings", "race_info", "laps", "pit_stops")
+               "f1db_results", "fastest_laps", "standings", "race_info", "laps", "pit_stops", "careers")
 DRIVER_COLS = ["driver_id", "code", "given_name", "family_name", "nationality", "dob", "permanent_number", "wiki_url"]
 CONSTRUCTOR_COLS = ["constructor_id", "constructor_name", "constructor_nationality"]
 INT_COLS = ["number", "position", "grid", "laps", "time_ms", "permanent_number", "debut_season"]
@@ -127,16 +128,33 @@ def build_f1db_tables(results: pd.DataFrame, offline: bool = False) -> dict[str,
     """
     archive = f1db.latest_release(offline)
     log.info("F1DB: релиз %s", archive.parent.name)
-    race = f1db.read_table(archive, "races-race-results", FIRST_SEASON).assign(session="R")
+    race_all = f1db.read_table(archive, "races-race-results")  # вся история — для карьеры с дебюта
+    race = race_all[race_all["year"] >= FIRST_SEASON].reset_index(drop=True).assign(session="R")
     sprint = f1db.read_table(archive, "races-sprint-race-results", FIRST_SEASON).assign(session="S")
     rows = pd.concat([race, sprint], ignore_index=True)
 
-    numbers = results[["season", "round", "session", "number", "driver_id"]].dropna(subset=["number"])
+    numbers = results[["season", "round", "session", "number", "driver_id", "constructor_id"]].dropna(subset=["number"])
     numbers = numbers.astype({"number": int})
     joined = rows.merge(numbers, left_on=["year", "round", "session", "driverNumber"],
                         right_on=["season", "round", "session", "number"], how="inner")
     id_map = joined.groupby("driverId")["driver_id"].agg(lambda s: s.mode().iat[0]).to_dict()
+    team_map = joined.groupby("constructorId")["constructor_id"].agg(lambda s: s.mode().iat[0]).to_dict()
     log.info("F1DB: сопоставлено %s пилотов, строк результатов %s из %s", len(id_map), len(joined), len(rows))
+
+    # Квалификация: у Jolpica за 1996–2002 годы почти пусто (за 2001 год — одна гонка из 17), в F1DB
+    # есть все гонки. До 2006 года время одно — оно идёт как Q1.
+    qual = f1db.read_table(archive, "races-qualifying-results", FIRST_SEASON)
+    f1db_qualifying = pd.DataFrame({
+        "season": qual["year"].astype(int),
+        "round": qual["round"].astype(int),
+        "driver_id": qual["driverId"].map(id_map),
+        "constructor_id": qual["constructorId"].map(team_map),
+        "number": qual["driverNumber"],
+        "position": qual["positionNumber"],
+        "q1_s": qual["q1Millis"].fillna(qual["timeMillis"]) / 1000,
+        "q2_s": qual["q2Millis"] / 1000,
+        "q3_s": qual["q3Millis"] / 1000,
+    }).dropna(subset=["driver_id", "constructor_id"])
 
     f1db_results = pd.DataFrame({
         "season": joined["year"].astype(int),
@@ -163,7 +181,8 @@ def build_f1db_tables(results: pd.DataFrame, offline: bool = False) -> dict[str,
         "fl_lap": laps["lap"],
     }).dropna(subset=["driver_id"])
 
-    table = f1db.read_table(archive, "seasons-driver-standings", FIRST_SEASON)
+    standings_all = f1db.read_table(archive, "seasons-driver-standings")
+    table = standings_all[standings_all["year"] >= FIRST_SEASON]
     standings = pd.DataFrame({
         "season": table["year"].astype(int),
         "driver_id": table["driverId"].map(id_map),
@@ -181,8 +200,14 @@ def build_f1db_tables(results: pd.DataFrame, offline: bool = False) -> dict[str,
         "circuit_type": races["circuitType"],
         "course_km": races["courseLength"].astype(float),
     })
+    # Карьера с дебюта: сезоны в F1, титулы, сезоны впереди напарника (features/career.py).
+    facts = career_facts(race_all, standings_all)
+    # f1db_id — для ссылки из таблицы всех времён (alltime.py, там пилоты F1DB) на полную карточку.
+    careers = (facts[facts.index.isin(list(id_map))].rename_axis("f1db_id").reset_index()
+               .assign(driver_id=lambda d: d["f1db_id"].map(id_map)))
+    log.info("F1DB: карьера с дебюта — у %s пилотов", len(careers))
     return {"f1db_results": f1db_results, "fastest_laps": fastest_laps, "standings": standings,
-            "race_info": race_info}
+            "race_info": race_info, "careers": careers, "f1db_qualifying": f1db_qualifying}
 
 
 def build_tables(seasons, refresh: bool = False) -> dict[str, pd.DataFrame]:
@@ -227,6 +252,15 @@ def build_tables(seasons, refresh: bool = False) -> dict[str, pd.DataFrame]:
             if col in df.columns:
                 df[col] = df[col].astype("Int64")
     tables.update(build_f1db_tables(tables["results"]))
+    # Гонки без квалификации у Jolpica дополняем квалификацией F1DB.
+    extra = tables.pop("f1db_qualifying")
+    have = set(zip(tables["qualifying"]["season"], tables["qualifying"]["round"]))
+    extra = extra[[key not in have for key in zip(extra["season"], extra["round"])]]
+    if len(extra):
+        extra = extra.astype({"number": "Int64", "position": "Int64"})
+        tables["qualifying"] = pd.concat([tables["qualifying"], extra], ignore_index=True)
+        added = extra.groupby("season")["round"].nunique()
+        log.info("Квалификация: из F1DB дописано гонок — %s", ", ".join(f"{s}: {n}" for s, n in added.items()))
     tables.update(racedata.read_laps(racedata.latest_archive(), FIRST_SEASON))
     log.info("RaceData: %s кругов, %s пит-стопов", len(tables["laps"]), len(tables["pit_stops"]))
     save_tables(tables)

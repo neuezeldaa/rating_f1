@@ -108,7 +108,7 @@ def driver_conditions(records: pd.DataFrame, pace_pairs: pd.DataFrame, duels: pd
                 "duels_wet": [int(du.loc[du["rainy"].astype(bool), "won"].sum()), int(du["rainy"].astype(bool).sum())],
                 "duels_dry": [int(du.loc[~du["rainy"].astype(bool), "won"].sum()), int((~du["rainy"].astype(bool)).sum())],
                 "best": None if best.empty else [int(best["season"].iat[0]), int(best["round"].iat[0]),
-                                                 int(best["finish_pos"].iat[0]), int(best["grid_pos"].iat[0])],
+                                                 int(best["finish_pos"].iat[0]), _int(best["grid_pos"].iat[0])],
             }
         pac = g.dropna(subset=["points_above_car"])
         if len(pac) >= 10:
@@ -121,9 +121,14 @@ def driver_conditions(records: pd.DataFrame, pace_pairs: pd.DataFrame, duels: pd
     by_season = {}
     for (driver, season), g in r[r["rainy"]].groupby(["driver_id", "season"]):
         by_season[(driver, int(season))] = [
-            [int(x.round), None if np.isnan(x.finish_pos) else int(x.finish_pos), int(x.grid_pos), str(x.status_detail)]
+            [int(x.round), _int(x.finish_pos), _int(x.grid_pos), str(x.status_detail)]
             for x in g.sort_values("round").itertuples(index=False)]
     return period, by_season
+
+
+def _int(value):
+    """Целое или None, если значения нет (сход; место на старте неизвестно)."""
+    return None if pd.isna(value) else int(value)
 
 
 def _mean(values: pd.Series):

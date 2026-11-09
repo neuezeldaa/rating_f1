@@ -64,12 +64,17 @@ def race_pace(marked: pd.DataFrame) -> pd.DataFrame:
     return out[out["clean_laps"] >= MIN_PACE_LAPS]
 
 
+def grid_position(grid: pd.Series, field: pd.Series) -> pd.Series:
+    """Место на старте: 0 — старт с пит-лейна, то есть последнее место; нет данных — пусто."""
+    g = grid.astype(float)
+    return g.where(g > 0, field).where(g.notna())
+
+
 def lap_one(laps: pd.DataFrame, results: pd.DataFrame) -> pd.DataFrame:
     """Отыгрыш на первом круге: место на старте минус место после первого круга."""
     race = results[results["session"] == "R"][KEY + ["driver_id", "grid"]].copy()
     field = race.groupby(KEY)["driver_id"].transform("size")
-    grid = race["grid"].astype(float)
-    race["grid_pos"] = grid.where(grid > 0, field)  # старт с пит-лейна — с последнего места
+    race["grid_pos"] = grid_position(race["grid"], field)
     first = laps[laps["lap"] == 1][KEY + ["driver_id", "position"]]
     out = race.merge(first, on=KEY + ["driver_id"], how="inner")
     out["lap1_gain"] = out["grid_pos"] - out["position"]

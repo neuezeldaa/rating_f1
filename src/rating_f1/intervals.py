@@ -79,10 +79,12 @@ class Championship:
 
 
 def bootstrap(records: pd.DataFrame, sprints: pd.DataFrame, results: pd.DataFrame, standings: pd.DataFrame,
-              car: dict, rulers: dict, n: int, rng: np.random.Generator) -> dict:
+              car: dict, rulers: dict, n: int, rng: np.random.Generator,
+              careers: pd.DataFrame | None = None) -> dict:
     """n пересчётов. → {охват: {"ids": пилоты, "groups": группы, "z": массив пилоты × группы × n}}.
 
-    car — варианты модели напарников (ratings.teammate_draws), по столбцу на пересчёт.
+    car — варианты модели напарников (ratings.teammate_draws), по столбцу на пересчёт;
+    careers — карьера с дебюта: это факты, в пересчётах она не меняется.
     """
     started = time.time()
     records = records[RACE_COLS].reset_index(drop=True)
@@ -103,7 +105,7 @@ def bootstrap(records: pd.DataFrame, sprints: pd.DataFrame, results: pd.DataFram
                               "quali_s": car["quali_s"][:, b], "race_p": car["race_p"][:, b],
                               "pace_s": car["pace_s"][:, b]})
         tables = draw_scopes(records.iloc[race_idx], sprints.iloc[sprint_idx], champ.standings(picks), car_b,
-                             rulers, rng)
+                             rulers, rng, careers)
         for key, table in tables.items():
             if key not in out:
                 columns[key] = [c for c in table.columns if c.startswith("g_")]

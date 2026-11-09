@@ -22,6 +22,7 @@ from .config import (
     WEIGHTS_SEASON,
 )
 from .ingest.fia import FIRST_SEASON as FIA_FIRST_SEASON
+from .ingest.wiki import FILE_PAGES, IMAGE_HOSTS
 from .intervals import encode
 
 STAT_COLS = ["points", "wins", "podiums", "top10", "poles", "fastest_laps", "grand_slams", "dotd",
@@ -97,8 +98,10 @@ def _entries(table: pd.DataFrame, teams: dict, extra: dict) -> list:
 def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, context: pd.DataFrame,
                models: dict, backtest, expert: dict, counts: dict, expectations: dict, graph: dict,
                draws: dict | None = None, bios: dict | None = None, incidents: dict | None = None,
-               validation: dict | None = None, conditions: tuple | None = None, races_extra: dict | None = None) -> dict:
+               validation: dict | None = None, conditions: tuple | None = None, races_extra: dict | None = None,
+               alltime: dict | None = None, rounds: dict | None = None) -> dict:
     """draws — пересчёты для вилок балла и места (intervals.bootstrap); None — без вилок.
+    rounds — z групп после каждого этапа сезона (by_round.encode); alltime — рейтинг всех времён.
     bios — краткие биографии из Википедии; incidents — происшествия по сезонам (stats.incident_lists);
     validation — проверки рейтинга (validate.report); conditions — дождь и типы трасс
     (features/conditions.driver_conditions); races_extra — разметка гонок: wet, tracks.
@@ -126,13 +129,18 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         if key == PERIOD:
             seasons_of = context.groupby("driver_id")["season"].apply(lambda s: sorted(int(x) for x in s))
             best = standings.groupby("driver_id")["position"].min()
-            titles = standings[standings["champion"]].groupby("driver_id")["season"].apply(
-                lambda s: sorted(int(x) for x in s))
-            extra = {
-                d: {"seasons": seasons_of.get(d, []), "best_standing": _num(best.get(d)),
-                    "titles": titles.get(d, [])}
-                for d in table.index
-            }
+            # Титулы и карьера — с дебюта в F1 (features/career.py), как в группе «Карьера».
+            careers = tables["careers"].set_index("driver_id")
+            extra = {}
+            for d in table.index:
+                c = careers.loc[d] if d in careers.index else None
+                extra[d] = {
+                    "seasons": seasons_of.get(d, []), "best_standing": _num(best.get(d)),
+                    "titles": [int(y) for y in c["title_years"].split()] if c is not None else [],
+                    "career": None if c is None else {
+                        "debut": int(c["debut"]), "seasons": float(c["seasons"]),
+                        "ahead": int(c["ahead"]), "compared": int(c["compared"])},
+                }
             scope_json[key] = _entries(table, period_teams, extra)
         else:
             season = int(key)
@@ -158,6 +166,7 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         d: {
             "code": drivers_df.at[d, "code"],
             "name": f'{drivers_df.at[d, "given_name"]} {drivers_df.at[d, "family_name"]}',
+            "family": drivers_df.at[d, "family_name"],
             "nationality": drivers_df.at[d, "nationality"],
             "dob": drivers_df.at[d, "dob"],
             "debut": _num(drivers_df.at[d, "debut_season"]),
@@ -166,7 +175,12 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
     }
     for d, bio in bios.items():
         if d in drivers and bio["url"].startswith(WIKI_LINK):
-            drivers[d]["bio"] = bio
+            drivers[d]["bio"] = {k: bio[k] for k in ("text", "url", "lang")}
+            if bio.get("en") and bio["en"]["url"].startswith(WIKI_LINK):
+                drivers[d]["bio_en"] = bio["en"]   # для английской версии сайта
+            photo = bio.get("photo")
+            if photo and photo["src"].startswith(IMAGE_HOSTS) and photo["page"].startswith(FILE_PAGES):
+                drivers[d]["photo"] = photo
     for d, item in cond_period.items():
         if d in drivers:
             drivers[d]["conditions"] = item
@@ -218,6 +232,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
              "what": "только для сверки, 2021–2025"},
             {"name": "Википедия", "url": "https://ru.wikipedia.org",
              "what": "краткие биографии пилотов (CC BY-SA 4.0)"},
+            {"name": "Викисклад", "url": "https://commons.wikimedia.org",
+             "what": "фото пилотов, только со свободной лицензией; автор и лицензия — под фото"},
             {"name": "FIA", "url": "https://www.fia.com/documents",
              "what": "решения стюардов о столкновениях, с 2019 года"},
             {"name": "Open-Meteo", "url": "https://open-meteo.com",
@@ -225,12 +241,14 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
         ],
     }
 
-    payload = _clean({"meta": meta, "drivers": drivers, "scopes": scope_json, "graph": graph})
+    payload = _clean({"meta": meta, "drivers": drivers, "scopes": scope_json, "graph": graph,
+                      "alltime": alltime or {}})
     payload["draws"] = encode(draws) if draws else {}
+    payload["by_round"] = rounds or {}
     WEB_DATA.mkdir(parents=True, exist_ok=True)
     for old in ("seasons.json",):
         (WEB_DATA / old).unlink(missing_ok=True)
-    for name in ("meta", "drivers", "scopes", "graph", "draws"):
+    for name in ("meta", "drivers", "scopes", "graph", "draws", "alltime", "by_round"):
         (WEB_DATA / f"{name}.json").write_text(
             json.dumps(payload[name], ensure_ascii=False, indent=1), encoding="utf-8")
     (WEB_DATA / "data.js").write_text(

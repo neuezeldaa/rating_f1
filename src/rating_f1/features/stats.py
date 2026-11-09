@@ -13,21 +13,31 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..clean.status import (DISQUALIFIED, DRIVER_ERROR, FINISHED, MECHANICAL, UNCLEAR, VICTIM, classify_status,
-                            is_collision)
+from ..clean.status import (DISQUALIFIED, DRIVER_ERROR, FINISHED, MECHANICAL, NOT_STARTED_F1DB, UNCLEAR, VICTIM,
+                            classify_status, did_not_start, is_collision)
+from ..config import FUEL_Q3_SEASONS
 from ..ingest.fia import FIRST_SEASON as FIA_FIRST_SEASON
-from .car_level import summarize_above_car
+from .car_level import by_era, summarize_above_car
+from .laps import grid_position
 
 BASE_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
 STANDING_POINTS = BASE_POINTS  # место в чемпионате → очки, как в опросе руководителей команд
 MAX_QUALI_GAP_PCT = 5.0        # больше — сорванная попытка, а не скорость
+# Стартовало меньше — гонку решил не уровень пилотов, а то, кто вышел на старт (Гран-при США 2005:
+# команды на шинах Michelin снялись, стартовали 6 машин). В статистику такие гонки не идут.
+MIN_STARTERS = 10
 KEY = ["season", "round"]
 
 
 def quali_records(qualifying: pd.DataFrame) -> pd.DataFrame:
-    """Место в квалификации и отставание от лучшего времени того сегмента, где пилот выбыл."""
+    """Место в квалификации и отставание от лучшего времени того сегмента, где пилот выбыл.
+
+    В 2006–2009 годах Q3 ехали с топливом на гонку — отставание считаем по Q2. До 2006 года
+    сегментов не было: «выход в Q3» — это место в топ-10 квалификации.
+    """
     q = qualifying[KEY + ["driver_id", "position", "q1_s", "q2_s", "q3_s"]].copy()
-    segment = np.select([q["q3_s"].notna(), q["q2_s"].notna(), q["q1_s"].notna()], ["q3_s", "q2_s", "q1_s"], "")
+    q3_time = q["q3_s"].where(~q["season"].isin(FUEL_Q3_SEASONS))
+    segment = np.select([q3_time.notna(), q["q2_s"].notna(), q["q1_s"].notna()], ["q3_s", "q2_s", "q1_s"], "")
     q["seg"] = segment
     q["seg_time"] = [row[s] if s else np.nan for row, s in zip(q.to_dict("records"), segment)]
     best = {seg: q.groupby(KEY)[seg].transform("min") for seg in ("q1_s", "q2_s", "q3_s")}
@@ -36,7 +46,8 @@ def quali_records(qualifying: pd.DataFrame) -> pd.DataFrame:
     q.loc[q["quali_gap"] > MAX_QUALI_GAP_PCT, "quali_gap"] = np.nan
     q["quali_pos"] = q["position"].astype(float)
     q["pole"] = q["quali_pos"] == 1
-    q["q3"] = q["q3_s"].notna()
+    no_segments = q.groupby(KEY)["q3_s"].transform("count") == 0
+    q["q3"] = q["q3_s"].notna() | (no_segments & (q["quali_pos"] <= 10))
     return q[KEY + ["driver_id", "quali_pos", "quali_gap", "pole", "q3"]]
 
 
@@ -48,6 +59,11 @@ def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.
     и виновники столкновений; verdicts — наказания стюардов за столкновения (ingest/fia.py).
     """
     r = results[results["session"] == "R"].copy()
+    not_started = r["status_detail"].map(did_not_start) | r["status"].map(did_not_start)
+    if "f1db_position_text" in r:
+        not_started |= r["f1db_position_text"].isin(NOT_STARTED_F1DB)
+    r = r[~not_started]
+    r = r[r.groupby(KEY)["driver_id"].transform("size") >= MIN_STARTERS].copy()
     r["category"] = r["status_detail"].map(classify_status)
     if status:
         r["category"] = [status.get((int(s), int(n), "R", d), c)
@@ -59,10 +75,9 @@ def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.
     r["podium"] = r["finish_pos"] <= 3
     r["top10"] = r["finish_pos"] <= 10
 
-    # Старт с пит-лейна (grid = 0) считаем последним местом на решётке.
+    # Старт с пит-лейна (grid = 0) — последнее место на решётке; нет данных о решётке — пусто.
     field = r.groupby(KEY)["driver_id"].transform("size")
-    grid = r["grid"].astype(float)
-    r["grid_pos"] = grid.where(grid > 0, field)
+    r["grid_pos"] = grid_position(r["grid"], field)
     r = r.merge(quali_records(qualifying), on=KEY + ["driver_id"], how="left")
     r = r.merge(lap_stats, on=KEY + ["driver_id"], how="left")
     for col in ("pole", "q3", "driver_of_the_day", "fastest_lap", "grand_slam"):
@@ -70,8 +85,17 @@ def race_records(results: pd.DataFrame, qualifying: pd.DataFrame, lap_stats: pd.
 
     finished = r["category"] == FINISHED
     r["gain"] = (r["grid_pos"] - r["finish_pos"]).where(finished)
-    r["gain_vs_exp"] = r["gain"] - r["grid_pos"].map(r[finished].groupby("grid_pos")["gain"].mean())
-    r["lap1_vs_exp"] = r["lap1_gain"] - r["grid_pos"].map(r.groupby("grid_pos")["lap1_gain"].mean())
+
+    # Сколько позиций обычно отыгрывают с этого места на старте — по соседним сезонам: в 2000-х
+    # обгонов было вдвое меньше, чем в эпоху DRS.
+    def expected(near: pd.DataFrame, this: pd.DataFrame) -> pd.DataFrame:
+        gain = near.loc[near["category"] == FINISHED].groupby("grid_pos")["gain"].mean()
+        lap1 = near.groupby("grid_pos")["lap1_gain"].mean()
+        return this.assign(gain_vs_exp=this["gain"] - this["grid_pos"].map(gain),
+                           lap1_vs_exp=this["lap1_gain"] - this["grid_pos"].map(lap1))
+
+    r = by_era(r, expected)
+    finished = r["category"] == FINISHED
 
     team = r.groupby(KEY + ["constructor_id"])["base_points"].transform("sum")
     r["mate_points"] = team - r["base_points"]

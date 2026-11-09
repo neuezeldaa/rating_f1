@@ -1,7 +1,8 @@
 """Проверка прогнозом: учимся на прошлых сезонах и предсказываем следующий.
 
-Для каждого сезона Y модели обучаются только на сезонах до Y, а затем предсказывают
-квалификационные гэпы и гоночные дуэли сезона Y. Самый важный срез — новые пары:
+Для каждого из последних сезонов Y модели обучаются только на сезонах до Y (окно — см.
+config.BACKTEST_WINDOW), а затем предсказывают квалификационные гэпы и гоночные дуэли
+сезона Y. Самый важный срез — новые пары:
 пилоты, которые раньше не были напарниками. Предсказать их можно только через сеть
 напарников, поэтому этот срез проверяет, что модель отделяет пилота от машины.
 
@@ -17,6 +18,7 @@ import numpy as np
 import pandas as pd
 from scipy import special
 
+from .config import BACKTEST_TARGETS, BACKTEST_WINDOW
 from .models.teammate import build_index, fit_quali, fit_race
 
 log = logging.getLogger(__name__)
@@ -72,11 +74,22 @@ def _race_metrics(df: pd.DataFrame):
     }
 
 
-def backtest(quali_pairs: pd.DataFrame, race_duels: pd.DataFrame, seasons, debut: dict) -> dict:
+def backtest(quali_pairs: pd.DataFrame, race_duels: pd.DataFrame, seasons, debut: dict,
+             window: int = BACKTEST_WINDOW, last: int = BACKTEST_TARGETS) -> dict:
+    """Проверяются последние `last` сезонов; модель для каждого учится на `window` сезонах до него.
+
+    Без ограничений цена росла как квадрат числа сезонов: на 31 сезоне — около 35 минут
+    на обычном компьютере и около трёх часов в GitHub Actions. «Новая пара» — та, что не ездила
+    вместе ни разу за всю историю, а не только в окне обучения.
+    """
     q_rows, r_rows, targets = [], [], []
-    for target in list(seasons)[1:]:
-        train_q = quali_pairs[quali_pairs["valid"] & (quali_pairs["season"] < target)]
-        train_r = race_duels[race_duels["valid"] & (race_duels["season"] < target)]
+    for target in list(seasons)[1:][-last:]:
+        recent_q = quali_pairs["season"].between(target - window, target - 1)
+        recent_r = race_duels["season"].between(target - window, target - 1)
+        train_q = quali_pairs[quali_pairs["valid"] & recent_q]
+        train_r = race_duels[race_duels["valid"] & recent_r]
+        before_q = quali_pairs[quali_pairs["season"] < target]
+        before_r = race_duels[race_duels["season"] < target]
         test_q = quali_pairs[quali_pairs["valid"] & (quali_pairs["season"] == target)]
         test_r = race_duels[race_duels["valid"] & (race_duels["season"] == target) & (race_duels["session"] == "R")]
         if train_q.empty or train_r.empty or (test_q.empty and test_r.empty):
@@ -90,8 +103,8 @@ def backtest(quali_pairs: pd.DataFrame, race_duels: pd.DataFrame, seasons, debut
         q_pred = {d: q_model.predict(d, target, debut) for d in drivers}
         r_pred = {d: r_model.predict(d, target, debut) for d in drivers}
         seen = {_pair(a, b) for a, b in zip(
-            pd.concat([train_q["driver_a"], train_r["driver_a"]]),
-            pd.concat([train_q["driver_b"], train_r["driver_b"]]))}
+            pd.concat([before_q["driver_a"], before_r["driver_a"]]),
+            pd.concat([before_q["driver_b"], before_r["driver_b"]]))}
 
         for a, b, gap in zip(test_q["driver_a"], test_q["driver_b"], test_q["gap_pct"]):
             q_rows.append({

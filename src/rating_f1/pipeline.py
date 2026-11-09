@@ -20,13 +20,14 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from . import alltime, by_round
 from .clean.collisions import collision_status
-from .clean.enrich import enrich_results
+from .clean.enrich import enrich_results, fill_missing_grid
 from .clean.overrides import load_overrides
 from .clean.status import classify_status
 from .composite import GROUPS, PERIOD, build_scopes, expert_agreement
-from .config import (FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH, RAW, REFERENCE_LAP_S, ROOT,
-                     SEED, WEIGHTS_PERIOD, WEIGHTS_SEASON)
+from .config import (BACKTEST_TARGETS, BACKTEST_WINDOW, FIRST_SEASON, LAST_SEASON, N_BOOT, N_DRAWS, OVERRIDES_PATH, RACE_FUEL_QUALI_SEASONS,
+                     RACE_FUEL_QUALI_WEIGHT, RAW, REFERENCE_LAP_S, ROOT, SEED, WEIGHTS_PERIOD, WEIGHTS_SEASON)
 from .evaluate import backtest
 from .export import _clean as clean_json
 from .export import export_web
@@ -38,6 +39,7 @@ from .features.race import race_duels
 from .features.stats import incident_lists, race_records
 from .features.stints import stint_factor, stint_starts
 from .graph import build_graph
+from .ingest import f1db
 from .ingest.fia import collision_verdicts, fetch_documents
 from .ingest.weather import race_weather
 from .ingest.wiki import driver_bios
@@ -58,13 +60,14 @@ BACKTEST_CACHE = RAW / "backtest.json"
 BACKTEST_MAX_AGE_DAYS = 35
 
 
-def _cached_backtest():
-    """Проверка прогнозом из прошлого прогона, если она свежая; иначе None."""
+def _cached_backtest(seasons: list):
+    """Проверка прогнозом из прошлого прогона, если она свежая и за те же сезоны; иначе None."""
     if not BACKTEST_CACHE.exists():
         return None
     saved = json.loads(BACKTEST_CACHE.read_text(encoding="utf-8"))
     age = (date.today() - date.fromisoformat(saved["date"])).days
-    if age > BACKTEST_MAX_AGE_DAYS:
+    params = [BACKTEST_WINDOW, BACKTEST_TARGETS]
+    if age > BACKTEST_MAX_AGE_DAYS or saved.get("seasons") != list(seasons) or saved.get("params") != params:
         return None
     log.info("Проверка прогнозом — из прогона %s (%s дн. назад)", saved["date"], age)
     return saved["result"]
@@ -101,6 +104,13 @@ def teammate_model(qp: pd.DataFrame, rd: pd.DataFrame, pp: pd.DataFrame, results
          "sigma": ph["sigma"], "tau": ph["tau0"]},
     ]
     q_perf, r_perf, p_perf = season_performance(index, models, team_starts, rng)
+    # Для рейтинга по ходу сезона (by_round.py): сравнения напарников с весами и параметры моделей.
+    split_inputs = {
+        "models": [{"name": name, "kind": m["kind"], "tau": m["tau"], "sigma": m.get("sigma"),
+                    "pairs": m["pairs"][["season", "round", "constructor_id", "driver_a", "driver_b", "y", "w"]]}
+                   for name, m in zip(("quali", "race", "pace"), models)],
+        "team_starts": team_starts, "keys": set(index.keys),
+    }
 
     starts = {(d, int(s)): int(n) for (d, s), n in race_results.groupby(["driver_id", "season"]).size().items()}
     ratings = season_ratings(index.keys, q_perf, r_perf, qh["sigma"], starts, p_perf, ph["sigma"])
@@ -112,7 +122,8 @@ def teammate_model(qp: pd.DataFrame, rd: pd.DataFrame, pp: pd.DataFrame, results
     # По одному варианту модели на каждый пересчёт общего рейтинга (вилки балла и места).
     car_draws = teammate_draws(index.keys, q_perf, r_perf, p_perf, starts,
                                rng.choice(N_DRAWS, size=N_BOOT, replace=False))
-    return ratings.merge(skill, on=["driver_id", "season"], how="left"), models_hyper, pace_skill, car_draws
+    return (ratings.merge(skill, on=["driver_id", "season"], how="left"), models_hyper, pace_skill, car_draws,
+            split_inputs)
 
 
 def _log_scope(table: pd.DataFrame, names: pd.Series, title: str, n: int) -> None:
@@ -148,8 +159,8 @@ def main(argv=None) -> None:
 
     seasons = list(range(FIRST_SEASON, LAST_SEASON + 1))
     tables = load_tables() if args.offline else build_tables(seasons, refresh=args.refresh)
-    results = enrich_results(tables["results"], tables["f1db_results"])
     qualifying = tables["qualifying"]
+    results = fill_missing_grid(enrich_results(tables["results"], tables["f1db_results"]), qualifying)
     seasons = sorted(int(s) for s in results["season"].unique())
     debut = {d: int(s) for d, s in zip(tables["drivers"]["driver_id"], tables["drivers"]["debut_season"])}
     names = tables["drivers"].set_index("driver_id")["family_name"]
@@ -182,17 +193,20 @@ def main(argv=None) -> None:
 
     # Подменные выступления (до 3 гонок за команду в сезоне) — половинный вес во всех моделях напарников.
     starts_map = stint_starts(results)
-    qp["weight"] = stint_factor(qp, starts_map)
+    q_stint = stint_factor(qp, starts_map)
+    qp["weight"] = qp["weight"] * q_stint  # уже меньше 1 у квалификаций с топливом на гонку (2003–2005)
     pace_pairs["weight"] = stint_factor(pace_pairs, starts_map)
     rd["weight"] = rd["weight"] * stint_factor(rd, starts_map)
-    log.info("Подменные выступления с половинным весом: квалификаций %s, дуэлей %s, пар темпа %s",
-             int((qp["weight"] < 1).sum()), int((stint_factor(rd, starts_map) < 1).sum()),
-             int((pace_pairs["weight"] < 1).sum()))
+    log.info("Подменные выступления с половинным весом: квалификаций %s, дуэлей %s, пар темпа %s; "
+             "квалификаций с топливом на гонку (вес %s): %s",
+             int((q_stint < 1).sum()), int((stint_factor(rd, starts_map) < 1).sum()),
+             int((pace_pairs["weight"] < 1).sum()), RACE_FUEL_QUALI_WEIGHT,
+             int(qp["season"].isin(RACE_FUEL_QUALI_SEASONS).sum()))
     log.info("Круги: темп посчитан для %s стартов, обгонов на трассе %s; пар напарников по темпу %s (учтено %s)",
              int(lap_stats["pace_gap"].notna().sum()), int(lap_stats["overtakes_made"].sum()),
              len(pace_pairs), int(pace_pairs["valid"].sum()))
 
-    teammate, models_hyper, pace_skill, car_draws = teammate_model(qp, rd, pace_pairs, results, debut)
+    teammate, models_hyper, pace_skill, car_draws, split_inputs = teammate_model(qp, rd, pace_pairs, results, debut)
     records = race_records(results, qualifying, lap_stats, overrides.status, verdicts)
     teams = results[results["session"] == "R"][["season", "round", "driver_id", "constructor_id"]]
     # Навык в темпе из модели напарников (% быстрее среднего пилота в такой же машине) —
@@ -200,11 +214,18 @@ def main(argv=None) -> None:
     skill = teammate[["driver_id", "season"]].assign(skill=teammate["pace_s"] / (REFERENCE_LAP_S / 100))
     levels = car_levels(lap_stats[["season", "round", "driver_id", "pace_gap"]], teams, skill)
     records, sprints, expectations = above_car(records, sprint_records(results), levels)
-    log.info("Ожидаемые очки за гонку по отрыву машины от лучшей: %s",
-             ", ".join(f"{lo:.2f}–{hi:.2f}% → {p:.1f}" for lo, hi, p in
-                       zip(expectations["gap_from"], expectations["gap_to"], expectations["points"])))
+    log.info("Ожидаемые очки за гонку по уровню машины (сезоны %s–%s): %s", *expectations["seasons"],
+             ", ".join(f"лучшая, впереди второй на {lf:.2f}–{lt:.2f}% → {p:.1f}" if lf is not None
+                       else f"отрыв {lo:.2f}–{hi:.2f}% → {p:.1f}"
+                       for lo, hi, lf, lt, p in zip(expectations["gap_from"], expectations["gap_to"],
+                                                    expectations["lead_from"], expectations["lead_to"],
+                                                    expectations["points"])))
     car_features = teammate[["driver_id", "season", "quali_s", "race_p", "pace_s"]]
-    scopes, rulers = build_scopes(records, sprints, tables["standings"], car_features)
+    careers = tables["careers"]
+    longest = careers.sort_values("seasons", ascending=False).head(3)
+    log.info("Карьера с дебюта (F1DB): %s пилотов; дольше всех в F1 — %s", len(careers),
+             ", ".join(f"{names.get(d, d)} {s:.1f} сез." for d, s in zip(longest["driver_id"], longest["seasons"])))
+    scopes, rulers = build_scopes(records, sprints, tables["standings"], car_features, careers)
 
     # Дождь и тип трассы — справка для карточки (в балл не идут, см. features/conditions.py).
     wet = wet_races(tables["races"], weather, WET_PATH)
@@ -216,9 +237,14 @@ def main(argv=None) -> None:
     draws = None
     if not args.no_intervals:
         draws = bootstrap(records, sprints, results, tables["standings"], car_draws, rulers, N_BOOT,
-                          np.random.default_rng(SEED + 1))
+                          np.random.default_rng(SEED + 1), careers)
         for key, draw in draws.items():
             scopes[key] = scopes[key].join(bands(scopes[key], draw, WEIGHTS_PERIOD if key == PERIOD else WEIGHTS_SEASON))
+
+    # Рейтинг сезона после каждого этапа — той же линейкой, что итоговый рейтинг сезона.
+    rounds_out = by_round.compute(records, sprints, results, tables["standings"], car_features, rulers, split_inputs)
+    log.info("По ходу сезона: после последнего этапа расхождение с итогом сезона — %.4f z",
+             by_round.final_gap(rounds_out, scopes))
 
     graph = build_graph(results, tables["constructors"], qp, rd, pace_pairs, scopes[PERIOD], starts_map)
     gs = graph["stats"]
@@ -244,6 +270,11 @@ def main(argv=None) -> None:
     for key, row in validation["groups"].items():
         log.info("  %-20s %5.2f %6.2f %6.2f", group_names.get(key, "Итог"), row["reliability"], row["moved"],
                  row["stayed"])
+    pred = validation["predictive"]
+    log.info("Прогноз новых пар напарников по рейтингу прошлого сезона (%s пар), угадано: квала / финиш:", pred["pairs"])
+    for key in pred["quali"]:
+        log.info("  %-20s %4.0f%% %5.0f%%", group_names.get(key, "Итог"), 100 * pred["quali"][key],
+                 100 * pred["race"].get(key, np.nan))
 
     raw = raw_stats(qp, rd)
     context = season_context(results, tables["constructors"])
@@ -257,13 +288,14 @@ def main(argv=None) -> None:
 
     check = None
     if not args.no_backtest:
-        check = _cached_backtest() if args.reuse_backtest else None
+        check = _cached_backtest(seasons) if args.reuse_backtest else None
         if check is None:
             check = backtest(qp, rd, seasons, debut)
             BACKTEST_CACHE.parent.mkdir(parents=True, exist_ok=True)
             check = clean_json(check)  # обычные числа и строковые ключи: и для кэша, и для сайта
-            BACKTEST_CACHE.write_text(json.dumps({"date": date.today().isoformat(), "result": check}),
-                                      encoding="utf-8")
+            BACKTEST_CACHE.write_text(json.dumps({"date": date.today().isoformat(), "seasons": list(seasons),
+                                                  "params": [BACKTEST_WINDOW, BACKTEST_TARGETS],
+                                                  "result": check}), encoding="utf-8")
         q_new, r_new = check["quali"]["new_pairs"], check["race"]["new_pairs"]
         log.info("Модель напарников, новые пары: квала — сильнейший угадан в %.0f%% из %s пар; "
                  "гонка — в %.0f%% из %s пар", 100 * q_new["season_sign_accuracy"], q_new["season_pairs"],
@@ -280,8 +312,23 @@ def main(argv=None) -> None:
     counts["pace_pairs_valid"] = int(pace_pairs["valid"].sum())
     counts["overtakes"] = int(lap_stats["overtakes_made"].sum())
     bios = driver_bios(tables["drivers"], offline=args.offline, refresh=args.refresh)
+
+    # Все времена (1950+): упрощённая модель на F1DB — результаты, квалификация, сеть напарников, карьера.
+    archive = f1db.latest_release(offline=True)  # уже скачан при сборке таблиц
+    ever = alltime.build(archive)
+    ever_check = alltime.validate(ever)
+    log.info("Все времена %s–%s: пилотов в пуле %s; прогноз новых пар — квала %.0f%% из %s, финиш %.0f%% из %s; "
+             "итог после смены марки %.2f (%s пар)", alltime.FIRST_YEAR, seasons[-1], int(ever["alltime"]["eligible"].sum()),
+             100 * ever_check["quali"], ever_check["pairs_quali"], 100 * ever_check["race"], ever_check["pairs_race"],
+             ever_check["moved"], ever_check["n_moved"])
+    save_tables({"alltime_ratings": ever["alltime"].rename_axis("driver_id").reset_index(),
+                 "alltime_seasons": ever["seasons"]})
+
+    cards = dict(zip(tables["careers"]["f1db_id"], tables["careers"]["driver_id"])) \
+        if "f1db_id" in tables["careers"] else {}   # пилот F1DB → его полная карточка 1996+
     export_web(tables, scopes, teammate, raw, context, models_hyper, check, expert_meta, counts, expectations, graph,
-               draws, bios, incident_lists(records), validation, conditions, {"wet": wet, "tracks": tracks})
+               draws, bios, incident_lists(records), validation, conditions, {"wet": wet, "tracks": tracks},
+               alltime.payload(ever, archive, ever_check, cards), by_round.encode(rounds_out))
 
     _log_scope(scopes[PERIOD], names, f"Общий рейтинг {seasons[0]}–{seasons[-1]}", 15)
     _log_scope(scopes[str(seasons[-1])], names, f"Сезон {seasons[-1]}", 8)
