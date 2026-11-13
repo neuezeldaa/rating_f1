@@ -3,124 +3,127 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
   <title>Рейтинг пилотов F1</title>
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
   <!-- data-en / data-en-aria / data-en-title — английский текст: app.js подставляет его при ?lang=en -->
-  <header class="page-header">
-    <div class="title-row">
-      <h1 data-en="Formula 1 driver rating">Рейтинг пилотов Формулы-1</h1>
-      <a class="lang-switch" id="lang-switch" href="?lang=en" hreflang="en" lang="en">English</a>
-    </div>
-    <p class="subtitle" id="subtitle">Общая сводка</p>
-  </header>
-
-  <main>
-    <div class="filters" role="group" aria-label="Фильтры" data-en-aria="Filters">
-      <label class="field"><span data-en="Scope">Охват</span> <select id="scope"></select></label>
-      <label class="check" id="show-all-field">
-        <input type="checkbox" id="show-all">
-        <span><span data-en="Show drivers with fewer than">Показать пилотов, у которых меньше</span>
-          <span id="min-starts">20</span> <span data-en="races">гонок</span></span>
-      </label>
-    </div>
-
-    <details class="card weights" id="weights">
-      <summary>
-        <span class="summary-title" data-en="Group weights">Веса групп</span>
-        <span class="summary-value" id="weights-summary"></span>
-      </summary>
-      <p class="hint" data-en="The total is a weighted sum of the groups. Move the sliders to see the rating under your own idea of the “best driver”.">Итог — взвешенная сумма групп. Двигайте ползунки, чтобы посмотреть рейтинг под свой взгляд на «лучшего пилота».</p>
-      <div class="presets" id="presets" role="group" aria-label="Готовые наборы весов" data-en-aria="Weight presets"></div>
-      <div class="sliders" id="sliders"></div>
-    </details>
-
-    <!-- «Все времена» — первая вкладка «Охвата»: при ней вместо таблицы и карточки — эта таблица -->
-    <section class="card alltime-card" id="alltime" aria-labelledby="alltime-title" hidden>
-      <div class="card-head">
-        <h2 id="alltime-title">Все времена</h2>
-        <p class="hint" id="alltime-hint"></p>
+  <div class="page">
+    <header class="top">
+      <div class="brand">
+        <h1 data-en="F1 Driver Rating">Рейтинг пилотов F1</h1>
+        <span class="top-meta" id="subtitle"></span>
       </div>
-      <div class="table-wrap">
-        <table id="alltime-table">
-          <thead><tr id="alltime-head"></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="table-more" id="alltime-more"></div>
-    </section>
+      <!-- Охват: «Все времена», весь период, сезон (собирает app.js) -->
+      <div class="seg scope-seg" id="scope-seg" role="group" aria-label="Охват" data-en-aria="Scope"></div>
+      <nav class="top-links" aria-label="Разделы" data-en-aria="Sections">
+        <a href="#method" data-scroll="method" data-en="Method">Методика</a>
+        <a href="#graph-card" data-scroll="graph-card" data-en="Teammate graph">Граф напарников</a>
+        <a class="lang-switch" id="lang-switch" href="?lang=en" hreflang="en" lang="en">English</a>
+      </nav>
+    </header>
 
-    <div class="layout" id="main-layout">
-      <section class="card" aria-labelledby="ranking-title">
-        <div class="card-head">
+    <!-- На телефоне: готовые наборы весов одной прокручиваемой строкой -->
+    <div class="chips" id="preset-chips" role="group" aria-label="Готовые наборы весов" data-en-aria="Weight presets"></div>
+
+    <div class="shell" id="shell">
+      <!-- Веса: слева на большом экране, сворачиваемая панель на планшете, нижний лист на телефоне -->
+      <aside class="rail rail-left sheet" id="weights" aria-labelledby="weights-title">
+        <button type="button" class="sheet-close" data-sheet-close aria-label="Закрыть" data-en-aria="Close">×</button>
+        <details class="rail-panel" id="weights-panel" open>
+          <summary>
+            <span class="rail-title" id="weights-title" data-en="What makes the best driver?">Что делает пилота лучшим?</span>
+            <span class="rail-summary" id="weights-summary"></span>
+          </summary>
+          <p class="hint" id="weights-hint"></p>
+          <div class="seg seg-fill" id="weight-tabs" role="tablist" aria-label="Веса групп" data-en-aria="Group weights"></div>
+          <div class="preset-list" id="presets" role="tabpanel"></div>
+          <div class="slider-list" id="sliders" role="tabpanel" hidden></div>
+          <div class="fixed-weights" id="fixed-weights" hidden></div>
+        </details>
+      </aside>
+
+      <main class="center" id="center">
+        <div class="center-head">
           <h2 id="ranking-title">Общий рейтинг</h2>
+          <span class="legend-line" id="ranking-legend"></span>
         </div>
-        <div class="table-wrap">
-          <table id="ranking">
-            <thead><tr id="ranking-head"></tr></thead>
-            <tbody></tbody>
-          </table>
+        <div class="rank" id="ranking" role="table" aria-labelledby="ranking-title">
+          <div class="rank-head" id="ranking-head" role="row"></div>
+          <div class="rank-body" id="ranking-body" role="rowgroup"></div>
         </div>
-        <div class="table-more" id="table-more"></div>
+        <div class="rank-foot">
+          <div class="table-more" id="table-more"></div>
+          <div class="heat-legend" id="heat-legend"></div>
+        </div>
         <p class="season-note" id="scope-note"></p>
-      </section>
+      </main>
 
-      <aside class="card driver" id="driver" aria-live="polite"></aside>
+      <aside class="rail rail-right driver sheet" id="driver" aria-live="polite"></aside>
     </div>
 
-    <section class="card graph-card" id="graph-card" aria-labelledby="graph-title">
-      <div class="card-head">
-        <h2 id="graph-title">Граф напарников</h2>
-        <p class="hint" id="graph-hint"></p>
-      </div>
-      <div class="filters graph-controls" role="group" aria-label="Пилот и путь сравнения" data-en-aria="Driver and comparison path">
-        <label class="field"><span data-en="Driver">Пилот</span> <select id="graph-from"></select></label>
-        <label class="field"><span data-en="Path to">Путь до</span> <select id="graph-to"></select></label>
-        <label class="check">
-          <input type="checkbox" id="graph-focus" checked>
-          <span data-en="Highlight the driver’s neighbourhood">Подсветить окружение пилота</span>
-        </label>
-      </div>
-      <div class="graph-wrap">
+    <section class="graph-card" id="graph-card" aria-labelledby="graph-title">
+      <div class="graph-main">
+        <div class="sec-head">
+          <h2 id="graph-title">Граф напарников</h2>
+          <span class="hint" id="graph-hint"></span>
+        </div>
+        <div class="seg" id="graph-hops" role="group" aria-label="Сколько шагов показывать" data-en-aria="How many steps to show"></div>
         <div class="graph-stage">
           <div class="zoom" role="group" aria-label="Масштаб графа" data-en-aria="Graph zoom">
             <button type="button" id="graph-zoom-in" aria-label="Увеличить" title="Увеличить"
               data-en-aria="Zoom in" data-en-title="Zoom in">+</button>
             <button type="button" id="graph-zoom-out" aria-label="Уменьшить" title="Уменьшить"
               data-en-aria="Zoom out" data-en-title="Zoom out">−</button>
-            <button type="button" id="graph-center" title="Приблизить выбранного пилота"
-              data-en-title="Zoom to the selected driver" data-en="To driver">К пилоту</button>
-            <button type="button" id="graph-reset" title="Показать граф целиком"
-              data-en-title="Show the whole graph" data-en="Whole graph">Весь граф</button>
+            <button type="button" id="graph-reset" aria-label="Показать целиком" title="Показать целиком"
+              data-en-aria="Fit to view" data-en-title="Fit to view">⤢</button>
           </div>
           <div id="graph" class="graph-chart" role="img"></div>
-          <p class="hint" data-en="Mouse wheel — zoom, drag — pan, click a node — select the driver.">Колесо мыши — масштаб, перетаскивание — сдвиг, клик по узлу — выбрать пилота.</p>
-        </div>
-        <div class="graph-side">
-          <div class="graph-driver" id="graph-driver"></div>
-          <p class="graph-summary" id="graph-summary"></p>
-          <ol class="path" id="graph-path"></ol>
         </div>
       </div>
-      <div class="graph-legend" id="graph-legend"></div>
-      <h3 id="graph-mates-title">Напарники</h3>
-      <div class="table-wrap"><table class="mini" id="graph-mates"></table></div>
+      <div class="graph-side">
+        <h3 data-en="How to read it">Как читать</h3>
+        <div class="graph-key" id="graph-key"></div>
+        <div class="path-find">
+          <span class="path-find-label" data-en="Find a path">Найти путь</span>
+          <div class="path-find-row">
+            <select id="graph-from" aria-label="Пилот" data-en-aria="Driver"></select>
+            <span aria-hidden="true">→</span>
+            <select id="graph-to" aria-label="Путь до пилота" data-en-aria="Path to driver"></select>
+          </div>
+        </div>
+        <p class="graph-summary" id="graph-summary"></p>
+        <ol class="path" id="graph-path"></ol>
+        <details class="mates-panel" id="graph-mates-panel">
+          <summary id="graph-mates-title">Напарники</summary>
+          <div class="table-wrap"><table class="mini" id="graph-mates"></table></div>
+        </details>
+      </div>
     </section>
 
-    <details class="card method" id="method">
-      <summary>
-        <span class="summary-title" data-en="How it is calculated">Как это посчитано</span>
-        <span class="summary-value" data-en="feature groups, ranges, expert check, sources">группы признаков, вилки, сверка с экспертами, источники</span>
-      </summary>
-      <div id="method-body"></div>
-    </details>
-  </main>
+    <section class="method" id="method" aria-labelledby="method-title">
+      <div class="sec-head">
+        <h2 id="method-title" data-en="How the score is built">Как строится балл</h2>
+        <button type="button" class="link-btn" id="method-toggle" aria-expanded="false" aria-controls="method-body"
+          data-en="Full methodology and sources">Полная методика и источники</button>
+      </div>
+      <div class="method-cards" id="method-cards"></div>
+      <div class="method-body" id="method-body" hidden></div>
+    </section>
 
-  <footer id="footer"></footer>
+    <footer id="footer"></footer>
+  </div>
+
+  <!-- Телефон: закреплённая строка с выбранным пилотом и затемнение под нижними листами -->
+  <div class="mobile-bar" id="mobile-bar" hidden></div>
+  <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <script src="data/data.js?v=20"></script>
-  <script src="app.js?v=35"></script>
+  <script src="data/data.js?v=23"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>

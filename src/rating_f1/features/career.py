@@ -15,14 +15,17 @@ from __future__ import annotations
 
 import pandas as pd
 
+from .records import record_scores
+
 NOT_STARTED = {"DNQ", "DNPQ", "DNS", "DNP"}  # не прошёл квалификацию или не вышел на старт
 MAIN_TEAM_SHARE = 1 / 3  # столько гонок сезона нужно провести за команду, чтобы сравнивать с напарником
 
 
-def career_facts(results: pd.DataFrame, standings: pd.DataFrame) -> pd.DataFrame:
-    """По пилоту F1DB: debut, seasons, titles, title_years («2005 2006»), ahead, compared.
+def career_facts(results: pd.DataFrame, standings: pd.DataFrame, calendar: pd.DataFrame | None = None) -> pd.DataFrame:
+    """По пилоту F1DB: debut, seasons, titles, title_years («2005 2006»), ahead, compared, records.
 
-    results — F1DB races-race-results за все годы, standings — F1DB seasons-driver-standings.
+    results — F1DB races-race-results за все годы, standings — F1DB seasons-driver-standings,
+    calendar — F1DB races (даты гонок): с ней считаются очки рекордов (features/records.py).
     """
     started = results[~results["positionText"].astype(str).isin(NOT_STARTED)]
     races = results.groupby("year")["raceId"].nunique()
@@ -39,6 +42,8 @@ def career_facts(results: pd.DataFrame, standings: pd.DataFrame) -> pd.DataFrame
     mates = _ahead_of_teammate(started, races, standings)
     out["ahead"] = mates["ahead"].reindex(out.index).fillna(0).astype(int)
     out["compared"] = mates["compared"].reindex(out.index).fillna(0).astype(int)
+    if calendar is not None:
+        out["records"] = record_scores(calendar, results, standings).reindex(out.index).fillna(0.0)
     return out
 
 

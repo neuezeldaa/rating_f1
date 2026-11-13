@@ -13,6 +13,8 @@
   const EN = new URLSearchParams(location.search).get("lang") === "en";
   const L = (ru, en) => (EN ? en : ru);  // текст по-русски или по-английски
   const LOCALE = EN ? "en-GB" : "ru-RU";
+  // русские названия групп длиннее английских — столбцу подписей в карточке нужно больше места
+  if (!EN) document.documentElement.style.setProperty("--label-w", "152px");
   if (EN) {
     document.documentElement.lang = "en";
     document.title = "F1 driver rating";
@@ -58,6 +60,8 @@
       "do not count."],
     teammate: ["Vs teammate", "Teammate network model: qualifying, pace and finish adjusted for the strength of " +
       "teammates; share of the team's points."],
+    dotd: ["Driver of the Day", "Season rating only: the share of races where fans voted the driver Driver of the " +
+      "Day (Formula 1 poll, since 2016). Not part of the all-season summary."],
     career: ["Career", "All-season summary only: quality and longevity. Since the F1 debut — seasons in F1, seasons " +
       "ahead of the teammate in the championship, titles; over our seasons — margin above average."],
   };
@@ -71,23 +75,32 @@
     overtaken: "Times overtaken per race", gain_vs_exp: "Places per race beyond expectation",
     err_rate: "Own crashes and spins", collision_rate: "Collisions per stewards' decisions",
     penalty_rate: "Other time penalties", car_quali: "Quali vs teammates, s/lap", car_pace: "Pace vs teammates, s/lap",
-    car_race: "Finish vs teammates", team_share: "Share of team points", seasons: "Seasons in F1 since debut",
+    car_race: "Finish vs teammates", team_share: "Share of team points", dotd_rate: "Driver of the Day: share of races",
+    seasons: "Seasons in F1 since debut",
     ahead: "Seasons ahead of teammate", titles: "Career titles", above_avg: "Margin above average over seasons",
+    records: "Records: points for years held",
   };
   if (EN) {
     for (const g of GROUPS) if (GROUP_EN[g.id]) [g.name, g.about] = GROUP_EN[g.id];
     for (const f of FEATURES) if (FEATURE_EN[f.id]) f.name = FEATURE_EN[f.id];
   }
   const MINUS = "−";
-  const SINGLE_COLUMN = window.matchMedia("(max-width: 1179px)");
-  const DARK = window.matchMedia("(prefers-color-scheme: dark)");
+  // Три раскладки: три колонки (от 1280 px), одна колонка, телефон (до 640 px) — как в style.css.
+  const DESKTOP = window.matchMedia("(min-width: 1280px)");
+  const MOBILE = window.matchMedia("(max-width: 639px)");
   const SEASON_KEYS = meta.scopes.filter((k) => k !== PERIOD);
-  // «Все времена» (1950+, alltime.py) — первая вкладка «Охвата»: своя таблица вместо таблицы и карточки.
+  // «Все времена» (1950+, alltime.py) — первая вкладка «Охвата»: та же таблица и карточка, свои группы.
   const EVER = DATA.alltime || {};
   const EVER_KEY = "ever";
   const HAS_EVER = Boolean(EVER.drivers && EVER.drivers.length);
-  const everState = { sort: "rating", expanded: false, open: null };
+  const everState = { sort: "rating", expanded: false, open: null };  // open — выбранный пилот
   const EVER_TOP = 25;
+  // Группы охвата: «Карьера» — только в общей сводке, «Гонщик дня» — только в сезонах, где шло голосование.
+  const DOTD_FROM = (meta.counts && meta.counts.dotd_from) || 2016;
+  function scopeGroups(key) {
+    if (key === PERIOD) return GROUPS.filter((g) => g.id !== "dotd");
+    return GROUPS.filter((g) => g.id !== "career" && (g.id !== "dotd" || Number(key) >= DOTD_FROM));
+  }
 
   // ---------- форматирование ----------
   const num = (x, digits) => (EN ? x.toFixed(digits) : x.toFixed(digits).replace(".", ","));
@@ -218,35 +231,49 @@
   }
 
   // ---------- веса и пересчёт ----------
-  const ZERO = { results: 0, above_car: 0, quali: 0, pace: 0, racecraft: 0, clean: 0, teammate: 0, career: 0 };
+  const ZERO = { results: 0, above_car: 0, quali: 0, pace: 0, racecraft: 0, clean: 0, teammate: 0, dotd: 0, career: 0 };
   const PRESETS = [
-    { id: "default", name: L("Сбалансированный", "Balanced") },
+    { id: "default", name: L("Сбалансированный", "Balanced"),
+      note: L("Обычная смесь всех групп", "Default mix of all groups") },
     { id: "results", name: L("Важнее результаты", "Results first"),
-      w: { results: 40, above_car: 15, quali: 10, pace: 10, racecraft: 5, clean: 0, teammate: 15, career: 5 } },
+      note: L("Победы и очки весят больше всего", "Wins and points weigh most"),
+      w: { ...ZERO, results: 40, above_car: 15, quali: 10, pace: 10, racecraft: 5, teammate: 15, career: 5 } },
     { id: "skill", name: L("Чистое мастерство", "Pure skill"),
-      w: { results: 5, above_car: 20, quali: 15, pace: 15, racecraft: 15, clean: 0, teammate: 30, career: 0 } },
-    { id: "only", name: L("Только результаты", "Results only"), w: { ...ZERO, results: 100 } },
+      note: L("Убирает влияние машины", "Strips out the car"),
+      w: { ...ZERO, results: 5, above_car: 20, quali: 15, pace: 15, racecraft: 15, teammate: 30 } },
+    { id: "only", name: L("Только результаты", "Results only"),
+      note: L("Ничего, кроме результатов", "Nothing but results"), w: { ...ZERO, results: 100 } },
   ];
   // «По данным»: вес группы пропорционален тому, насколько её балл следует за пилотом при смене
   // команды (validate.py). Округляем до 5%, как шаг ползунков.
   const DATA_WEIGHTS = meta.validation && meta.validation.data_weights;
   if (DATA_WEIGHTS) {
     PRESETS.push({ id: "data", name: L("По данным", "By the data"),
-      w: Object.fromEntries(Object.entries(DATA_WEIGHTS).map(([k, v]) => [k, 5 * Math.round(20 * v)])) });
+      note: L("Больше веса тому, что следует за пилотом", "More weight to what follows the driver"),
+      w: { ...ZERO, ...Object.fromEntries(Object.entries(DATA_WEIGHTS).map(([k, v]) => [k, 5 * Math.round(20 * v)])) } });
   }
 
   const TOP_N = 15;  // столько строк показывать в свёрнутой таблице
   const state = {
     scope: PERIOD, showAll: false, driver: null, compare: null, sort: "score", preset: "default", custom: null,
     expanded: false,
+    weightTab: "presets",  // вкладка весов: готовые наборы или свои ползунки
+    hops: 1,               // граф: 1 — прямые напарники, 2 — два шага, 0 — вся сеть
+    more: false,           // раскрыт ли блок «Подробнее» в карточке
   };
+
+  // Веса «Сбалансированного» набора (config.py), в процентах.
+  function defaultWeights(isPeriod) {
+    const base = isPeriod ? meta.weights.period : meta.weights.season;
+    return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, Math.round(100 * v)]));
+  }
+  const isDefaultWeights = () => !state.custom && state.preset === "default";
 
   function weightsFor(isPeriod) {
     if (state.custom) return state.custom;
     const preset = PRESETS.find((p) => p.id === state.preset);
     if (preset && preset.w) return preset.w;
-    const base = isPeriod ? meta.weights.period : meta.weights.season;
-    return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, Math.round(100 * v)]));
+    return defaultWeights(isPeriod);
   }
 
   // ---------- вилки: пересчёты рейтинга на перевыбранных этапах ----------
@@ -410,12 +437,13 @@
   }
 
   const cache = new Map();
-  function computeScope(key) {
+  // weights — посчитать охват с другими весами (без вилок): нужны места при «Сбалансированном» наборе.
+  function computeScope(key, weights) {
     const isPeriod = key === PERIOD;
-    const w = weightsFor(isPeriod);
-    const cacheKey = `${key}|${JSON.stringify(w)}`;
+    const w = weights || weightsFor(isPeriod);
+    const cacheKey = `${key}|${weights ? "base" : ""}|${JSON.stringify(w)}`;
     if (cache.has(cacheKey)) return cache.get(cacheKey);
-    const groups = GROUPS.filter((g) => (isPeriod || g.id !== "career") && (w[g.id] || 0) > 0);
+    const groups = scopeGroups(key).filter((g) => (w[g.id] || 0) > 0);
     const entries = scopes[key].map((e) => ({ ...e }));
     const total = groups.reduce((s, g) => s + w[g.id], 0);
     for (const e of entries) {
@@ -430,7 +458,7 @@
       e.rankNow = null;
     }
     pool.sort((a, b) => b.score - a.score).forEach((e, i) => { e.rankNow = i + 1; });
-    addBands(key, entries, pool, groups, w, total, mean, sd);
+    if (!weights) addBands(key, entries, pool, groups, w, total, mean, sd);
     // groups, w, total, mean, sd — линейка охвата при текущих весах: разложить разницу двух пилотов
     // по группам (сравнение в карточке) и собрать баллы после каждого этапа (seasonPath)
     const result = { entries, byId: new Map(entries.map((e) => [e.id, e])), groups, w, total, mean, sd };
@@ -468,304 +496,625 @@
     syncLangLink();
   }
 
-  // ---------- шапка, фильтры, веса ----------
+  // ---------- шапка: охват, ссылки, язык ----------
   function scopeLabel(key) {
     if (key === EVER_KEY) return L(`Все времена ${EVER.period[0]}–${EVER.period[1]}`, `All time ${EVER.period[0]}–${EVER.period[1]}`);
     return key === PERIOD ? L(`Все сезоны ${meta.period[0]}–${meta.period[1]}`, `All seasons ${meta.period[0]}–${meta.period[1]}`)
       : L(`Сезон ${key}`, `Season ${key}`);
   }
 
+  function setScope(key) {
+    state.scope = key;
+    if (key !== EVER_KEY && !scopes[key].some((e) => e.id === state.driver)) state.driver = null;
+    render();
+  }
+
+  // Охват — сегменты: «Все времена», весь период и сезон (список сезонов — в третьем сегменте).
   function renderHeader() {
     const through = meta.data_through;
     const lastRace = EN ? through.race_name : GP_RU[through.race_name] || through.race_name;
-    $("#subtitle").textContent = L(
-      `Общая сводка ${meta.period[0]}–${meta.period[1]} и отдельные сезоны · ` +
-      `данные после этапа «${lastRace}» (${dateRu(through.date)})`,
-      `All seasons ${meta.period[0]}–${meta.period[1]} and each season · data through the ${lastRace} ` +
-      `(${dateRu(through.date)})`);
-    const select = $("#scope");
-    for (const key of [...(HAS_EVER ? [EVER_KEY] : []), ...meta.scopes]) {
+    const seg = $("#scope-seg");
+    seg.replaceChildren();
+    for (const key of [...(HAS_EVER ? [EVER_KEY] : []), PERIOD]) {
+      const button = el("button", null, scopeLabel(key));
+      button.type = "button";
+      button.dataset.scope = key;
+      button.addEventListener("click", () => setScope(key));
+      seg.append(button);
+    }
+    const select = el("select");
+    select.id = "scope-season";
+    select.setAttribute("aria-label", L("Сезон", "Season"));
+    const placeholder = el("option", null, L("Сезон", "Season"));
+    placeholder.value = "";
+    select.append(placeholder);
+    for (const key of SEASON_KEYS) {
       const option = el("option", null, scopeLabel(key));
       option.value = key;
       select.append(option);
     }
-    select.addEventListener("change", () => {
-      state.scope = select.value;
-      if (state.scope !== EVER_KEY && !scopes[state.scope].some((e) => e.id === state.driver)) state.driver = null;
-      render();
-    });
-    $("#show-all").addEventListener("change", (event) => {
-      state.showAll = event.target.checked;
-      renderTable();
-      renderScopeNote();
-    });
+    select.addEventListener("change", () => { if (select.value) setScope(select.value); });
+    seg.append(select);
+    for (const link of document.querySelectorAll("[data-scroll]")) {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();  // якорь заменил бы адрес с охватом и пилотом
+        document.getElementById(link.dataset.scroll).scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
     $("#footer").textContent = L(
       "Неофициальный фан-проект, не связан с Formula 1 и FIA. " +
       `Данные: Jolpica F1 API и F1DB (CC BY 4.0), биографии — Википедия (CC BY-SA 4.0), ` +
       "фото — Викисклад (автор и лицензия — под фото). " +
-      `Данные после этапа «${lastRace}» ${through.season} года. ` +
+      `Данные после этапа «${lastRace}» ${through.season} года (${dateRu(through.date)}). ` +
       `Сгенерировано ${new Date(meta.generated_at).toLocaleString(LOCALE)}.`,
       "Unofficial fan project, not affiliated with Formula 1 or the FIA. " +
       "Data: Jolpica F1 API and F1DB (CC BY 4.0), biographies — Wikipedia (CC BY-SA 4.0), " +
       "photos — Wikimedia Commons (author and licence under each photo). " +
-      `Data through the ${lastRace} ${through.season}. ` +
+      `Data through the ${lastRace} ${through.season} (${dateRu(through.date)}). ` +
       `Generated ${new Date(meta.generated_at).toLocaleString(LOCALE)}.`);
   }
 
+  function syncScopeSeg() {
+    for (const button of document.querySelectorAll("#scope-seg button")) {
+      button.setAttribute("aria-pressed", String(button.dataset.scope === state.scope));
+    }
+    const select = $("#scope-season");
+    const isSeason = state.scope !== PERIOD && state.scope !== EVER_KEY;
+    select.value = isSeason ? state.scope : "";
+    select.classList.toggle("active", isSeason);
+  }
+
+  // ---------- веса: готовые наборы и свои ползунки ----------
   // Доля группы в итоге: итог делится на сумму весов, а она не обязана быть 100.
-  function weightShares(weights, isPeriod) {
-    const groups = GROUPS.filter((g) => isPeriod || g.id !== "career");
+  function weightShares(weights, key) {
+    const groups = scopeGroups(key);
     const total = groups.reduce((s, g) => s + (weights[g.id] || 0), 0);
     const share = (gid) => `${total > 0 ? Math.round(100 * (weights[gid] || 0) / total) : 0}%`;
     return { share, summary: groups.map((g) => `${g.name} ${share(g.id)}`).join(" · ") };
   }
 
+  function applyPreset(id) {
+    state.preset = id;
+    state.custom = null;
+    renderAll();
+  }
+
+  function presetLabel() {
+    if (state.custom) return L("Свои веса", "Custom weights");
+    return (PRESETS.find((p) => p.id === state.preset) || PRESETS[0]).name;
+  }
+
   function renderWeights() {
-    const isPeriod = state.scope === PERIOD;
-    const w = weightsFor(isPeriod);
+    const ever = state.scope === EVER_KEY;
+    const tabs = $("#weight-tabs");
     const presets = $("#presets");
-    presets.replaceChildren();
-    for (const preset of PRESETS) {
-      const button = el("button", null, preset.name);
-      button.type = "button";
-      button.setAttribute("aria-pressed", String(!state.custom && state.preset === preset.id));
-      button.addEventListener("click", () => {
-        state.preset = preset.id;
-        state.custom = null;
-        renderAll();
-      });
-      presets.append(button);
-    }
     const sliders = $("#sliders");
-    sliders.replaceChildren();
+    const fixed = $("#fixed-weights");
+    const chips = $("#preset-chips");
+    tabs.hidden = ever;
+    fixed.hidden = !ever;
+    chips.hidden = ever;
+    $("#weights-hint").textContent = ever
+      ? L("У рейтинга всех времён веса постоянные: в нём только то, что есть для всех эпох.",
+        "The all-time rating has fixed weights: it only uses what exists for every era.")
+      : L("Выберите готовый взгляд или задайте свои веса. Рейтинг пересчитывается сразу.",
+        "Pick a view or set your own weights. The ranking updates live.");
+    if (ever) {
+      presets.hidden = true;
+      sliders.hidden = true;
+      const total = EVER.groups.reduce((s, g) => s + (EVER.weights[g.id] || 0), 0);
+      fixed.replaceChildren(monoHead(L("Группа", "Group"), L("Доля в итоге", "Share of total")));
+      for (const g of EVER.groups) {
+        const row = el("div", "fw-row");
+        row.append(el("span", null, groupName(g)),
+          el("span", "share", `${Math.round((100 * (EVER.weights[g.id] || 0)) / total)}%`));
+        fixed.append(row);
+      }
+      $("#weights-summary").textContent = L("веса постоянные", "fixed weights");
+      return;
+    }
+    const key = state.scope;
+    const isPeriod = key === PERIOD;
+    const w = weightsFor(isPeriod);
+    const { share } = weightShares(w, key);
+
+    tabs.replaceChildren();
+    for (const [id, label] of [["presets", L("Готовые", "Presets")], ["custom", L("Свои", "Custom")]]) {
+      const button = el("button", null, label + (id === "custom" && state.custom ? " ●" : ""));
+      button.type = "button";
+      button.dataset.tab = id;
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-selected", String(state.weightTab === id));
+      button.addEventListener("click", () => { state.weightTab = id; renderWeights(); });
+      tabs.append(button);
+    }
+    presets.hidden = state.weightTab !== "presets";
+    sliders.hidden = state.weightTab !== "custom";
+
+    presets.replaceChildren();
+    chips.replaceChildren();
+    for (const preset of PRESETS) {
+      const on = !state.custom && state.preset === preset.id;
+      const button = el("button", "preset");
+      button.type = "button";
+      button.setAttribute("aria-pressed", String(on));
+      button.append(el("span", "preset-name", preset.name), el("span", "preset-note", preset.note));
+      button.addEventListener("click", () => applyPreset(preset.id));
+      presets.append(button);
+      const chip = el("button", null, preset.name);
+      chip.type = "button";
+      chip.setAttribute("aria-pressed", String(on));
+      chip.addEventListener("click", () => applyPreset(preset.id));
+      chips.append(chip);
+    }
+    const customChip = el("button", null, L("Свои веса", "Custom weights") + (state.custom ? " ●" : ""));
+    customChip.type = "button";
+    customChip.setAttribute("aria-pressed", String(Boolean(state.custom)));
+    customChip.addEventListener("click", () => {
+      state.weightTab = "custom";
+      renderWeights();
+      openSheet("weights");
+    });
+    chips.append(customChip);
+
+    sliders.replaceChildren(monoHead(L("Группа", "Group"), L("Доля в итоге", "Share of total")));
     const outputs = new Map();  // подписи ползунков — доли в итоге, меняются все сразу
-    for (const group of GROUPS) {
-      const disabled = !isPeriod && group.id === "career";
-      const box = el("div", `slider${disabled ? " disabled" : ""}`);
-      const id = `w-${group.id}`;
-      const label = el("label", null, group.name);
-      label.htmlFor = id;
-      label.title = group.about;
-      const output = el("output", null, disabled ? L("только для сводки", "all seasons only")
-        : weightShares(w, isPeriod).share(group.id));
-      if (!disabled) outputs.set(group.id, output);
+    for (const group of scopeGroups(key)) {
+      const box = el("label", `slider${(w[group.id] || 0) === 0 ? " zero" : ""}`);
+      box.title = group.about;
+      const output = el("span", "share", share(group.id));
+      outputs.set(group.id, { output, box });
       const input = el("input");
       input.type = "range";
       input.min = "0";
       input.max = "100";
       input.step = "5";
-      input.id = id;
       input.value = String(w[group.id] || 0);
-      input.disabled = disabled;
+      input.setAttribute("aria-label", group.name);
       input.addEventListener("input", () => {
-        state.custom = { ...weightsFor(true), ...(state.custom || {}), [group.id]: Number(input.value) };
-        const { share } = weightShares(state.custom, isPeriod);
-        for (const [gid, out] of outputs) out.textContent = share(gid);
+        // свои веса: от текущего набора, с весами групп обоих охватов («Карьера» и «Гонщик дня»)
+        const full = { ...defaultWeights(false), ...defaultWeights(true), ...weightsFor(isPeriod) };
+        state.custom = { ...full, ...(state.custom || {}), [group.id]: Number(input.value) };
+        const now = weightShares(state.custom, key).share;
+        for (const [gid, item] of outputs) {
+          item.output.textContent = now(gid);
+          item.box.classList.toggle("zero", (state.custom[gid] || 0) === 0);
+        }
         renderAll(false);
       });
-      box.append(label, output, input);
+      box.append(el("span", "sname", group.name), output, input);
       sliders.append(box);
     }
-    $("#weights-summary").textContent = weightShares(w, isPeriod).summary;
+    const reset = el("button", "link-btn", L("Сбросить к «Сбалансированному»", "Reset to Balanced"));
+    reset.type = "button";
+    reset.addEventListener("click", () => applyPreset("default"));
+    sliders.append(reset);
+    syncWeightLabels();
   }
 
+  // Подписи, которые зависят от текущих весов, но не требуют перерисовки ползунков.
+  function syncWeightLabels() {
+    if (state.scope === EVER_KEY) return;
+    $("#weights-summary").textContent = presetLabel();
+    const custom = document.querySelector('#weight-tabs [data-tab="custom"]');
+    if (custom) custom.textContent = L("Свои", "Custom") + (state.custom ? " ●" : "");
+    const chips = document.querySelectorAll("#preset-chips button");
+    PRESETS.forEach((preset, i) => {
+      if (chips[i]) chips[i].setAttribute("aria-pressed", String(!state.custom && state.preset === preset.id));
+    });
+    const customChip = chips[PRESETS.length];
+    if (customChip) {
+      customChip.textContent = L("Свои веса", "Custom weights") + (state.custom ? " ●" : "");
+      customChip.setAttribute("aria-pressed", String(Boolean(state.custom)));
+    }
+    document.querySelectorAll("#presets .preset").forEach((button, i) => {
+      button.setAttribute("aria-pressed", String(!state.custom && state.preset === PRESETS[i].id));
+    });
+  }
+
+  // Заголовок таблицы, строка под названием сайта и пояснения к шкале — по охвату.
   function renderScopeNote() {
-    const isPeriod = state.scope === PERIOD;
-    $("#ranking-title").textContent = isPeriod
-      ? L(`Общий рейтинг ${meta.period[0]}–${meta.period[1]}`, `Overall rating ${meta.period[0]}–${meta.period[1]}`)
-      : L(`Сезон ${state.scope}`, `Season ${state.scope}`);
+    const key = state.scope;
+    const ever = key === EVER_KEY;
+    const isPeriod = key === PERIOD;
+    const pool = ever ? EVER.drivers.length : scopes[key].filter((e) => e.eligible).length;
+    const min = ever ? EVER.pool : isPeriod ? meta.min_starts.period : meta.min_starts.season;
+    const span = ever ? `${EVER.period[0]}–${EVER.period[1]}` : isPeriod ? `${meta.period[0]}–${meta.period[1]}` : key;
+    $("#subtitle").textContent = L(
+      `${span} · ${pool} ${plural(pool, "пилот", "пилота", "пилотов")} от ${min} гонок`,
+      `${span} · ${pool} drivers with ${min}+ races`);
+    $("#ranking-title").textContent = ever ? L("Рейтинг всех времён", "All-time ranking")
+      : isPeriod ? L("Общий рейтинг", "Overall ranking") : L(`Рейтинг сезона ${key}`, `${key} season ranking`);
+    const banded = !ever && DRAWS[key];
+    $("#ranking-legend").textContent = L(
+      "Полоса — балл 0–100" + (banded ? " · тонкая линия — вилка" : "") + " · засечка — средний пилот (50)",
+      "Bar = score 0–100" + (banded ? " · whisker = likely range" : "") + " · tick = average driver (50)");
     const notes = [];
-    if (!isPeriod) {
-      const races = meta.season_races[state.scope];
+    if (!ever && !isPeriod) {
+      const races = meta.season_races[key];
       if (races && races.completed < races.scheduled) {
         notes.push(L(`Сезон ещё идёт: учтено ${races.completed} из ${races.scheduled} гонок.`,
           `Season in progress: ${races.completed} of ${races.scheduled} races counted.`));
       }
     }
-    const min = isPeriod ? meta.min_starts.period : meta.min_starts.season;
-    $("#min-starts").textContent = min;
-    const hidden = scopes[state.scope].filter((e) => !e.eligible).length;
-    if (!state.showAll && hidden) {
-      notes.push(L(`Скрыто пилотов, у которых меньше ${min} гонок: ${hidden}.`,
-        `Hidden drivers with fewer than ${min} races: ${hidden}.`));
+    if (ever) {
+      notes.push(L("Упрощённая модель: результаты, квалификация, сеть напарников и карьера — то, что есть для всех " +
+        "эпох. Подробности — в методике.", "A simplified model: results, qualifying, the teammate network and " +
+        "career — what exists for every era. Details in the methodology."));
     }
     $("#scope-note").textContent = notes.join(" ");
   }
 
-  // ---------- таблица ----------
+  // ---------- таблица рейтинга ----------
+  // Короткие подписи: три буквы — в шапке цветной полосы, подлиннее — на осях профиля.
+  const ABBR = EN
+    ? { results: "Res", above_car: "Car", quali: "Qua", pace: "Pac", racecraft: "Rcr", clean: "Cln", teammate: "Tm",
+      dotd: "Fan", career: "Crr" }
+    : { results: "Рез", above_car: "Маш", quali: "Ква", pace: "Тмп", racecraft: "Брб", clean: "Акк", teammate: "Нап",
+      dotd: "ГД", career: "Кар" };
   const SHORT = EN ? {
     results: "Results", above_car: "Above car", quali: "Quali", pace: "Pace", racecraft: "Racecraft",
-    clean: "Clean", teammate: "Teammate", career: "Career",
+    clean: "Clean", teammate: "Teammate", dotd: "Fan vote", career: "Career",
   } : {
     results: "Результ.", above_car: "Над маш.", quali: "Квала", pace: "Темп", racecraft: "Борьба",
-    clean: "Аккур.", teammate: "Напарник", career: "Карьера",
+    clean: "Аккур.", teammate: "Напарник", dotd: "Гонщ. дня", career: "Карьера",
   };
+  const groupName = (g) => (EN && GROUP_EN[g.id] ? GROUP_EN[g.id][0] : g.name);
 
-  function columns() {
-    const isPeriod = state.scope === PERIOD;
-    const groups = GROUPS.filter((g) => isPeriod || g.id !== "career");
-    // [id, заголовок, значение, css-класс]: второстепенные колонки прячутся на узких экранах
-    const first = isPeriod
-      ? ["titles", L("Титулы", "Titles"), (e) => (e.titles || []).length, "col-stat"]
-      : ["standing", L("ЧМ", "WDC"), (e) => e.standing, "col-stat"];
-    const stats = [
-      first,
-      ["wins", L("Победы", "Wins"), (e) => e.stats.wins, "col-stat"],
-      ["podiums", L("Подиумы", "Podiums"), (e) => e.stats.podiums, "col-stat col-extra"],
-      ["poles", L("Поулы", "Poles"), (e) => e.stats.poles, "col-stat col-extra"],
-      ["starts", L("Гонок", "Races"), (e) => e.starts, "col-stat col-extra"],
+  // Шкала яркости из макета — oklch(0,20+0,58·t  0,015+0,15·t  250). Переводим в rgb сами: один цвет
+  // и в таблице, и на графе ECharts, и в браузерах без oklch.
+  function ramp(t) {
+    const k = Math.max(0, Math.min(1, t));
+    const light = 0.2 + 0.58 * k;
+    const chroma = 0.015 + 0.15 * k;
+    const hue = (250 * Math.PI) / 180;
+    const a = chroma * Math.cos(hue);
+    const b = chroma * Math.sin(hue);
+    const l = (light + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+    const m = (light - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+    const s = (light - 0.0894841775 * a - 1.291485548 * b) ** 3;
+    const linear = [
+      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
     ];
-    return { groups, stats };
+    const rgb = linear.map((v) => {
+      const c = Math.max(0, Math.min(1, v));
+      return Math.round(255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055));
+    });
+    return `rgb(${rgb.join(",")})`;
   }
 
-  function sortValue(e, sort, stats) {
-    if (sort === "score") return e.score;
-    if (sort.startsWith("g:")) return e.s[sort.slice(2)] ?? -1;
-    const stat = stats.find(([id]) => id === sort);
-    const v = stat ? stat[2](e) : 0;
-    return sort === "standing" ? -(v ?? 99) : v ?? -1;
+  // Цвет команды для метки у имени. Ключ — идентификатор команды (дефис и подчёркивание равны).
+  const TEAM_COLORS = {
+    ferrari: "#e8463a", mclaren: "#ff8a1f", mercedes: "#27c2b0", red_bull: "#3d5bd9", williams: "#6cc4f2",
+    alpine: "#3a8ee6", aston_martin: "#2e8b57", haas: "#b6babd", sauber: "#5a8fd4", kick_sauber: "#52e252",
+    alfa: "#a83a45", alfa_romeo: "#a83a45", audi: "#bfb8ae", cadillac: "#d0d0d0", rb: "#6692ff",
+    racing_bulls: "#6692ff", alphatauri: "#5e7fa3", toro_rosso: "#4662c4", minardi: "#c9b037",
+    renault: "#f5c518", lotus_f1: "#c8a548", benetton: "#4db87a", force_india: "#f48cb6", racing_point: "#f48cb6",
+    jordan: "#f2c200", mf1: "#ff7f3f", spyker_mf1: "#ff7f3f", spyker: "#ff7f3f", bmw_sauber: "#7fa8d9",
+    toyota: "#f06a6a", honda: "#c7c7c7", bar: "#d9d9d9", brawn: "#d9f25e", jaguar: "#1f9d55", stewart: "#e0e0e0",
+    arrows: "#f2762e", footwork: "#d9534f", prost: "#3b6fd4", ligier: "#4a90d9", tyrrell: "#2f6fb5",
+    forti: "#e6c100", super_aguri: "#e25555", lotus_racing: "#2f9e5b", caterham: "#2f9e5b", virgin: "#d9483b",
+    marussia: "#d9483b", manor: "#e0503f", hrt: "#a89a7c",
+    lotus: "#3f9c57", brabham: "#2f8f7a", cooper: "#2c6e49", brm: "#3b7a57", maserati: "#c0392b", march: "#e0703a",
+    matra: "#3f7fd9", vanwall: "#2c6e49", lola: "#5b8dd9", dallara: "#d9483b", surtees: "#4a90d9",
+    shadow: "#8a8a8a", osella: "#7fa8d9", fittipaldi: "#e6c100", leyton_house: "#63c7c1",
+  };
+  const teamColor = (team) => (team && TEAM_COLORS[String(team).replace(/-/g, "_")]) || null;
+
+  // Места при «Сбалансированном» наборе — чтобы показать, кого текущие веса подняли или опустили.
+  const baseRankCache = new Map();
+  function baseRanks(key) {
+    if (!baseRankCache.has(key)) {
+      const base = computeScope(key, defaultWeights(key === PERIOD));
+      baseRankCache.set(key, new Map(base.entries.filter((e) => e.rankNow).map((e) => [e.id, e.rankNow])));
+    }
+    return baseRankCache.get(key);
+  }
+
+  // Строки таблицы для обычного охвата: сортировка, стрелки ▲▼, вилки.
+  function scopeView() {
+    const key = state.scope;
+    const { entries } = computeScope(key);
+    const groups = scopeGroups(key);
+    if (!["score", ...groups.map((g) => `g:${g.id}`)].includes(state.sort)) state.sort = "score";
+    const value = (e) => (state.sort === "score" ? e.score : e.s[state.sort.slice(2)] ?? -1);
+    const listed = entries.filter((e) => state.showAll || e.eligible);
+    listed.sort((a, b) => value(b) - value(a) || b.score - a.score);
+    const base = isDefaultWeights() ? null : baseRanks(key);
+    const level = Math.round(100 * meta.interval);
+    const rows = listed.map((e) => ({
+      id: e.id,
+      rank: e.rankNow,
+      tie: state.sort === "score" && e.prev && e.prev.p < TIE_P
+        ? L(`Почти не отличается от пилота выше: ${name(e.prev.id)} впереди ${share(e.prev.p)}`,
+          `Barely different from the driver above: ${name(e.prev.id)} ahead ${share(e.prev.p)}`) : null,
+      rankTitle: e.rankBand && e.rankBand[0] !== e.rankBand[1]
+        ? L(`Место в ${level}% пересчётов: ${e.rankBand[0]}–${e.rankBand[1]}`,
+          `Place in ${level}% of resamples: ${e.rankBand[0]}–${e.rankBand[1]}`) : null,
+      delta: base && e.rankNow && base.get(e.id) ? base.get(e.id) - e.rankNow : 0,
+      name: name(e.id),
+      sub: e.teams.join(", ") + (e.eligible ? "" : ` · ${e.starts} ${plural(e.starts, "гонка", "гонки", "гонок", "race")}`),
+      team: e.team,
+      score: e.score,
+      band: e.band,
+      s: e.s,
+      eligible: e.eligible,
+    }));
+    return {
+      rows, groups, stats: [], sort: state.sort, top: TOP_N, expanded: state.expanded, selected: state.driver,
+      setSort: (id) => { state.sort = id; renderTable(); },
+      toggle: () => { state.expanded = !state.expanded; },
+      select: (id) => selectDriver(id),
+      hidden: state.showAll ? 0 : entries.filter((e) => !e.eligible).length,
+    };
+  }
+
+  // Строки таблицы «Все времена»: те же столбцы, группы модели всех времён и три счётчика.
+  function everView() {
+    const stats = [
+      ["titles", L("Тит", "Ttl"), L("Титулы", "Titles"), (d) => d.titles.length],
+      ["wins", L("Поб", "Win"), L("Победы", "Wins"), (d) => d.wins],
+      ["starts", L("Гон", "Rcs"), L("Гонки", "Races"), (d) => d.starts],
+    ];
+    const groups = EVER.groups.map((g) => ({ id: g.id, name: groupName(g), about: "" }));
+    const sorts = ["score", ...groups.map((g) => `g:${g.id}`), ...stats.map(([id]) => id)];
+    if (!sorts.includes(everState.sort)) everState.sort = "score";
+    const stat = stats.find(([id]) => id === everState.sort);
+    const value = (d) => (everState.sort === "score" ? d.rating : stat ? stat[3](d) : d.s[everState.sort.slice(2)]);
+    const listed = EVER.drivers.slice().sort((a, b) => value(b) - value(a) || a.rank - b.rank);
+    const rows = listed.map((d) => ({
+      id: d.id, rank: d.rank, tie: null, rankTitle: null, delta: 0, name: d.name,
+      sub: `${d.years[0]}–${d.years[1]}` + ((EN ? everCountry(d.country_id) : d.country) ? ` · ${EN ? everCountry(d.country_id) : d.country}` : ""),
+      team: d.team, score: d.rating, band: null, s: d.s, eligible: true, stats: stats.map(([, , , get]) => get(d)),
+    }));
+    return {
+      rows, groups, stats, sort: everState.sort, top: EVER_TOP, expanded: everState.expanded, selected: everState.open,
+      setSort: (id) => { everState.sort = id; renderTable(); },
+      toggle: () => { everState.expanded = !everState.expanded; },
+      select: (id) => { everState.open = id; renderTable(); renderDriver(); renderMobileBar(); writeHash(); },
+      hidden: 0,
+    };
   }
 
   function renderTable() {
-    const { entries } = computeScope(state.scope);
-    const { groups, stats } = columns();
-    if (!["score", ...groups.map((g) => `g:${g.id}`), ...stats.map(([id]) => id)].includes(state.sort)) state.sort = "score";
+    const ever = state.scope === EVER_KEY;
+    const view = ever ? everView() : scopeView();
+    const { rows, groups, stats } = view;
+    const cells = groups.length + stats.length;
+    const strip = `repeat(${cells}, minmax(0, 1fr))`;
 
+    // Шапка: сортировка — по баллу, по группе или (все времена) по счётчику.
     const head = $("#ranking-head");
     head.replaceChildren();
-    const headCell = (label, sortKey, cls, title) => {
-      const th = el("th", cls);
-      th.scope = "col";
-      if (title) th.title = title;
-      if (sortKey) {
-        const button = el("button", null, label);
-        button.type = "button";
-        if (state.sort === sortKey) button.setAttribute("aria-sort", "descending");
-        button.addEventListener("click", () => { state.sort = sortKey; renderTable(); });
-        th.append(button);
-      } else {
-        th.textContent = label;
-      }
-      return th;
+    const sorter = (label, id, title) => {
+      const button = el("button", null, label);
+      button.type = "button";
+      if (title) button.title = title;
+      if (view.sort === id) button.setAttribute("aria-sort", "descending");
+      button.addEventListener("click", () => view.setSort(id));
+      return button;
     };
-    // Пояснения — во всплывающих подсказках заголовков, а не текстом над таблицей.
+    const cell = (cls, child) => {
+      const node = el("span", cls);
+      node.setAttribute("role", "columnheader");
+      if (child != null) node.append(child);
+      return node;
+    };
     const level = Math.round(100 * meta.interval);
-    const inDraws = L(`${level}% из ${meta.draws} пересчётов на случайно перевыбранных этапах`,
-      `${level}% of ${meta.draws} resamples on randomly redrawn rounds`);
-    const placeTip = DRAWS[state.scope]
-      ? L(`Мелкие цифры — диапазон мест в ${inDraws}. «≈» — порядок с соседом строкой выше держится меньше чем в ` +
-        `${Math.round(100 * TIE_P)}% пересчётов.`,
-        `Small numbers — the range of places in ${inDraws}. “≈” — the order with the row above holds in fewer than ` +
-        `${Math.round(100 * TIE_P)}% of resamples.`)
-      : null;
-    const ratingTip = L("0–100: 50 — средний пилот, +15 за каждое стандартное отклонение.",
-      "0–100: 50 is an average driver, +15 for each standard deviation.") +
-      (DRAWS[state.scope] ? L(` Тонкая линия на шкале — вилка балла: так выходит в ${inDraws}.`,
-        ` The thin line on the bar is the score range: what ${inDraws} give.`) : "");
-    head.append(headCell(L("Место", "Place"), null, "num", placeTip), headCell(L("Пилот", "Driver")),
-      headCell(L("Рейтинг", "Rating"), "score", "rating-col", ratingTip));
-    for (const g of groups) head.append(headCell(SHORT[g.id] || g.name, `g:${g.id}`, "num col-group", `${g.name}: ${g.about}`));
-    for (const [id, label, , cls] of stats) {
-      head.append(headCell(label, id, `num ${cls}`, id === "standing" ? L("Место в чемпионате", "Championship position") : null));
+    const rankHead = cell("h-rank", "#");
+    if (!ever && DRAWS[state.scope]) {
+      rankHead.title = L(`«≈» — порядок с пилотом строкой выше держится меньше чем в ${Math.round(100 * TIE_P)}% ` +
+        `пересчётов. Диапазон мест в ${level}% пересчётов — в подсказке к месту.`,
+        `“≈” — the order with the row above holds in fewer than ${Math.round(100 * TIE_P)}% of resamples. ` +
+        `Hover a place for its range in ${level}% of resamples.`);
     }
-
-    const rows = entries.filter((e) => state.showAll || e.eligible);
-    rows.sort((a, b) => sortValue(b, state.sort, stats) - sortValue(a, state.sort, stats) || b.score - a.score);
-    const tops = {};
-    for (const g of groups) {
-      const values = entries.filter((e) => e.eligible).map((e) => e.s[g.id] ?? -1).sort((a, b) => b - a);
-      tops[g.id] = values[2] ?? Infinity;
+    const deltaHead = cell("h-delta", "");
+    if (!ever) {
+      deltaHead.title = L("▲▼ — на сколько мест пилот выше или ниже, чем при «Сбалансированном» наборе весов",
+        "▲▼ — how many places the driver gains or loses versus the Balanced weights");
     }
+    const heatHead = cell("h-heat");
+    heatHead.style.gridTemplateColumns = strip;
+    for (const g of groups) heatHead.append(sorter(ABBR[g.id] || g.name.slice(0, 3), `g:${g.id}`, g.about ? `${g.name}: ${g.about}` : g.name));
+    for (const [id, label, title] of stats) heatHead.append(sorter(label, id, title));
+    head.append(rankHead, deltaHead, cell("h-driver", L("Пилот", "Driver")),
+      cell("h-score", sorter(L("Балл", "Score"), "score",
+        L("0–100: 50 — средний пилот, +15 за каждое стандартное отклонение", "0–100: 50 is an average driver, +15 per standard deviation"))),
+      heatHead);
 
-    // Свёрнутая таблица: первые TOP_N строк; выбранный пилот остаётся виден, даже если он ниже.
+    // Свёрнутая таблица: первые строки; выбранный пилот остаётся виден, даже если он ниже.
     let shown = rows;
     let pinned = null;
-    if (!state.expanded && rows.length > TOP_N) {
-      shown = rows.slice(0, TOP_N);
-      pinned = rows.slice(TOP_N).find((e) => e.id === state.driver) || null;
+    if (!view.expanded && rows.length > view.top) {
+      shown = rows.slice(0, view.top);
+      pinned = rows.slice(view.top).find((r) => r.id === view.selected) || null;
+    }
+    const visible = pinned ? [...shown, pinned] : shown;
+    // Цвет ячейки — балл группы относительно показанных пилотов.
+    const range = {};
+    for (const g of groups) {
+      const values = visible.map((r) => r.s[g.id]).filter((v) => v != null);
+      range[g.id] = [Math.min(...values), Math.max(...values)];
     }
 
-    const tbody = $("#ranking tbody");
-    tbody.replaceChildren();
-    const columnsCount = 3 + groups.length + stats.length;
-    for (const e of pinned ? [...shown, null, pinned] : shown) {
-      if (e === null) {
-        const gap = el("tr", "gap");
-        const cell = el("td", null, "…");
-        cell.colSpan = columnsCount;
-        gap.append(cell);
-        tbody.append(gap);
-        continue;
-      }
-      const tr = el("tr");
-      tr.dataset.id = e.id;
-      if (!e.eligible) tr.classList.add("ineligible");
-      if (e.id === state.driver) tr.classList.add("selected");
-      const who = el("td");
-      const button = el("button", "name-btn", name(e.id));
-      button.type = "button";
-      button.append(el("span", "code", drivers[e.id] ? drivers[e.id].code || "" : ""));
-      const teams = e.teams.join(" → ") + (e.eligible ? ""
-        : ` · ${e.starts} ${plural(e.starts, "гонка", "гонки", "гонок", "race")}`);
-      who.append(button, el("span", "sub", teams));
+    const body = $("#ranking-body");
+    body.replaceChildren();
+    for (const r of visible) {
+      if (r === pinned) body.append(el("div", "rank-gap", "…"));
+      const row = el("div", `rank-row${r.id === view.selected ? " selected" : ""}${r.eligible ? "" : " ineligible"}`);
+      row.setAttribute("role", "row");
+      row.dataset.id = r.id;
 
-      const ratingCell = el("td", "rating-col");
-      const wrap = el("div", "rating");
-      const label = L(`Рейтинг ${Math.round(e.score)} из 100`, `Rating ${Math.round(e.score)} of 100`) +
-        (e.band ? L(`, вилка ${int(e.band[0])}–${int(e.band[1])}`, `, range ${int(e.band[0])}–${int(e.band[1])}`) : "");
-      wrap.append(meter(e.score, label, e.band), el("div", "value", int(e.score)));
-      ratingCell.append(wrap);
-      const rankCell = el("td", "num rank");
-      if (state.sort === "score" && e.prev && e.prev.p < TIE_P) {
+      const rank = el("span", "c-rank");
+      rank.setAttribute("role", "cell");
+      if (r.tie) {
         const tie = el("span", "tie", "≈");
-        tie.title = L(`Почти не отличается от пилота выше: ${name(e.prev.id)} впереди ${share(e.prev.p)}`,
-          `Barely different from the driver above: ${name(e.prev.id)} ahead ${share(e.prev.p)}`);
-        rankCell.append(tie);
+        tie.title = r.tie;
+        rank.append(tie);
       }
-      rankCell.append(document.createTextNode(e.rankNow ?? "—"));
-      if (e.rankBand && e.rankBand[0] !== e.rankBand[1]) {
-        const sub = el("span", "sub", `${e.rankBand[0]}–${e.rankBand[1]}`);
-        sub.title = L(`Место в ${Math.round(100 * meta.interval)}% пересчётов`,
-          `Place in ${Math.round(100 * meta.interval)}% of resamples`);
-        rankCell.append(sub);
+      rank.append(String(r.rank ?? "—"));
+      if (r.rankTitle) rank.title = r.rankTitle;
+
+      const deltaText = r.delta > 0 ? `▲${r.delta}` : r.delta < 0 ? `▼${-r.delta}` : "";
+      const deltaClass = r.delta > 0 ? " up" : r.delta < 0 ? " down" : "";
+      const delta = el("span", `c-delta${deltaClass}`, deltaText);
+      delta.setAttribute("role", "cell");
+      if (deltaText) {
+        delta.title = L(`${Math.abs(r.delta)} ${plural(Math.abs(r.delta), "место", "места", "мест")} ` +
+          `${r.delta > 0 ? "вверх" : "вниз"} относительно «Сбалансированного» набора`,
+          `${Math.abs(r.delta)} ${plural(Math.abs(r.delta), "", "", "", "place")} ${r.delta > 0 ? "up" : "down"} vs Balanced`);
       }
-      tr.append(rankCell, who, ratingCell);
+
+      const driver = el("div", "c-driver");
+      driver.setAttribute("role", "cell");
+      const stripe = el("span", "stripe");
+      const color = teamColor(r.team);
+      if (color) stripe.style.background = color;
+      const button = el("button", "dname", r.name);
+      button.type = "button";
+      driver.append(stripe, button, el("span", `delta-inline${deltaClass}`, deltaText), el("span", "dteams", r.sub));
+      driver.title = `${r.name} · ${r.sub}`;
+
+      const value = el("span", "c-val", int(r.score));
+      value.setAttribute("role", "cell");
+      const barCell = el("div", "c-bar");
+      barCell.setAttribute("role", "cell");
+      const bar = el("div", "sbar");
+      bar.setAttribute("role", "img");
+      bar.setAttribute("aria-label", L(`Балл ${Math.round(r.score)} из 100`, `Score ${Math.round(r.score)} of 100`) +
+        (r.band ? L(`, вилка ${int(r.band[0])}–${int(r.band[1])}`, `, range ${int(r.band[0])}–${int(r.band[1])}`) : ""));
+      const fill = el("div", "fill");
+      fill.style.width = `${Math.max(0, Math.min(100, r.score))}%`;
+      bar.append(fill, el("div", "tick"));
+      if (r.band) {
+        const whisker = el("div", "whisker");
+        whisker.style.left = `${r.band[0]}%`;
+        whisker.style.width = `${Math.max(0, r.band[1] - r.band[0])}%`;
+        bar.append(whisker);
+        bar.title = L(`Вилка балла ${int(r.band[0])}–${int(r.band[1])}`, `Score range ${int(r.band[0])}–${int(r.band[1])}`);
+      }
+      barCell.append(bar);
+
+      const heat = el("div", "c-heat");
+      heat.setAttribute("role", "cell");
+      heat.style.gridTemplateColumns = strip;
       for (const g of groups) {
-        const v = e.s[g.id];
-        tr.append(el("td", `num col-group group${e.eligible && v >= tops[g.id] ? " top" : ""}`, int(v)));
+        const v = r.s[g.id];
+        const [lo, hi] = range[g.id];
+        const t = v == null || !(hi > lo) ? 0 : (v - lo) / (hi - lo);
+        const box = el("span", "cell", v == null ? "—" : int(v));
+        box.style.background = ramp(t);
+        box.style.color = t > 0.55 ? "#0b0c0e" : "#cfccc6";
+        if (t > 0.85) box.style.fontWeight = "600";
+        box.title = `${g.name}: ${v == null ? "—" : int(v)}`;
+        heat.append(box);
       }
-      for (const [, , get, cls] of stats) tr.append(el("td", `num ${cls}`, int(get(e))));
-      tr.addEventListener("click", () => selectDriver(e.id));
-      tbody.append(tr);
+      (r.stats || []).forEach((v, i) => {
+        const box = el("span", "cell stat", String(v));
+        box.title = `${stats[i][2]}: ${v}`;
+        heat.append(box);
+      });
+
+      row.append(rank, delta, driver, value, barCell, heat);
+      row.addEventListener("click", () => view.select(r.id));
+      body.append(row);
     }
 
+    // Под таблицей: «Показать всех» (вместо галочки над таблицей) и шкала цветной полосы.
     const more = $("#table-more");
     more.replaceChildren();
-    if (rows.length > TOP_N) {
-      const button = el("button", null, state.expanded
-        ? L(`Свернуть до топ-${TOP_N}`, `Collapse to top ${TOP_N}`)
-        : L(`Показать всех: ${rows.length} ${plural(rows.length, "пилот", "пилота", "пилотов")}`,
-          `Show all ${rows.length} drivers`));
+    if (rows.length > view.top) {
+      const button = el("button", "more-btn", view.expanded
+        ? L(`Свернуть до топ-${view.top}`, `Collapse to top ${view.top}`)
+        : L(`Показать всех: ${rows.length} ${plural(rows.length, "пилот", "пилота", "пилотов")}`, `Show all ${rows.length} drivers`));
       button.type = "button";
-      button.setAttribute("aria-expanded", String(state.expanded));
+      button.setAttribute("aria-expanded", String(view.expanded));
       button.addEventListener("click", () => {
-        state.expanded = !state.expanded;
+        view.toggle();
         renderTable();
-        if (!state.expanded) $("#ranking-title").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (view.expanded) $("#ranking-title").scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
       more.append(button);
     }
+    if (!ever) {
+      const min = state.scope === PERIOD ? meta.min_starts.period : meta.min_starts.season;
+      const few = scopes[state.scope].filter((e) => !e.eligible).length;
+      if (few) {
+        const toggle = el("button", "link-btn", state.showAll
+          ? L(`Скрыть пилотов, у которых меньше ${min} гонок`, `Hide drivers with fewer than ${min} races`)
+          : L(`Показать ещё ${few} — у кого меньше ${min} гонок`, `Show ${few} more with fewer than ${min} races`));
+        toggle.type = "button";
+        toggle.addEventListener("click", () => {
+          state.showAll = !state.showAll;
+          if (state.showAll) state.expanded = true;
+          renderTable();
+        });
+        more.append(toggle);
+      }
+    }
+    const legend = $("#heat-legend");
+    legend.replaceChildren(
+      el("span", null, L("Балл группы относительно показанных пилотов", "Group score, relative to this field")),
+      el("span", "mono", L("ниже", "low")), el("span", "ramp"), el("span", "mono", L("выше", "high")));
+    legend.querySelector(".ramp").style.background = `linear-gradient(90deg, ${ramp(0)}, ${ramp(0.5)}, ${ramp(1)})`;
   }
 
   // options.scroll = false — не прокручивать к карточке (клик по графу не должен уводить страницу вверх).
   function selectDriver(id, options = {}) {
     if (id !== state.driver) state.compare = null;
     state.driver = id;
-    renderTable();  // в свёрнутой таблице выбранный пилот может быть ниже топ-15 — дорисуем его строку
+    renderTable();  // в свёрнутой таблице выбранный пилот может быть ниже топа — дорисуем его строку
     renderDriver();
+    renderMobileBar();
     writeHash();
     syncGraph(id);
-    if (options.scroll !== false && SINGLE_COLUMN.matches) $("#driver").scrollIntoView({ behavior: "smooth", block: "start" });
+    // одна колонка (планшет): карточка под таблицей — прокрутим к ней; на телефоне она открывается листом
+    if (options.scroll !== false && !DESKTOP.matches && !MOBILE.matches) {
+      $("#driver").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  // ---------- телефон: строка выбранного пилота и нижние листы ----------
+  function openSheet(which) {
+    document.body.dataset.sheet = which;
+    $("#sheet-backdrop").hidden = false;
+    if (which === "driver") setTimeout(() => charts.forEach((c) => c.resize()), 220);
+  }
+
+  function closeSheet() {
+    delete document.body.dataset.sheet;
+    $("#sheet-backdrop").hidden = true;
+  }
+
+  function renderMobileBar() {
+    const bar = $("#mobile-bar");
+    const ever = state.scope === EVER_KEY;
+    let title = null;
+    let sub = "";
+    if (ever) {
+      const d = EVER.drivers.find((x) => x.id === everState.open);
+      if (d) {
+        title = d.name;
+        sub = `#${d.rank} · ${L("балл", "score")} ${int(d.rating)}`;
+      }
+    } else {
+      const e = state.driver && computeScope(state.scope).byId.get(state.driver);
+      if (e) {
+        title = name(e.id);
+        sub = `${e.rankNow ? `#${e.rankNow} · ` : ""}${L("балл", "score")} ${int(e.score)}` +
+          (e.band ? ` · ${int(e.band[0])}–${int(e.band[1])}` : "");
+      }
+    }
+    bar.hidden = !title;
+    if (!title) return;
+    const text = el("div", "mb-text");
+    text.append(el("span", "mb-name", title), el("span", "mb-sub", sub));
+    const open = el("button", "mb-open", L("Подробнее ↑", "Details ↑"));
+    open.type = "button";
+    open.addEventListener("click", () => openSheet("driver"));
+    bar.replaceChildren(text, open);
   }
 
   // ---------- карточка пилота ----------
@@ -775,118 +1124,350 @@
     charts = [];
   }
   const cssVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const FONT = '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
   const palette = () => ({
+    stage: cssVar("--stage"), accentSoft: cssVar("--accent-soft"),
     s1: cssVar("--series-1"), s2: cssVar("--series-2"),
     text1: cssVar("--text-1"), text2: cssVar("--text-2"), muted: cssVar("--muted"),
     grid: cssVar("--grid"), axis: cssVar("--axis"), surface: cssVar("--surface"), border: cssVar("--border"),
   });
 
-  function stat(label, big, sub) {
-    const box = el("div", "stat");
-    box.append(el("div", "label", label), el("div", "big", big), el("span", "sub", sub));
-    return box;
+  // Строка-заголовок блока: мелкие прописные слева и (если есть) пояснение справа.
+  function monoHead(left, right) {
+    const head = el("div", "mono-head");
+    head.append(el("span", null, left));
+    if (right) head.append(el("span", null, right));
+    return head;
+  }
+
+  // Три главные цифры карточки: [подпись, значение, мелкое ли].
+  function statStrip(cells) {
+    const strip = el("div", "stat-strip");
+    for (const [label, value, small] of cells) {
+      const cell = el("div", "stat-cell");
+      cell.append(el("span", "label", label), el("span", `value${small ? " small" : ""}`, value));
+      strip.append(cell);
+    }
+    return strip;
+  }
+
+  // Балл группы относительно среднего пилота (50): вправо — выше, влево — ниже.
+  // zero — группы с нулевым весом (в итог не идут): их подписи приглушены.
+  function groupBars(groups, scores, zero) {
+    const block = el("div", "block");
+    block.append(monoHead(L("По группам", "By group"), L("к среднему (50)", "vs average (50)")));
+    for (const g of groups) {
+      const v = scores[g.id];
+      if (v == null) continue;
+      const row = el("div", `gbar${zero.has(g.id) ? " zero" : ""}`);
+      row.title = (g.about ? `${g.name}: ${g.about}` : g.name) +
+        (zero.has(g.id) ? L(" (сейчас в итог не входит)", " (not in the total now)") : "");
+      const d = Math.max(-50, Math.min(50, v - 50));
+      const track = el("div", "gtrack");
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", `${g.name}: ${int(v)}, ${d >= 0 ? L("выше среднего", "above average") : L("ниже среднего", "below average")}`);
+      const fill = el("div", `gfill ${d >= 0 ? "pos" : "neg"}`);
+      fill.style.left = `${d >= 0 ? 50 : 50 + d}%`;
+      fill.style.width = `${Math.abs(d)}%`;
+      track.append(fill);
+      row.append(el("span", "gname", g.name), track, el("span", "gval", int(v)));
+      block.append(row);
+    }
+    return block;
+  }
+
+  // Одна фраза о пилоте: две сильнейшие группы, слабейшая и уровень относительно среднего.
+  function summaryText(groups, scores, score, zero) {
+    const ranked = groups.filter((g) => !zero.has(g.id) && scores[g.id] != null)
+      .map((g) => ({ n: g.name, v: scores[g.id] })).sort((a, b) => b.v - a.v);
+    const level = score >= 75 ? L("Заметно выше среднего пилота.", "Clearly above an average driver.")
+      : score >= 60 ? L("Выше среднего пилота.", "Above an average driver.")
+        : score >= 40 ? L("Близко к среднему пилоту.", "Close to an average driver.")
+          : L("Ниже среднего пилота.", "Below an average driver.");
+    if (ranked.length < 3) return level;
+    const [a, b] = ranked;
+    const c = ranked[ranked.length - 1];
+    return L(`Сильнее всего — «${a.n}» и «${b.n}», слабее всего — «${c.n}». ${level}`,
+      `Strongest in ${a.n.toLowerCase()} and ${b.n.toLowerCase()}; weakest in ${c.n.toLowerCase()}. ${level}`);
+  }
+
+  // Дуэли с напарниками: в сводке — каждый напарник за весь период, в сезоне — счёт сезона.
+  const H2H_TOP = 6;
+  function h2hBlock(id, current, isPeriod) {
+    const block = el("div", "block ruled");
+    block.append(monoHead(L("Дуэли с напарниками", "Head-to-head with teammates")));
+    const row = (label, won, lost, unit, title) => {
+      const line = el("div", "h2h-row");
+      if (title) line.title = title;
+      const total = won + lost;
+      const bar = el("div", "hbar");
+      const part = el("span");
+      part.style.width = `${total ? Math.round((100 * won) / total) : 0}%`;
+      bar.append(part);
+      bar.setAttribute("role", "img");
+      bar.setAttribute("aria-label", `${won}:${lost}`);
+      line.append(el("span", "hname", label), bar, el("span", "hval", unit));
+      return line;
+    };
+    if (isPeriod) {
+      const mates = (gAdj.get(id) || []).slice().sort((x, y) => y.edge.races - x.edge.races);
+      const lines = [];
+      for (const { to, edge } of mates) {
+        const o = oriented(edge, id);
+        const race = o.race && o.race[0] + o.race[1] > 0;
+        const pair = race ? o.race : o.quali;
+        if (!pair || pair[0] + pair[1] === 0) continue;
+        const pct = Math.round((100 * pair[0]) / (pair[0] + pair[1]));
+        lines.push(row(name(to), pair[0], pair[1], `${pct}% ${race ? L("гонок", "fin.") : L("квал.", "quali")}`,
+          linkText(edge, id, to)));
+      }
+      if (!lines.length) return null;
+      lines.slice(0, H2H_TOP).forEach((line) => block.append(line));
+      if (lines.length > H2H_TOP) {
+        const rest = el("div", "block");
+        rest.hidden = true;
+        lines.slice(H2H_TOP).forEach((line) => rest.append(line));
+        const toggle = el("button", "link-btn", L(`Ещё напарников: ${lines.length - H2H_TOP}`, `${lines.length - H2H_TOP} more teammates`));
+        toggle.type = "button";
+        toggle.addEventListener("click", () => { rest.hidden = false; toggle.remove(); });
+        block.append(rest, toggle);
+      }
+      block.append(el("p", "hint", L("Доля гонок, где пилот финишировал выше напарника (когда финишировали оба).",
+        "Share of races finished ahead of the teammate (when both finished).")));
+      return block;
+    }
+    const tm = current.tm;
+    if (!tm || (!tm.h2h_quali && !tm.h2h_race)) return null;
+    const mates = (current.teammates || []).map(name).join(", ");
+    if (tm.h2h_quali) {
+      const [won, n] = tm.h2h_quali;
+      block.append(row(L("Квалификации", "Qualifying"), won, n - won, `${won}:${n - won}`));
+    }
+    if (tm.h2h_race) {
+      const [won, n] = tm.h2h_race;
+      block.append(row(L("Гонки", "Races"), won, n - won, `${won}:${n - won}`));
+    }
+    if (mates) block.append(el("p", "hint", L(`Напарники в сезоне: ${mates}.`, `Teammates this season: ${mates}.`)));
+    return block;
+  }
+
+  function closeButton() {
+    const button = el("button", "sheet-close", "×");
+    button.type = "button";
+    button.setAttribute("aria-label", L("Закрыть", "Close"));
+    button.addEventListener("click", closeSheet);
+    return button;
   }
 
   function renderDriver() {
-    if (state.scope === EVER_KEY) return;  // у вкладки «Все времена» карточки нет
     const box = $("#driver");
-    box.replaceChildren();
+    box.replaceChildren(closeButton());
     disposeCharts();
+    if (state.scope === EVER_KEY) {
+      renderEverDriver(box);
+      return;
+    }
     const id = state.driver;
     const driver = drivers[id];
-    const current = computeScope(state.scope).byId.get(id);
+    const scope = computeScope(state.scope);
+    const current = scope.byId.get(id);
     if (!driver) {
       box.append(el("p", "empty", L("Выберите пилота в таблице.", "Pick a driver in the table.")));
       return;
     }
     if (!current) {
       box.append(el("h2", null, driver.name),
-        el("p", "empty", L(`В сезоне ${state.scope} пилот не выступал. Выберите «Все сезоны» в поле «Охват», ` +
+        el("p", "empty", L(`В сезоне ${state.scope} пилот не выступал. Выберите «Все сезоны», ` +
           "чтобы открыть его полную карточку.", `The driver did not race in ${state.scope}. Choose “All seasons” ` +
-          "in the Scope field to open the full card.")));
+          "to open the full card.")));
       return;
     }
     const isPeriod = state.scope === PERIOD;
-    const period = computeScope(PERIOD).byId.get(id);
-    const other = state.compare ? computeScope(state.scope).byId.get(state.compare) || null : null;
+    const other = state.compare ? scope.byId.get(state.compare) || null : null;
+    const groups = scopeGroups(state.scope);
+    const zero = new Set(groups.filter((g) => !((scope.w[g.id] || 0) > 0)).map((g) => g.id));
 
-    const facts = [country(driver.nationality)];
-    if (driver.dob) facts.push(L(`родился ${dateRu(driver.dob)}`, `born ${dateRu(driver.dob)}`));
-    if (driver.debut) facts.push(L(`дебют в F1 — ${driver.debut}`, `F1 debut ${driver.debut}`));
-    if (period) facts.push((period.teams || []).join(", "));
+    // Шапка: фото, имя, команды, гонки и годы, главные факты
     const head = el("div", "driver-head");
     const title = el("div", "driver-title");
-    title.append(el("h2", null, driver.name), el("p", "meta", facts.join(" · ")), shareButton());
+    const seasons = isPeriod ? current.seasons || [] : [];
+    const years = isPeriod
+      ? (seasons.length ? (seasons[0] === seasons[seasons.length - 1] ? `${seasons[0]}` : `${seasons[0]}–${seasons[seasons.length - 1]}`) : "")
+      : L(`сезон ${state.scope}`, `${state.scope} season`);
+    const races = `${current.starts} ${plural(current.starts, "гонка", "гонки", "гонок", "race")}`;
+    const wins = Math.round(current.stats.wins);
+    const podiums = Math.round(current.stats.podiums);
+    const facts = [];
+    if (isPeriod) {
+      const titles = current.titles || [];
+      facts.push(titles.length
+        ? `${titles.length} ${plural(titles.length, "титул", "титула", "титулов", "title")} (${titles.join(", ")})`
+        : L("без титулов", "no titles"));
+    } else if (current.standing) {
+      facts.push(current.champion ? L("чемпион", "champion")
+        : L(`${current.standing}-й в чемпионате`, `${ord(current.standing)} in the championship`));
+    }
+    facts.push(`${wins} ${plural(wins, "победа", "победы", "побед", "win")}`,
+      `${podiums} ${plural(podiums, "подиум", "подиума", "подиумов", "podium")}`);
+    title.append(el("h2", null, driver.name),
+      el("span", "meta", (current.teams || []).join(", ")),
+      el("span", "meta", [races, years].filter(Boolean).join(" · ")),
+      el("span", "meta", facts.join(" · ")), shareButton());
     const photo = photoBlock(driver.photo, driver.name);
     if (photo) head.append(photo.img);
     head.append(title);
     box.append(head);
-    const bio = EN ? driver.bio_en : driver.bio;
-    if (bio) box.append(bioBlock(bio));
     if (photo) box.append(photo.credit);
 
-    const stats = el("div", "stats");
-    const where = isPeriod ? L("за все сезоны", "over all seasons") : L(`в сезоне ${state.scope}`, `in ${state.scope}`);
-    stats.append(stat(L("Рейтинг", "Rating"), int(current.score), current.rankNow
-      ? L(`${current.rankNow}-е место ${where}`, `${ord(current.rankNow)} ${where}`)
-      : L("мало гонок для места", "too few races for a place")));
-    if (isPeriod) {
-      const titles = current.titles || [];
-      stats.append(stat(L("Титулы", "Titles"), String(titles.length), titles.length ? titles.join(", ") : "—"));
-    } else {
-      stats.append(stat(L("Чемпионат", "Championship"), current.standing ? L(`${current.standing}-й`, ord(current.standing)) : "—",
-        current.champion ? L("чемпион", "champion") : L(`${int(current.stats.points)} очк. за гонки`,
-          `${int(current.stats.points)} pts from races`)));
-    }
-    stats.append(stat(L("Победы / подиумы", "Wins / podiums"), `${int(current.stats.wins)} / ${int(current.stats.podiums)}`,
-      `${current.starts} ${plural(current.starts, "гонка", "гонки", "гонок", "race")}`));
-    box.append(stats);
-    const precision = precisionText(current);
-    if (precision) box.append(el("p", "hint", precision));
-    const gn = gNodes.get(id);
-    if (gn) {
-      box.append(el("p", "hint", L(
-        `Надёжность сравнения с остальными пилотами: ${reliabilityText(gn)} · ` +
-        `напарников ${gn.teammates}` + (gn.bridge_cut ? ` · «мост»: без него от сети отрываются пилотов — ${gn.bridge_cut}` : ""),
-        `Reliability of comparison with other drivers: ${reliabilityText(gn)} · teammates ${gn.teammates}` +
-        (gn.bridge_cut ? ` · “bridge”: without them ${gn.bridge_cut} drivers split off the network` : ""))));
-    }
+    // Место, балл, вилка
+    box.append(statStrip([
+      [L("Место", "Rank"), current.rankNow ? String(current.rankNow) : "—"],
+      [L("Балл", "Score"), int(current.score)],
+      [L("Вилка", "Likely range"), current.band ? `${int(current.band[0])}–${int(current.band[1])}` : "—", true],
+    ]));
+    box.append(el("p", "summary", summaryText(groups, current.s, current.score, zero)));
+    box.append(groupBars(groups, current.s, zero));
+    const h2h = h2hBlock(id, current, isPeriod);
+    if (h2h) box.append(h2h);
 
     box.append(compareBlock(id, current, other));
     if (!isPeriod) roundsBlock(box, state.scope, id, other);
-
-    const groups = GROUPS.filter((g) => isPeriod || g.id !== "career");
-    box.append(el("h3", null, L("Профиль по группам", "Profile by group")));
-    const radarBox = el("div", "chart radar");
-    radarBox.setAttribute("role", "img");
-    const radarText = (e) => groups.map((g) => `${g.name} ${int(e.s[g.id])}`).join(", ");
-    radarBox.setAttribute("aria-label", `${L("Баллы по группам", "Group scores")}: ${radarText(current)}` +
-      (other ? `. ${name(other.id)}: ${radarText(other)}` : ""));
-    box.append(radarBox);
-    drawRadar(radarBox, groups, current, other);
-
-    box.append(featureList(groups, current));
 
     const historyOf = (who) => SEASON_KEYS.slice().reverse()
       .map((key) => ({ season: Number(key), e: computeScope(key).byId.get(who) }))
       .filter((h) => h.e);
     const history = historyOf(id);
-    if (history.length) {
-      box.append(el("h3", null, L("По сезонам", "By season")));
+    if (history.length > 1) {
+      const trend = el("div", "block ruled");
+      trend.append(monoHead(L("По сезонам", "By season"), L("рейтинг сезона", "season rating")));
       const trendBox = el("div", "chart");
       trendBox.setAttribute("role", "img");
-      trendBox.setAttribute("aria-label", L("Рейтинг по сезонам; значения — в таблице ниже",
-        "Rating by season; values in the table below"));
-      box.append(trendBox);
+      trendBox.setAttribute("aria-label", L("Рейтинг по сезонам; значения — в таблице в блоке «Подробнее»",
+        "Rating by season; values are in the table under “More”"));
+      trend.append(trendBox);
+      box.append(trend);
       drawTrend(trendBox, history, other ? { id: other.id, history: historyOf(other.id) } : null);
-      box.append(historyTable(history));
     }
 
-    const conditions = conditionsBlock(id, current);
-    if (conditions) box.append(conditions);
+    // Подробнее: биография, точность, профиль, признаки, таблица сезонов, дождь и трассы
+    const more = el("details", "more");
+    more.open = state.more;
+    more.append(el("summary", null, L("Подробнее о пилоте", `More about ${driver.name}`)));
+    const body = el("div", "more-body");
+    more.append(body);
+    const bio = EN ? driver.bio_en : driver.bio;
+    if (bio) body.append(bioBlock(bio));
+    const notes = el("div", "block");
+    const facts2 = [country(driver.nationality)];
+    if (driver.dob) facts2.push(L(`родился ${dateRu(driver.dob)}`, `born ${dateRu(driver.dob)}`));
+    if (driver.debut) facts2.push(L(`дебют в F1 — ${driver.debut}`, `F1 debut ${driver.debut}`));
+    notes.append(el("p", "hint", facts2.join(" · ")));
+    const precision = precisionText(current);
+    if (precision) notes.append(el("p", "hint", precision));
+    const gn = gNodes.get(id);
+    if (gn) {
+      notes.append(el("p", "hint", L(
+        `Надёжность сравнения с остальными пилотами: ${reliabilityText(gn)} · ` +
+        `напарников ${gn.teammates}` + (gn.bridge_cut ? ` · «мост»: без него от сети отрываются пилотов — ${gn.bridge_cut}` : ""),
+        `Reliability of comparison with other drivers: ${reliabilityText(gn)} · teammates ${gn.teammates}` +
+        (gn.bridge_cut ? ` · “bridge”: without them ${gn.bridge_cut} drivers split off the network` : ""))));
+    }
+    body.append(notes);
 
+    const profile = el("div", "block");
+    profile.append(monoHead(L("Профиль по группам", "Profile by group")));
+    const radarBox = el("div", "chart radar");
+    radarBox.setAttribute("role", "img");
+    const radarText = (e) => groups.map((g) => `${g.name} ${int(e.s[g.id])}`).join(", ");
+    radarBox.setAttribute("aria-label", `${L("Баллы по группам", "Group scores")}: ${radarText(current)}` +
+      (other ? `. ${name(other.id)}: ${radarText(other)}` : ""));
+    profile.append(radarBox);
+    body.append(profile);
+    body.append(featureList(groups, current));
+    if (history.length) {
+      const table = el("div", "block");
+      table.append(monoHead(L("Сезоны", "Seasons")), historyTable(history));
+      body.append(table);
+    }
+    const conditions = conditionsBlock(id, current);
+    if (conditions) body.append(conditions);
     const tmSeason = isPeriod ? history[history.length - 1] : history.find((h) => String(h.season) === state.scope);
-    if (tmSeason && tmSeason.e.tm) box.append(teammateBlock(tmSeason));
+    if (tmSeason && tmSeason.e.tm) body.append(teammateBlock(tmSeason));
+    box.append(more);
+    // Профиль рисуется, только когда блок раскрыт: скрытому графику неоткуда взять размер.
+    let drawn = false;
+    const drawProfile = () => {
+      if (drawn || !more.open) return;
+      drawn = true;
+      drawRadar(radarBox, groups, current, other);
+    };
+    more.addEventListener("toggle", () => { state.more = more.open; drawProfile(); });
+    drawProfile();
+  }
+
+  // Карточка пилота из рейтинга всех времён: те же блоки, группы и факты модели всех времён.
+  function renderEverDriver(box) {
+    const d = EVER.drivers.find((x) => x.id === everState.open);
+    if (!d) {
+      box.append(el("p", "empty", L("Выберите пилота в таблице.", "Pick a driver in the table.")));
+      return;
+    }
+    const groups = EVER.groups.map((g) => ({ id: g.id, name: groupName(g), about: "" }));
+    const linked = d.card && drivers[d.card] ? drivers[d.card] : null;
+    const head = el("div", "driver-head");
+    const title = el("div", "driver-title");
+    const land = EN ? everCountry(d.country_id) : d.country;
+    const span = d.years[0] === d.years[1] ? `${d.years[0]}` : `${d.years[0]}–${d.years[1]}`;
+    const facts = [
+      d.titles.length ? `${d.titles.length} ${plural(d.titles.length, "титул", "титула", "титулов", "title")} (${d.titles.join(", ")})`
+        : L("без титулов", "no titles"),
+      `${d.wins} ${plural(d.wins, "победа", "победы", "побед", "win")}`,
+      `${d.podiums} ${plural(d.podiums, "подиум", "подиума", "подиумов", "podium")}`,
+      `${d.poles} ${plural(d.poles, "поул", "поула", "поулов", "pole")}`,
+    ];
+    title.append(el("h2", null, d.name),
+      el("span", "meta", [land, span].filter(Boolean).join(" · ")),
+      el("span", "meta", `${d.starts} ${plural(d.starts, "гонка", "гонки", "гонок", "race")}`),
+      el("span", "meta", facts.join(" · ")), shareButton());
+    const photo = linked ? photoBlock(linked.photo, d.name) : null;
+    if (photo) head.append(photo.img);
+    head.append(title);
+    box.append(head);
+    if (photo) box.append(photo.credit);
+
+    box.append(statStrip([
+      [L("Место", "Rank"), String(d.rank)],
+      [L("Балл", "Score"), int(d.rating)],
+      [L("Титулы", "Titles"), String(d.titles.length)],
+    ]));
+    box.append(el("p", "summary", summaryText(groups, d.s, d.rating, new Set())));
+    box.append(groupBars(groups, d.s, new Set()));
+
+    const career = el("div", "block ruled");
+    career.append(monoHead(L("Карьера", "Career")));
+    const best = d.best.map(([year, rating, rank]) => `${year} — ${int(rating)} (${L(`${rank}-е место`, ord(rank))})`).join(", ");
+    career.append(
+      el("p", "hint", L(`Лучшие сезоны: ${best || "—"}.`, `Best seasons: ${best || "—"}.`)),
+      el("p", "hint", L(`С дебюта: ${num(d.seasons, 1)} сезона в F1, впереди напарника в чемпионате — в ${d.ahead} из ${d.compared}.`,
+        `Since the debut: ${num(d.seasons, 1)} seasons in F1, ahead of the teammate in the championship in ${d.ahead} of ${d.compared}.`)));
+    if (d.records > 0) {
+      career.append(el("p", "hint", L(`Рекорды F1: ${num(d.records, 1)} очка — корень из лет удержания по каждому из семи ` +
+        "рекордов плюс бонус за побитый чужой рекорд.", `F1 records: ${num(d.records, 1)} points — the square root of years ` +
+        "held for each of seven records, plus a bonus for breaking someone else's record.")));
+    }
+    if (linked) {
+      const open = el("button", "link-btn", L(`Полная карточка за ${meta.period[0]}–${meta.period[1]} →`,
+        `Full card for ${meta.period[0]}–${meta.period[1]} →`));
+      open.type = "button";
+      open.addEventListener("click", () => {
+        state.scope = PERIOD;
+        state.compare = null;
+        state.driver = d.card;
+        render();
+      });
+      career.append(open);
+    }
+    box.append(career);
   }
 
   function featureValue(f, e) {
@@ -931,6 +1512,10 @@
         `Since the ${c.debut} debut: ${num(c.seasons, 1)} seasons in F1, ahead of the teammate in the championship ` +
         `in ${c.ahead} of ${c.compared}, ${has ? `titles — ${e.titles.join(", ")}` : "no titles"}.`)));
     }
+    box.append(el("p", "muted", L("Рекорды — семь рекордов F1 (победы, поулы, подиумы, быстрые круги, титулы, победы " +
+      "за сезон и подряд): корень из лет удержания по каждому плюс бонус за побитый чужой рекорд.",
+      "Records — seven F1 records (wins, poles, podiums, fastest laps, titles, wins in a season and in a row): " +
+      "the square root of years held for each, plus a bonus for breaking someone else's record.")));
     box.append(el("p", "muted", L(`Запас над средним — сумма по сезонам ${meta.period[0]}–${meta.period[1]}: ` +
       "на сколько баллов пилот был выше 50 (сезоны ниже среднего не отнимают ничего).",
       `Margin above average — the sum over ${meta.period[0]}–${meta.period[1]} seasons of how many points the ` +
@@ -1056,7 +1641,7 @@
     }
     if (!lines.length) return null;
     const box = el("div", "conditions");
-    box.append(el("h3", null, L("Дождь и трассы", "Rain and tracks")));
+    box.append(monoHead(L("Дождь и трассы", "Rain and tracks")));
     for (const line of lines) box.append(el("p", "hint", line));
     box.append(el("p", "hint muted", L("Справка, в балл не входит: на данных она повторяется слабо (см. «Как это посчитано»).",
       "For reference, not in the score: it barely repeats in the data (see “How it is calculated”).")));
@@ -1112,8 +1697,8 @@
     const img = el("img", "photo");
     img.src = photo.src;
     img.alt = L(`${who}, фото`, `${who}, photo`);
-    img.width = 72;
-    img.height = 90;
+    img.width = 68;
+    img.height = 84;
     img.loading = "lazy";
     img.decoding = "async";
     img.referrerPolicy = "no-referrer";
@@ -1184,8 +1769,8 @@
   }
 
   function compareBlock(id, current, other) {
-    const box = el("div", "compare");
-    box.append(el("h3", null, L("Сравнение", "Comparison")));
+    const box = el("div", "compare block ruled");
+    box.append(monoHead(L("Сравнение", "Comparison"), L("почему один выше другого", "why one ranks above the other")));
     const scope = computeScope(state.scope);
     const controls = el("div", "compare-controls");
     const select = el("select");
@@ -1344,9 +1929,8 @@
           const go = el("button", "link-btn", L("Показать на графе", "Show on the graph"));
           go.type = "button";
           go.addEventListener("click", () => {
-            graphState.from = a.id;
-            graphState.to = b.id;
-            updateGraph();
+            closeSheet();
+            showPath(a.id, b.id);
             $("#graph-card").scrollIntoView({ behavior: "smooth", block: "start" });
           });
           line.append(go);
@@ -1390,8 +1974,8 @@
 
   function teammateBlock({ season, e }) {
     const tm = e.tm;
-    const block = el("div");
-    block.append(el("h3", null, L(`Против напарника, ${season}`, `Vs teammate, ${season}`)));
+    const block = el("div", "block");
+    block.append(monoHead(L(`Против напарника, ${season}`, `Vs teammate, ${season}`)));
     const mates = (e.teammates || []).map(name).join(", ") || "—";
     const band = `${Math.round(100 * tm.strength[1])}–${Math.round(100 * tm.strength[2])}%`;
     const lines = [
@@ -1424,9 +2008,9 @@
   function roundsBlock(parent, key, id, other) {
     const path = seasonPath(key);
     if (!path || !path.scores.has(id) || path.rounds.length < 2) return;
-    const box = el("div", "rounds");
+    const box = el("div", "rounds block ruled");
     parent.append(box);
-    box.append(el("h3", null, L(`По ходу сезона ${key}`, `Through the ${key} season`)));
+    box.append(monoHead(L(`По ходу сезона ${key}`, `Through the ${key} season`), L("балл после этапа", "score after each round")));
     const chartBox = el("div", "chart");
     chartBox.setAttribute("role", "img");
     const s = Array.from(path.scores.get(id));
@@ -1475,7 +2059,7 @@
     charts.push(chart);
     chart.setOption({
       animation: false,
-      textStyle: { fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' },
+      textStyle: { fontFamily: FONT },
       legend: otherId ? { top: 0, left: 0, data: [la, lb], textStyle: { color: c.text2 }, itemWidth: 16, itemHeight: 8 }
         : { show: false },
       grid: { left: 4, right: 12, top: otherId ? 32 : 12, bottom: 4, containLabel: true },
@@ -1517,7 +2101,7 @@
     }] : [];
     chart.setOption({
       animation: false,
-      textStyle: { fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' },
+      textStyle: { fontFamily: FONT },
       legend: { top: 0, left: 0, data: [la, ...(other ? [lb] : []), avg], textStyle: { color: c.text2 },
         itemWidth: 16, itemHeight: 8 },
       tooltip: {
@@ -1576,7 +2160,7 @@
     };
     chart.setOption({
       animation: false,
-      textStyle: { fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' },
+      textStyle: { fontFamily: FONT },
       legend: other ? { top: 0, left: 0, data: [la, lb], textStyle: { color: c.text2 }, itemWidth: 16, itemHeight: 8 }
         : { show: false },
       grid: { left: 4, right: 12, top: other ? 32 : 12, bottom: 4, containLabel: true },
@@ -1698,79 +2282,144 @@
     return parts.join(" · ");
   }
 
-  function mix(hexA, hexB, t) {
-    const parse = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-    const [a, b] = [parse(hexA), parse(hexB)];
-    const k = Math.max(0, Math.min(1, t));
-    return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(",")})`;
+  // Сколько шагов от выбранного пилота до остальных (поиск в ширину, не дальше limit).
+  function hopDistances(src, limit) {
+    const dist = new Map([[src, 0]]);
+    let frontier = [src];
+    for (let step = 1; step <= limit && frontier.length; step += 1) {
+      const next = [];
+      for (const u of frontier) {
+        for (const { to } of gAdj.get(u) || []) {
+          if (!dist.has(to)) {
+            dist.set(to, step);
+            next.push(to);
+          }
+        }
+      }
+      frontier = next;
+    }
+    return dist;
   }
+
+  // Что показывать: прямых напарников, два шага или всю сеть (0).
+  const HOPS = [[1, L("Прямые напарники", "Direct teammates")], [2, L("Два шага", "Two steps")],
+    [0, L("Вся сеть", "Full network")]];
+  let graphLayoutKey = null;  // раскладка сменилась (пилот или число шагов) — масштаб и сдвиг сбрасываются
 
   function drawGraph() {
     const node = $("#graph");
     if (!node) return;
     if (!window.echarts) {
-      node.replaceWith(el("p", "empty", L("Граф не загрузился (нет доступа к ECharts) — путь и напарники ниже.",
-        "The graph did not load (no access to ECharts) — the path and teammates are below.")));
+      node.replaceWith(el("p", "empty", L("Граф не загрузился (нет доступа к ECharts) — путь и напарники рядом.",
+        "The graph did not load (no access to ECharts) — the path and teammates are next to it.")));
       return;
     }
     const c = palette();
-    const low = cssVar("--ramp-low");
-    const high = cssVar("--ramp-high");
-    const accent = cssVar("--series-2");
     const sel = graphState.from;
-    const focus = Boolean($("#graph-focus").checked && sel);
-    const path = strongestPath(graphState.from, graphState.to) || [];
+    const path = graphState.to ? strongestPath(sel, graphState.to) || [] : [];
     const pathEdges = new Set(path.map((s) => edgeKey(s.edge)));
-    const pathNodes = new Set([graphState.from, graphState.to, ...path.map((s) => s.to)]);
-    const near = new Set([sel, ...(gAdj.get(sel) || []).map((x) => x.to), ...pathNodes]);
+    const pathNodes = new Set(path.length ? [sel, ...path.map((s) => s.to)] : []);
     const ratings = GRAPH.nodes.map((n) => n.rating ?? 50);
     const rMin = Math.min(...ratings);
     const rMax = Math.max(...ratings);
-    const data = GRAPH.nodes.map((n) => {
+    const tone = (n) => ramp(((n.rating ?? 50) - rMin) / (rMax - rMin || 1));
+    const full = state.hops === 0;
+    const dist = full ? null : hopDistances(sel, state.hops);
+
+    // Раскладка. Вся сеть — готовые координаты; иначе выбранный в центре, напарники — по эллипсу
+    // вокруг (чем больше гонок вместе, тем ближе к началу круга), их напарники — по внешнему эллипсу.
+    const pos = new Map();
+    const anchors = [];
+    if (full) {
+      for (const n of GRAPH.nodes) pos.set(n.id, [n.x * 1000, n.y * 700]);
+    } else {
+      const together = new Map((gAdj.get(sel) || []).map((x) => [x.to, x.edge.races]));
+      const ring1 = [...dist].filter(([, d]) => d === 1).map(([id]) => id)
+        .sort((a, b) => (together.get(b) || 0) - (together.get(a) || 0));
+      const angle = new Map();
+      pos.set(sel, [0, 0]);
+      ring1.forEach((id, i) => {
+        const a = -Math.PI / 2 + (i / ring1.length) * 2 * Math.PI;
+        angle.set(id, a);
+        pos.set(id, [Math.cos(a) * 190, Math.sin(a) * 120]);
+      });
+      const parent = new Map();
+      const ring2 = [...dist].filter(([, d]) => d === 2).map(([id]) => id);
+      for (const id of ring2) {
+        let best = null;
+        for (const { to, edge } of gAdj.get(id) || []) {
+          if (dist.get(to) === 1 && (!best || edge.races > best.edge.races)) best = { to, edge };
+        }
+        parent.set(id, best ? best.to : ring1[0]);
+      }
+      ring2.sort((a, b) => angle.get(parent.get(a)) - angle.get(parent.get(b)) || name(a).localeCompare(name(b), LOCALE));
+      ring2.forEach((id, i) => {
+        const a = -Math.PI / 2 + ((i + 0.5) / ring2.length) * 2 * Math.PI - Math.PI / Math.max(ring1.length, 1);
+        pos.set(id, [Math.cos(a) * 360, Math.sin(a) * 215]);
+      });
+      // невидимые углы рамки: масштаб не скачет, когда у пилота один-два напарника
+      const [w, h] = state.hops === 2 ? [400, 240] : [250, 160];
+      for (const [x, y] of [[-w, -h], [w, h]]) {
+        anchors.push({ id: `anchor${x}`, anchor: true, x, y, symbolSize: 0, silent: true, label: { show: false },
+          itemStyle: { opacity: 0 }, tooltip: { show: false } });
+      }
+    }
+
+    const visible = full ? GRAPH.nodes : GRAPH.nodes.filter((n) => dist.has(n.id));
+    const shown = new Set(visible.map((n) => n.id));
+    const data = visible.map((n) => {
+      const d = full ? null : dist.get(n.id);
+      const isSel = n.id === sel;
       const inPath = pathNodes.has(n.id);
-      const strong = inPath || n.id === sel;
-      const shown = !focus || near.has(n.id);
+      const strong = isSel || inPath;
+      const [x, y] = pos.get(n.id);
       return {
         id: n.id,
-        name: drivers[n.id] ? drivers[n.id].code || n.id : n.id,
-        x: n.x * 1000,
-        y: n.y * 700,
-        symbolSize: n.size + (n.id === sel ? 6 : 0),
+        name: full ? (drivers[n.id] && drivers[n.id].code) || surname(n.id) : surname(n.id),
+        x,
+        y,
+        symbolSize: full ? n.size + (isSel ? 8 : 0) : isSel ? 30 : d === 1 ? 20 : 12,
         itemStyle: {
-          color: mix(low, high, ((n.rating ?? 50) - rMin) / (rMax - rMin || 1)),
-          borderColor: inPath ? accent : n.bridge_cut ? c.text1 : c.surface,
-          borderWidth: inPath ? 3 : n.bridge_cut ? 2 : 1,
-          opacity: shown ? 1 : 0.25,
+          color: isSel ? c.accentSoft : tone(n),
+          borderColor: inPath && !isSel ? c.s2 : c.stage,
+          borderWidth: inPath && !isSel ? 2 : full ? 1 : 3,
         },
         label: {
-          show: true, position: "right", fontSize: 11, opacity: shown ? 1 : 0.35,
-          color: strong ? c.text1 : c.text2, fontWeight: strong ? 600 : 400,
+          show: true, position: full ? "right" : "bottom", distance: full ? 3 : 6,
+          fontSize: full ? 11 : isSel ? 14 : d === 1 ? 13 : 11,
+          color: strong ? c.text1 : full || d === 1 ? c.text2 : c.muted, fontWeight: isSel ? 600 : 400,
+          backgroundColor: full ? "transparent" : c.stage, padding: full ? 0 : [1, 5], borderRadius: 4,
         },
       };
     });
-    const links = GRAPH.edges.map((e) => {
+    const links = GRAPH.edges.filter((e) => shown.has(e.a) && shown.has(e.b)
+      && (full || dist.get(e.a) < 2 || dist.get(e.b) < 2)).map((e) => {
       const onPath = pathEdges.has(edgeKey(e));
       const incident = e.a === sel || e.b === sel;
-      const faded = focus && !incident && !onPath;
       return {
         source: e.a,
         target: e.b,
         edge: e,
         lineStyle: {
-          color: onPath ? accent : focus && incident ? c.text2 : c.axis,
-          width: onPath ? 4 : 0.6 + 1.1 * Math.log1p(e.races / 4),
-          opacity: onPath ? 1 : faded ? 0.08 : e.weak ? 0.35 : 0.9,
+          color: onPath ? c.s2 : "rgb(236,234,230)",
+          width: onPath ? 3 : full ? 0.6 + 1.1 * Math.log1p(e.races / 4) : 1 + 0.7 * Math.log1p(e.races / 10),
+          opacity: onPath ? 1 : incident ? 0.45 : full ? (e.weak ? 0.06 : 0.14) : 0.15,
         },
       };
     });
-    const view = graphView();
+
+    const layoutKey = `${state.hops}|${full ? "" : sel}`;
+    const view = graphLayoutKey === layoutKey ? graphView() : {};
+    graphLayoutKey = layoutKey;
     if (!graphChart) {
       graphChart = window.echarts.init(node, null, { renderer: "svg" });
-      graphChart.on("click", (p) => { if (p.dataType === "node") selectDriver(p.data.id, { scroll: false }); });
+      graphChart.on("click", (p) => {
+        if (p.dataType === "node" && !p.data.anchor) selectDriver(p.data.id, { scroll: false });
+      });
     }
     graphChart.setOption({
       animation: false,
-      textStyle: { fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' },
+      textStyle: { fontFamily: FONT },
       tooltip: {
         backgroundColor: c.surface, borderColor: c.border, textStyle: { color: c.text1, fontSize: 13 },
         formatter: (p) => {
@@ -1781,6 +2430,7 @@
                 "<br>stand-in appearance: the link counts half") : "");
           }
           const n = gNodes.get(p.data.id);
+          if (!n) return "";
           return `<b>${esc(name(n.id))}</b> · ${L("рейтинг", "rating")} ${int(n.rating)}` +
             `${n.rank ? `, ${L(`${n.rank}-е место`, ord(n.rank))}` : ""}` +
             L(`<br>напарников ${n.teammates}, гонок с ними ${n.races_with_mates}`,
@@ -1791,11 +2441,12 @@
         },
       },
       series: [{
-        type: "graph", layout: "none", roam: true, data, links,
+        type: "graph", layout: "none", roam: true, data: [...data, ...anchors], links,
+        left: 24, right: 24, top: 16, bottom: 28,
         zoom: view.zoom || 1,
         ...(view.center ? { center: view.center } : {}),
         emphasis: { focus: "adjacency", lineStyle: { width: 3 } },
-        labelLayout: { hideOverlap: false },
+        labelLayout: { hideOverlap: !full && state.hops === 2 },
       }],
     }, true);
   }
@@ -1814,48 +2465,8 @@
   }
 
   function resetGraph() {
-    if (!graphChart) return;
-    const xs = GRAPH.nodes.map((n) => n.x * 1000);
-    const ys = GRAPH.nodes.map((n) => n.y * 700);
-    const center = [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
-    graphChart.setOption({ series: [{ zoom: 1, center }] });
-  }
-
-  function centerGraph() {
-    const n = gNodes.get(graphState.from);
-    if (!graphChart || !n) return;
-    graphChart.setOption({ series: [{ center: [n.x * 1000, n.y * 700], zoom: Math.max(graphView().zoom || 1, 2.2) }] });
-  }
-
-  function renderGraphDriver() {
-    const box = $("#graph-driver");
-    box.replaceChildren();
-    const id = graphState.from;
-    const n = gNodes.get(id);
-    if (!n) return;
-    const period = computeScope(PERIOD).byId.get(id);
-    box.append(el("h3", null, name(id)));
-    if (period) {
-      const band = period.band ? L(` (вилка ${int(period.band[0])}–${int(period.band[1])})`,
-        ` (range ${int(period.band[0])}–${int(period.band[1])})`) : "";
-      const placeBand = period.rankBand && period.rankBand[0] !== period.rankBand[1]
-        ? ` (${period.rankBand[0]}–${period.rankBand[1]})` : "";
-      const years = `${meta.period[0]}–${meta.period[1]}`;
-      box.append(el("p", null, `${L("Рейтинг", "Rating")} ${int(period.score)}${band}` +
-        (period.rankNow ? L(`, ${period.rankNow}-е место${placeBand} за ${years}`, `, ${ord(period.rankNow)}${placeBand} in ${years}`) : "") +
-        L(` · титулов ${(period.titles || []).length}, побед ${int(period.stats.wins)}, гонок ${period.starts}`,
-          ` · titles ${(period.titles || []).length}, wins ${int(period.stats.wins)}, races ${period.starts}`)));
-    }
-    box.append(el("p", null, L(`Напарников ${n.teammates}, гонок с ними ${n.races_with_mates} · надёжность сравнения: `,
-      `Teammates ${n.teammates}, races with them ${n.races_with_mates} · comparison reliability: `) + reliabilityText(n)));
-    if (n.bridge_cut) {
-      box.append(el("p", null, L(`«Мост»: без него от сети отрываются пилотов — ${n.bridge_cut}.`,
-        `“Bridge”: without them ${n.bridge_cut} drivers split off the network.`)));
-    }
-    const button = el("button", null, L("Открыть полную карточку ↑", "Open the full card ↑"));
-    button.type = "button";
-    button.addEventListener("click", () => $("#driver").scrollIntoView({ behavior: "smooth", block: "start" }));
-    box.append(button);
+    graphLayoutKey = null;
+    drawGraph();
   }
 
   function renderPath() {
@@ -1864,7 +2475,7 @@
     const summary = $("#graph-summary");
     const { from, to } = graphState;
     if (!from || !to || from === to) {
-      summary.textContent = L("Выберите двух разных пилотов.", "Pick two different drivers.");
+      summary.textContent = "";
       return;
     }
     const path = strongestPath(from, to);
@@ -1893,13 +2504,16 @@
 
   function renderMates() {
     const who = graphState.from;
-    $("#graph-mates-title").textContent = who ? L(`Напарники: ${name(who)}`, `Teammates: ${name(who)}`) : L("Напарники", "Teammates");
+    const mates = (gAdj.get(who) || []).slice().sort((x, y) => y.edge.races - x.edge.races);
+    $("#graph-mates-title").textContent = who
+      ? L(`Все напарники: ${name(who)} (${mates.length})`, `All teammates: ${name(who)} (${mates.length})`)
+      : L("Напарники", "Teammates");
     const table = $("#graph-mates");
     table.replaceChildren();
     if (!who) return;
     const head = el("tr");
     for (const [title, cls] of [[L("Напарник", "Teammate"), ""], [L("Сезоны", "Seasons"), ""], [L("Гонок", "Races"), "num"],
-      [L("Квала", "Quali"), "num"], [L("Гонки", "Races ahead"), "num"], [L("Темп", "Pace"), ""]]) {
+      [L("Квала", "Quali"), "num"], [L("Гонки", "Ahead"), "num"], [L("Темп", "Pace"), ""]]) {
       const th = el("th", cls, title);
       th.scope = "col";
       head.append(th);
@@ -1907,38 +2521,50 @@
     const thead = el("thead");
     thead.append(head);
     const tbody = el("tbody");
-    for (const { to, edge } of (gAdj.get(who) || []).slice().sort((x, y) => y.edge.races - x.edge.races)) {
+    for (const { to, edge } of mates) {
       const o = oriented(edge, who);
-      const tr = el("tr");
+      const row = el("tr");
       const mate = el("td", null, name(to));
       if (edge.weak) mate.append(el("span", "badge", L("слабая связь", "weak link")));
-      tr.append(mate, el("td", null, edge.seasons.join(", ")), el("td", "num", String(edge.races)),
+      row.append(mate, el("td", null, edge.seasons.join(", ")), el("td", "num", String(edge.races)),
         el("td", "num", o.quali ? `${o.quali[0]}:${o.quali[1]}` : "—"),
         el("td", "num", o.race ? `${o.race[0]}:${o.race[1]}` : "—"),
         el("td", null, o.pace == null ? "—" : Math.abs(o.pace) < 0.005 ? L("равный", "equal")
           : L(`${o.pace < 0 ? "быстрее" : "медленнее"} на ${num(Math.abs(o.pace), 2)}%`,
             `${o.pace < 0 ? "faster" : "slower"} by ${num(Math.abs(o.pace), 2)}%`)));
-      tbody.append(tr);
+      tbody.append(row);
     }
     table.append(thead, tbody);
   }
 
   function updateGraph() {
     $("#graph-from").value = graphState.from;
-    $("#graph-to").value = graphState.to;
+    $("#graph-to").value = graphState.to || "";
+    $("#graph-title").textContent = L(`Граф напарников · ${name(graphState.from)}`, `Teammate graph · ${name(graphState.from)}`);
+    for (const button of document.querySelectorAll("#graph-hops button")) {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.hops) === state.hops));
+    }
     drawGraph();
-    renderGraphDriver();
     renderPath();
     renderMates();
+  }
+
+  // Показать путь между двумя пилотами; если он уходит за показанные шаги — раскрыть всю сеть.
+  function showPath(from, to) {
+    graphState.from = from;
+    graphState.to = to && to !== from ? to : null;
+    if (graphState.to && state.hops !== 0) {
+      const path = strongestPath(from, graphState.to) || [];
+      const dist = hopDistances(from, state.hops);
+      if (path.some((s) => !dist.has(s.to))) state.hops = 0;
+    }
+    updateGraph();
   }
 
   function syncGraph(id) {
     if (!graphState.ready || !gNodes.has(id)) return;
     graphState.from = id;
-    if (graphState.to === id) {
-      const top = GRAPH.nodes.filter((n) => n.rank && n.id !== id).sort((a, b) => a.rank - b.rank)[0];
-      graphState.to = top ? top.id : graphState.to;
-    }
+    if (graphState.to === id) graphState.to = null;
     updateGraph();
   }
 
@@ -1948,35 +2574,41 @@
       return;
     }
     const s = GRAPH.stats;
-    $("#graph-title").textContent = L(`Граф напарников ${meta.period[0]}–${meta.period[1]}`,
-      `Teammate graph ${meta.period[0]}–${meta.period[1]}`);
+    $("#graph-hint").textContent = L("Сначала — прямые напарники. Раскройте на два шага или всю сеть.",
+      "Showing direct teammates first. Expand to two steps or the full network.");
+    const hops = $("#graph-hops");
+    for (const [value, label] of HOPS) {
+      const button = el("button", null, label);
+      button.type = "button";
+      button.dataset.hops = String(value);
+      button.addEventListener("click", () => { state.hops = value; updateGraph(); });
+      hops.append(button);
+    }
+    const key = $("#graph-key");
+    for (const [cls, text] of [
+      ["key-dot", L("Яркость узла — балл пилота: чем ярче, тем выше.", "Node brightness is the driver's score. Brighter is higher.")],
+      ["key-line", L("Линия — пилоты были напарниками. Чем толще, тем больше гонок вместе.",
+        "A line means they shared a car. Thicker means more races together.")],
+      ["key-ring", L("Пилоты сравниваются только через эти связи, поэтому у пилотов с большим числом связей вилки уже.",
+        "Drivers are only compared directly through these links, so well-connected drivers have tighter ranges.")],
+      ["key-path", L("Цветная линия — самый сильный путь сравнения двух пилотов.",
+        "The coloured line is the strongest comparison path between two drivers.")],
+    ]) {
+      const row = el("div", "key-row");
+      row.append(el("span", cls), el("span", null, text));
+      key.append(row);
+    }
     const isolated = s.isolated || [];
     const groupsText = isolated.map((g) => g.map(surname).join(L(" и ", " and "))).join("; ");
-    const network = isolated.length
-      ? L(`${s.drivers} пилотов, ${s.pairs} пар напарников; ` +
-        `${isolated.length} ${plural(isolated.length, "отдельная группа", "отдельные группы", "отдельных групп")} без общих ` +
-        `напарников с остальными — внизу графа (${groupsText}). `,
-        `${s.drivers} drivers, ${s.pairs} teammate pairs; ${isolated.length} separate ` +
-        `${plural(isolated.length, "", "", "", "group")} with no teammates shared with the rest — at the bottom (${groupsText}). `)
-      : L(`${s.drivers} пилотов, ${s.pairs} пар напарников, одна сеть. `,
-        `${s.drivers} drivers, ${s.pairs} teammate pairs, one network. `);
-    $("#graph-hint").textContent = network + L("Выберите двух пилотов или нажмите на узел.", "Pick two drivers or click a node.");
-    const legend = $("#graph-legend");
-    const ramp = el("span", "legend-ramp");
-    const ratings = GRAPH.nodes.map((n) => n.rating ?? 50);
-    ramp.append(el("span", null, `${L("рейтинг", "rating")} ${Math.round(Math.min(...ratings))}`), el("span", "bar"),
-      el("span", null, String(Math.round(Math.max(...ratings)))));
-    legend.append(ramp);
-    const legendTexts = EN
-      ? ["node size — number of races", "line width — races together",
-        `faint line — weak link (up to ${s.weak_races} races)`, "dark outline — “bridge”: without them the network splits",
-        "orange — the strongest comparison path"]
-      : ["размер узла — число гонок", "толщина линии — гонок вместе",
-        `бледная линия — слабая связь (до ${s.weak_races} гонок)`, "тёмная обводка — «мост»: без него сеть распадается",
-        "оранжевым — самый сильный путь сравнения"];
-    for (const text of legendTexts) legend.append(el("span", null, text));
+    key.append(el("p", "hint", L(`Сеть ${meta.period[0]}–${meta.period[1]}: ${s.drivers} пилотов, ${s.pairs} пар напарников` +
+      (isolated.length ? `; без общих напарников с остальными — ${groupsText}.` : "."),
+      `Network ${meta.period[0]}–${meta.period[1]}: ${s.drivers} drivers, ${s.pairs} teammate pairs` +
+      (isolated.length ? `; no teammates shared with the rest — ${groupsText}.` : "."))));
 
     const ids = GRAPH.nodes.map((n) => n.id).sort((a, b) => name(a).localeCompare(name(b), LOCALE));
+    const none = el("option", null, L("Выберите пилота", "Choose driver"));
+    none.value = "";
+    $("#graph-to").append(none);
     for (const select of [$("#graph-from"), $("#graph-to")]) {
       for (const id of ids) {
         const option = el("option", null, name(id));
@@ -1986,13 +2618,11 @@
     }
     const byRank = GRAPH.nodes.filter((n) => n.rank).sort((a, b) => a.rank - b.rank);
     graphState.from = gNodes.has(state.driver) ? state.driver : byRank[0].id;
-    graphState.to = byRank[0].id === graphState.from ? byRank[1].id : byRank[0].id;
+    graphState.to = null;
     $("#graph-from").addEventListener("change", (event) => selectDriver(event.target.value, { scroll: false }));
-    $("#graph-to").addEventListener("change", (event) => { graphState.to = event.target.value; updateGraph(); });
-    $("#graph-focus").addEventListener("change", drawGraph);
+    $("#graph-to").addEventListener("change", (event) => showPath(graphState.from, event.target.value || null));
     $("#graph-zoom-in").addEventListener("click", () => zoomGraph(1.4));
     $("#graph-zoom-out").addEventListener("click", () => zoomGraph(1 / 1.4));
-    $("#graph-center").addEventListener("click", centerGraph);
     $("#graph-reset").addEventListener("click", resetGraph);
     $("#graph").setAttribute("aria-label", L("Граф напарников: узлы — пилоты, линии — пары напарников. " +
       "Путь сравнения и список напарников — в тексте рядом.",
@@ -2005,11 +2635,12 @@
   // ---------- методика ----------
   function renderMethod() {
     const body = $("#method-body");
-    const wPeriod = weightShares(meta.weights.period, true).share;
-    const wSeason = weightShares(meta.weights.season, false).share;
+    const wPeriod = weightShares(meta.weights.period, PERIOD).share;
+    const wSeason = weightShares(meta.weights.season, SEASON_KEYS[0]).share;
     const groupRows = GROUPS.map((g) => {
       const feats = FEATURES.filter((f) => f.group === g.id).map((f) => f.name.toLowerCase()).join(", ");
       const ws = g.id === "career" ? `${wPeriod("career")} ${L("(только сводка)", "(all seasons only)")}`
+        : g.id === "dotd" ? `${wSeason("dotd")} ${L("(только сезон)", "(season only)")}`
         : !meta.weights.period[g.id] && !meta.weights.season[g.id] ? L("справка, в итог не входит", "reference, not in the total")
           : `${wPeriod(g.id)} / ${wSeason(g.id)}`;
       return `<tr><td><strong>${esc(g.name)}</strong></td><td>${esc(feats)}</td><td class="num">${ws}</td></tr>`;
@@ -2095,7 +2726,8 @@
           в статистику не идёт.</li>
         <li><strong>Сверх уровня машины.</strong> Уровень машины на этапе — темп, который она показала бы
           со средним пилотом: средний темп двух её пилотов на чистых кругах с поправкой на половину их навыка
-          из модели напарников, сглаженный по соседним этапам (машина не меняется скачками). Половину — потому что
+          из модели напарников, сглаженный по соседним этапам (машина не меняется скачками). Перед сглаживанием
+          выбросы обрезаются: гонка с повреждённой машиной (Венгрия-2021 у Red Bull) не должна читаться как темп машины. Половину — потому что
           модель уверенно знает разницу между напарниками, а абсолютный уровень пары хуже: с полной поправкой
           Red Bull 2023 года (21 победа из 22) «со средним пилотом» выходил не быстрее Mercedes. По гонкам соседних сезонов
           (±2 года — у эпох разная надёжность и разрыв между машинами) считается, сколько очков обычно привозит
@@ -2126,12 +2758,19 @@
           ноль-одно происшествие, поэтому группа почти не повторяется даже внутри сезона и не следует за пилотом
           при смене команды (см. проверки) — это шум, а не навык. Поэтому она справка: в итог по умолчанию
           не входит, но её можно вернуть ползунком. В карточке пилота под группой перечислены сами гонки.</li>
+        <li><strong>Гонщик дня</strong> — только в рейтинге сезона, около 5% итога: в какой доле гонок болельщики
+          выбрали пилота гонщиком дня (голосование Formula 1, с ${DOTD_FROM} года; в более ранних сезонах группы нет).
+          Это мнение зрителей, а не измерение, поэтому вес небольшой; с ним сверка сезонного топ-10 с опросами
+          руководителей команд чуть лучше, а в общую сводку группа не входит.</li>
         <li><strong>Карьера</strong> — только в общей сводке: качество и долговечность. Среднее за период само по себе
           наказывает длинную карьеру — годы в слабых машинах и возраст тянут его вниз, а молодой пилот в топ-машине
           их не знает. Поэтому сезоны в F1, титулы и сезоны впереди напарника в итоговой таблице чемпионата
           считаются с дебюта, по F1DB (вся история с 1950 года): у пилотов, начавших раньше ${meta.period[0]} года,
           учитываются и прежние сезоны. Неполный сезон идёт долей гонок; напарник — тот, у кого больше всего
-          стартов за ту же команду, сезон в счёт, если оба провели за неё хотя бы треть гонок. Запас над средним —
+          стартов за ту же команду, сезон в счёт, если оба провели за неё хотя бы треть гонок. Рекорды — семь рекордов
+          F1 по всей истории (победы, поулы, подиумы, быстрые круги, титулы, победы за сезон и подряд): за каждый —
+          корень из лет удержания (совладельцы делят время), плюс бонус тому, кто побил чужой рекорд, — тем больше,
+          чем дольше тот простоял. Запас над средним —
           сумма по нашим сезонам того, на сколько баллов пилот был выше 50: растёт и от уровня, и от длительности.
           Проверить долговечность данными, как остальные группы, нельзя — это часть определения «лучшего пилота
           периода», поэтому её вес можно поменять ползунком.</li>
@@ -2280,7 +2919,8 @@
           (6 cars started) is excluded.</li>
         <li><strong>Above the car.</strong> The car level at a round is the pace it would show with an average driver:
           the average clean-lap pace of its two drivers adjusted by half of their skill from the teammate model,
-          smoothed over neighbouring rounds. Half — because the model knows the gap between teammates well but the
+          smoothed over neighbouring rounds; outliers are clipped first, so a race with a damaged car (Red Bull,
+          Hungary 2021) is not read as the car's pace. Half — because the model knows the gap between teammates well but the
           absolute level of the pair less so: with the full adjustment the 2023 Red Bull (21 wins out of 22) came out
           no faster than the Mercedes “with an average driver”. From races in neighbouring seasons (±2 years) we
           estimate how many points a car usually scores with such a gap to the best car, and the best car with such a
@@ -2309,12 +2949,19 @@
           so the group barely repeats even within a season and does not follow the driver after a team change — it is
           noise, not skill. That is why it is for reference: not in the total by default, but a slider can bring it
           back.</li>
+        <li><strong>Driver of the Day</strong> — season rating only, about 5% of the total: the share of races
+          where fans voted the driver Driver of the Day (Formula 1 poll, since ${DOTD_FROM}; earlier seasons have no
+          such group). It is an opinion, not a measurement, so the weight is small; with it the season top 10 agrees
+          slightly better with the team principals' polls. It is not part of the all-season summary.</li>
         <li><strong>Career</strong> — all-season summary only: quality and longevity. A period average punishes a long
           career by itself: years in weak cars and age drag it down, which a young driver in a top car never sees. So
           seasons in F1, titles and seasons ahead of the teammate in the final standings count from the debut, using
           F1DB (the whole history since 1950): drivers who started before ${p0} get their earlier seasons too. A partial
           season counts as a share of races; the teammate is the one with the most starts for the same team, and a
-          season counts if both did at least a third of its races. The margin above average is the sum over our seasons
+          season counts if both did at least a third of its races. Records are seven all-time F1 records (wins, poles,
+          podiums, fastest laps, titles, wins in a season and in a row): for each, the square root of the years held
+          (co-holders share the time), plus a bonus for breaking someone else's record that grows with how long it
+          had stood. The margin above average is the sum over our seasons
           of how many points the driver was above 50: it grows with both level and length. Longevity cannot be checked
           with data like the other groups — it is part of the definition of the “best driver of the period”, so its
           weight is a slider.</li>
@@ -2406,167 +3053,104 @@
   function renderAll(withWeights = true) {
     cache.clear();
     if (withWeights) renderWeights();
-    else $("#weights-summary").textContent = weightShares(weightsFor(state.scope === PERIOD), state.scope === PERIOD).summary;
-    for (const button of document.querySelectorAll("#presets button")) button.setAttribute("aria-pressed", "false");
-    if (!state.custom) {
-      const index = PRESETS.findIndex((p) => p.id === state.preset);
-      const button = document.querySelectorAll("#presets button")[index];
-      if (button) button.setAttribute("aria-pressed", "true");
-    }
+    else syncWeightLabels();
     renderTable();
     renderDriver();
+    renderMobileBar();
   }
 
   function render() {
-    // «Все времена»: своя таблица вместо весов, основной таблицы и карточки (у модели свои веса).
     const ever = state.scope === EVER_KEY;
-    $("#alltime").hidden = !ever;
-    $("#main-layout").hidden = ever;
-    $("#weights").hidden = ever;
-    $("#show-all-field").hidden = ever;
     if (ever) {
-      $("#scope").value = EVER_KEY;
-      renderAlltime();
-      writeHash();
-      return;
+      // «Все времена»: та же таблица и карточка, но свои пилоты (F1DB) и свои группы
+      if (!EVER.drivers.some((d) => d.id === everState.open)) {
+        everState.open = EVER.drivers.reduce((a, b) => (b.rank < a.rank ? b : a)).id;
+      }
+    } else {
+      if (!state.driver || !scopes[state.scope].some((e) => e.id === state.driver)) {
+        const first = computeScope(state.scope).entries.filter((e) => e.eligible).sort((a, b) => b.score - a.score)[0];
+        state.driver = first ? first.id : null;
+        state.compare = null;
+      }
+      if (state.compare && (state.compare === state.driver || !scopes[state.scope].some((e) => e.id === state.compare))) {
+        state.compare = null;
+      }
     }
-    if (!state.driver || !scopes[state.scope].some((e) => e.id === state.driver)) {
-      const first = computeScope(state.scope).entries.filter((e) => e.eligible).sort((a, b) => b.score - a.score)[0];
-      state.driver = first ? first.id : null;
-      state.compare = null;
-    }
-    if (state.compare && (state.compare === state.driver || !scopes[state.scope].some((e) => e.id === state.compare))) {
-      state.compare = null;
-    }
-    $("#scope").value = state.scope;
+    syncScopeSeg();
     renderScopeNote();
     renderAll();
     writeHash();
-    syncGraph(state.driver);
+    if (!ever) syncGraph(state.driver);
   }
 
-  // ---------- все времена (1950+): упрощённая модель на F1DB ----------
   // Страна по-английски — из идентификатора F1DB: «united-kingdom» → «United Kingdom».
   const EVER_COUNTRY_EN = { "united-states-of-america": "USA", "united-kingdom": "UK" };
   const everCountry = (id) => (!id ? null : EVER_COUNTRY_EN[id]
     || id.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" "));
 
-  function renderAlltime() {
-    const card = $("#alltime");
-    if (!EVER.drivers || !EVER.drivers.length) { card.hidden = true; return; }
-    $("#alltime-title").textContent = L(`Все времена ${EVER.period[0]}–${EVER.period[1]}`, `All time ${EVER.period[0]}–${EVER.period[1]}`);
-    $("#alltime-hint").textContent = L(`Упрощённая модель: результаты, квалификация, сеть напарников и карьера — ` +
-      `то, что есть для всех эпох. Пилоты от ${EVER.pool} гонок; подробности — в «Как это посчитано».`,
-      "A simplified model: results, qualifying, the teammate network and career — what exists for every era. " +
-      `Drivers with ${EVER.pool}+ races; details in “How it is calculated”.`);
-    const groupName = (g) => (EN && GROUP_EN[g.id] ? GROUP_EN[g.id][0] : g.name);
-    const cols = [
-      ["rating", L("Рейтинг", "Rating"), (d) => d.rating, "rating-col"],
-      ...EVER.groups.map((g) => [`g:${g.id}`, SHORT[g.id] || groupName(g), (d) => d.s[g.id], "num col-group", groupName(g)]),
-      ["titles", L("Титулы", "Titles"), (d) => d.titles.length, "num col-stat"],
-      ["wins", L("Победы", "Wins"), (d) => d.wins, "num col-stat"],
-      ["starts", L("Гонок", "Races"), (d) => d.starts, "num col-stat col-extra"],
+  // Четыре шага методики — коротко; полный текст открывается кнопкой рядом с заголовком.
+  function renderMethodCards() {
+    const [p0, p1] = meta.period;
+    const min = meta.min_starts.period;
+    const cards = [
+      [L("Собираем", "Collect"),
+        L(`Результаты, квалификации и время каждого круга за ${p0}–${p1} годы. Место получают пилоты от ${min} гонок; ` +
+          "итог сверяется с опросами руководителей команд.",
+        `Race results, qualifying and every lap for ${p0}–${p1}. Drivers with ${min}+ races get a place; the outcome ` +
+          "is cross-checked against team principals' polls.")],
+      [L("Считаем восемь групп", "Score eight groups"),
+        L("Каждая группа переводится в шкалу 0–100, где 50 — средний пилот того же сезона или периода.",
+          "Each group is scaled to 0–100, where 50 is an average driver of the same season or period.")],
+      [L("Отделяем машину", "Adjust for the car"),
+        L("Сравнение с напарниками через всю сеть и оценка уровня машины отделяют пилота от техники.",
+          "Teammate comparisons through the whole network and a car-level estimate separate the driver from the machinery.")],
+      [L("Взвешиваем и расставляем", "Weight and rank"),
+        L("Итог — взвешенная сумма групп. Вилка показывает, как меняется балл, если случайно перевыбрать этапы сезона.",
+          "The total is a weighted sum. The range shows how the score moves when the season's rounds are redrawn at random.")],
     ];
-    const value = Object.fromEntries(cols.map(([id, , fn]) => [id, fn]));
-    const tops = {};
-    for (const g of EVER.groups) tops[g.id] = EVER.drivers.map((d) => d.s[g.id]).sort((a, b) => b - a)[2];
+    const box = $("#method-cards");
+    box.replaceChildren();
+    cards.forEach(([title, text], i) => {
+      const card = el("div", "mcard");
+      card.append(el("span", "mnum", String(i + 1).padStart(2, "0")), el("span", "mtitle", title), el("span", "mtext", text));
+      box.append(card);
+    });
+  }
 
-    const head = $("#alltime-head");
-    head.replaceChildren(el("th", "num", L("Место", "Place")), el("th", null, L("Пилот", "Driver")));
-    for (const [id, label, , cls, title] of cols) {
-      const th = el("th", cls);
-      if (title) th.title = title;
-      const button = el("button", null, label);
-      button.type = "button";
-      if (everState.sort === id) button.setAttribute("aria-sort", "descending");
-      button.addEventListener("click", () => { everState.sort = id; renderAlltime(); });
-      th.append(button);
-      head.append(th);
-    }
-    const rows = EVER.drivers.slice().sort((a, b) => value[everState.sort](b) - value[everState.sort](a) || a.rank - b.rank);
-    const shown = everState.expanded ? rows : rows.slice(0, EVER_TOP);
-    const tbody = $("#alltime-table tbody");
-    tbody.replaceChildren();
-    for (const d of shown) {
-      const tr = el("tr");
-      if (everState.open === d.id) tr.classList.add("selected");
-      tr.append(el("td", "num rank", String(d.rank)));
-      const who = el("td");
-      const name = el("span", "name-btn", d.name);
-      if (d.code) name.append(el("span", "code", d.code));
-      const land = EN ? everCountry(d.country_id) : d.country;
-      who.append(name, el("span", "sub", `${d.years[0]}–${d.years[1]}` + (land ? ` · ${land}` : "")));
-      tr.append(who);
-      const ratingCell = el("td", "rating-col");
-      const wrap = el("div", "rating");
-      wrap.append(meter(d.rating, L(`Рейтинг ${Math.round(d.rating)} из 100`, `Rating ${Math.round(d.rating)} of 100`)),
-        el("div", "value", int(d.rating)));
-      ratingCell.append(wrap);
-      tr.append(ratingCell);
-      for (const g of EVER.groups) {
-        tr.append(el("td", `num col-group group${d.s[g.id] >= tops[g.id] ? " top" : ""}`, int(d.s[g.id])));
-      }
-      tr.append(el("td", "num col-stat", String(d.titles.length)), el("td", "num col-stat", String(d.wins)),
-        el("td", "num col-stat col-extra", String(d.starts)));
-      tr.addEventListener("click", () => {
-        everState.open = everState.open === d.id ? null : d.id;
-        renderAlltime();
-        writeHash();
-      });
-      tbody.append(tr);
-      if (everState.open === d.id) {
-        const detail = el("tr", "alltime-detail");
-        const cell = el("td");
-        cell.colSpan = 2 + cols.length;
-        const best = d.best.map(([year, rating, rank]) => `${year} — ${int(rating)} (${L(`${rank}-е место`, ord(rank))})`).join(", ");
-        cell.append(
-          el("p", null, L(`Лучшие сезоны: ${best || "—"}.`, `Best seasons: ${best || "—"}.`)),
-          el("p", null, L(`С дебюта: ${num(d.seasons, 1)} сезона в F1, впереди напарника в чемпионате — в ${d.ahead} ` +
-            `из ${d.compared}` + (d.titles.length ? `, титулы — ${d.titles.join(", ")}` : ", титулов нет") +
-            `. Победы / подиумы / поулы: ${d.wins} / ${d.podiums} / ${d.poles}, гонок ${d.starts}.`,
-            `Since the debut: ${num(d.seasons, 1)} seasons in F1, ahead of the teammate in the championship in ${d.ahead} ` +
-            `of ${d.compared}` + (d.titles.length ? `, titles — ${d.titles.join(", ")}` : ", no titles") +
-            `. Wins / podiums / poles: ${d.wins} / ${d.podiums} / ${d.poles}, races ${d.starts}.`)));
-        if (d.card && drivers[d.card]) {
-          const open = el("button", "link-btn", L(`Полная карточка за ${meta.period[0]}–${meta.period[1]} ↑`,
-            `Full card for ${meta.period[0]}–${meta.period[1]} ↑`));
-          open.type = "button";
-          open.addEventListener("click", () => {
-            state.scope = PERIOD;
-            state.compare = null;
-            state.driver = d.card;
-            render();
-            $("#driver").scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-          cell.append(open);
-        }
-        detail.append(cell);
-        tbody.append(detail);
-      }
-    }
-    const more = $("#alltime-more");
-    more.replaceChildren();
-    if (rows.length > EVER_TOP) {
-      const button = el("button", null, everState.expanded ? L("Свернуть", "Collapse")
-        : L(`Показать всех (${rows.length})`, `Show all (${rows.length})`));
-      button.type = "button";
-      button.addEventListener("click", () => { everState.expanded = !everState.expanded; renderAlltime(); });
-      more.append(button);
-    }
+  // Панель весов: на большом экране и в листе на телефоне раскрыта, в одной колонке — сворачивается.
+  function syncLayout() {
+    $("#weights-panel").open = DESKTOP.matches || MOBILE.matches;
+    if (!MOBILE.matches) closeSheet();
   }
 
   readHash();
   renderHeader();
   renderMethod();
+  renderMethodCards();
+  syncLayout();
   render();
   initGraph();
 
+  $("#sheet-backdrop").addEventListener("click", closeSheet);
+  for (const button of document.querySelectorAll("[data-sheet-close]")) button.addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeSheet(); });
+  $("#method-toggle").addEventListener("click", () => {
+    const body = $("#method-body");
+    body.hidden = !body.hidden;
+    const toggle = $("#method-toggle");
+    toggle.setAttribute("aria-expanded", String(!body.hidden));
+    toggle.textContent = body.hidden ? L("Полная методика и источники", "Full methodology and sources")
+      : L("Свернуть методику", "Hide the methodology");
+  });
   window.addEventListener("resize", () => {
     charts.forEach((c) => c.resize());
     if (graphChart) graphChart.resize();
   });
-  DARK.addEventListener("change", () => {
-    renderDriver();
-    if (graphState.ready) drawGraph();
-  });
+  for (const query of [DESKTOP, MOBILE]) {
+    query.addEventListener("change", () => {
+      syncLayout();
+      renderDriver();
+      if (graphState.ready) drawGraph();
+    });
+  }
 })();

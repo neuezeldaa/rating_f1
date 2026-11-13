@@ -310,6 +310,8 @@ def main(argv=None) -> None:
     expert_meta = {"seasons": agreement,
                    "sources": {str(s): v["source"] for s, v in expert_raw.items()}}
     counts["pace_pairs_valid"] = int(pace_pairs["valid"].sum())
+    # С какого сезона есть голосование «Гонщик дня» — раньше страница эту группу не показывает.
+    counts["dotd_from"] = int(records.loc[records["dotd"], "season"].min()) if records["dotd"].any() else None
     counts["overtakes"] = int(lap_stats["overtakes_made"].sum())
     bios = driver_bios(tables["drivers"], offline=args.offline, refresh=args.refresh)
 

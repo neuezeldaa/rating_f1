@@ -25,6 +25,14 @@ from ..clean.status import DRIVER_ERROR, FINISHED
 
 KEY = ["season", "round"]
 SMOOTH_ROUNDS = 2   # окно сглаживания: ±2 этапа
+# Выбросы до сглаживания: темп машины на этапе, далёкий от её же медианы по соседним ±4 этапам,
+# обрезается до двух устойчивых разбросов. Иначе гонка с повреждённой машиной читается как темп
+# машины и расползается на соседние этапы: Венгрия-2021 (Ферстаппен с разбитым днищем, Перес выбит
+# на первом круге) делала Red Bull на 1,3% медленнее Mercedes и тянула вниз ещё четыре этапа,
+# включая Зандворт, который Ферстаппен выиграл с поула. Перебор окна (3/4/5) и порога (1,5/2/2,5):
+# при ±4 и 2 сверка с экспертами 0,90 (без обрезки 0,88), Red Bull 2023 — лучшая на 21 этапе из 22.
+SPIKE_ROUNDS = 4
+SPIKE_SIGMAS = 2.0
 GAP_BINS = 12       # групп по отрыву от лучшей машины для ожиданий
 LEAD_BINS = 3       # лучшие машины этапа — ещё на три группы по отрыву от второй машины
 # Какая доля навыка пилота вычитается из его темпа при оценке машины. Модель напарников уверенно
@@ -71,6 +79,24 @@ def _smooth(table: pd.DataFrame, by: str) -> np.ndarray:
     return out
 
 
+def _despike(table: pd.DataFrame, by: str) -> np.ndarray:
+    """Обрезать выбросы level: отклонение от медианы команды по этапам ±SPIKE_ROUNDS — не больше
+    SPIKE_SIGMAS устойчивых разбросов (1,4826 · медиана |отклонений| по всем машинам и этапам)."""
+    median = np.full(len(table), np.nan)
+    for _, g in table.groupby(["season", by]):
+        rounds = g["round"].to_numpy(float)
+        level = g["level"].to_numpy(float)
+        near = np.abs(rounds[:, None] - rounds[None, :]) <= SPIKE_ROUNDS
+        median[table.index.get_indexer(g.index)] = [
+            np.nanmedian(level[row]) if np.isfinite(level[row]).any() else np.nan for row in near]
+    resid = table["level"].to_numpy(float) - median
+    finite = resid[np.isfinite(resid)]
+    if not len(finite):
+        return table["level"].to_numpy(float)
+    limit = SPIKE_SIGMAS * 1.4826 * float(np.median(np.abs(finite)))
+    return median + np.clip(resid, -limit, limit)
+
+
 def car_levels(pace: pd.DataFrame, teams: pd.DataFrame, skill: pd.DataFrame) -> pd.DataFrame:
     """Уровень машины: (сезон, этап, команда) → car_gap — отрыв от лучшей машины этапа, %.
 
@@ -80,6 +106,7 @@ def car_levels(pace: pd.DataFrame, teams: pd.DataFrame, skill: pd.DataFrame) -> 
     p = teams.merge(pace, on=KEY + ["driver_id"], how="left").merge(skill, on=["driver_id", "season"], how="left")
     p["level"] = p["pace_gap"] + SKILL_SHARE * p["skill"].fillna(0.0)  # быстрый пилот — машина без него медленнее
     car = p.groupby(KEY + ["constructor_id"], as_index=False)["level"].mean().reset_index(drop=True)
+    car["level"] = _despike(car, "constructor_id")
     car["level"] = _smooth(car, "constructor_id")
     car = car.dropna(subset=["level"]).reset_index(drop=True)
     car["car_gap"] = car["level"] - car.groupby(KEY)["level"].transform("min")

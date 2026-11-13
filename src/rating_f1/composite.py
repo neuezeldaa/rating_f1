@@ -68,6 +68,9 @@ GROUPS = [
           "столкновения по решению стюардов, другие штрафы по времени. Поломки и чужие столкновения не в счёт."),
     Group("teammate", "Против напарника",
           "Модель сети напарников: квалификация, темп и финиш с поправкой на силу напарников; доля очков команды."),
+    Group("dotd", "Гонщик дня",
+          "Только для сезона: в какой доле гонок болельщики выбрали пилота гонщиком дня (голосование "
+          "Formula 1, с 2016 года). В общую сводку не входит."),
     Group("career", "Карьера",
           "Только для общей сводки: качество и долговечность. С дебюта в F1 — сезоны в F1, сезоны впереди "
           "напарника в чемпионате, титулы; по нашим сезонам — запас над средним."),
@@ -100,14 +103,20 @@ FEATURES = [
     Feature("car_pace", "teammate", "Темп против напарников, с/круг", "sec", +1),
     Feature("car_race", "teammate", "Финиш против напарников", "pct", +1),
     Feature("team_share", "teammate", "Доля очков команды", "pct", +1),
+    # «Гонщик дня» — только в рейтинге сезона (SEASON_ONLY): голосование болельщиков после каждой
+    # гонки, F1DB, с 2016 года. В сезонах без голосования у признака нет разброса — он ничего не меняет.
+    Feature("dotd_rate", "dotd", "Гонщик дня: доля гонок", "pct", +1, "starts"),
     # «Карьера»: первые три — за всю карьеру с дебюта (features/career.py, F1DB), запас над
     # средним — сумма по нашим сезонам: на сколько баллов пилот был выше 50 (сезон идёт долей гонок).
     Feature("seasons", "career", "Сезонов в F1 с дебюта", "num1", +1),
     Feature("ahead", "career", "Сезонов впереди напарника", "int", +1),
     Feature("titles", "career", "Титулы за карьеру", "int", +1),
     Feature("above_avg", "career", "Запас над средним по сезонам", "int", +1),
+    # Очки рекордов: √ лет удержания по семи рекордам F1 + бонус за побитие (features/records.py).
+    Feature("records", "career", "Рекорды: очки за годы удержания", "num1", +1),
 ]
 CAREER = [f.id for f in FEATURES if f.group == "career"]
+SEASON_ONLY = [f.id for f in FEATURES if f.group == "dotd"]  # в общей сводке этих признаков нет
 
 
 @dataclass
@@ -161,6 +170,7 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
     raw["car_race"] = car["race_p"].reindex(s.index)
     # Доля очков команды с поправкой на малые суммы: +12,5 очка каждому из напарников.
     raw["team_share"] = (s["points"] + 12.5) / (s["points"] + s["mate_points"] + 25)
+    raw["dotd_rate"] = s["dotd"] / n
     if career is not None:
         for col in CAREER:
             raw[col] = career[col].reindex(s.index)
@@ -287,7 +297,7 @@ def _graded(raw: pd.DataFrame, relative: pd.DataFrame | None) -> pd.DataFrame:
     """Что оценивать: сырые значения (сезон) или значения относительно сезонов (период; «Карьера» — как есть)."""
     if relative is None:
         return raw
-    out = relative.reindex(raw.index)
+    out = relative.reindex(raw.index).drop(columns=SEASON_ONLY, errors="ignore")
     for col in CAREER:
         if col in raw:
             out[col] = raw[col]
@@ -365,8 +375,9 @@ def _career(season_tables: dict, careers: pd.DataFrame | None) -> pd.DataFrame:
     surplus = share * (rows["rating"] - RATING_CENTER).clip(lower=0)
     career = pd.DataFrame({"above_avg": surplus.groupby(rows["driver_id"]).sum()})
     facts = careers.set_index("driver_id") if careers is not None else pd.DataFrame()
-    for col in ("seasons", "ahead", "titles"):
+    for col in ("seasons", "ahead", "titles", "records"):
         career[col] = facts[col].reindex(career.index) if col in facts else np.nan
+    career["records"] = career["records"].fillna(0.0)  # у кого рекордов не было — ноль
     return career
 
 

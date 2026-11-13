@@ -51,3 +51,31 @@ def test_fia_verdict_titles():
     assert _VERDICT.search("infringement - car 23 (incident with car 10)")
     assert not _VERDICT.search("decision - car 4 - causing a collision")
     assert not _VERDICT.search("offence - car 4 - speeding in the pit lane")
+
+
+def test_damaged_race_does_not_define_the_car():
+    # Один этап с повреждённой машиной (+1,5% к обычному темпу) не должен читаться как темп машины
+    import numpy as np
+    import pandas as pd
+
+    from rating_f1.features.car_level import _despike
+
+    rows = [(2021, r, team, -1.0 + (1.5 if (team, r) == ("red", 6) else 0.0) + 0.05 * ((r + i) % 3))
+            for r in range(1, 13) for i, team in enumerate(("red", "blue", "green"))]
+    car = pd.DataFrame(rows, columns=["season", "round", "constructor_id", "level"])
+    out = _despike(car, "constructor_id")
+    spike = out[(car["constructor_id"] == "red") & (car["round"] == 6)][0]
+    assert spike < -0.5                                   # было +0,5, осталось рядом с медианой −1
+    same = (car["constructor_id"] != "red") | (car["round"] != 6)
+    assert np.allclose(out[same.to_numpy()], car.loc[same, "level"], atol=0.11)
+
+
+def test_dotd_is_season_only():
+    from rating_f1.composite import FEATURES, SEASON_ONLY, _graded
+    import pandas as pd
+
+    assert SEASON_ONLY == ["dotd_rate"] and any(f.id == "dotd_rate" for f in FEATURES)
+    raw = pd.DataFrame({"ppr": [1.0], "dotd_rate": [0.2]}, index=["a"])
+    relative = pd.DataFrame({"ppr": [0.5], "dotd_rate": [1.0]}, index=["a"])
+    assert "dotd_rate" in _graded(raw, None)               # сезон: признак есть
+    assert "dotd_rate" not in _graded(raw, relative)       # общая сводка: признака нет

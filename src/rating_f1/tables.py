@@ -201,7 +201,7 @@ def build_f1db_tables(results: pd.DataFrame, offline: bool = False) -> dict[str,
         "course_km": races["courseLength"].astype(float),
     })
     # Карьера с дебюта: сезоны в F1, титулы, сезоны впереди напарника (features/career.py).
-    facts = career_facts(race_all, standings_all)
+    facts = career_facts(race_all, standings_all, f1db.read_table(archive, "races"))
     # f1db_id — для ссылки из таблицы всех времён (alltime.py, там пилоты F1DB) на полную карточку.
     careers = (facts[facts.index.isin(list(id_map))].rename_axis("f1db_id").reset_index()
                .assign(driver_id=lambda d: d["f1db_id"].map(id_map)))

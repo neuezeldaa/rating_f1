@@ -52,7 +52,7 @@ FEATURES = {
     "mate_race": ("teammate", +1, None),
     "team_share": ("teammate", +1, None),
 }
-CAREER = ["seasons", "titles", "ahead", "above_avg"]
+CAREER = ["seasons", "titles", "ahead", "above_avg", "records"]
 # Гиперпараметры сети напарников — из основной модели (1996–2026, models/teammate.py оценивает их
 # по данным): квала — шум 0,48%, разброс навыка 0,42%, изменение за сезон 0,08%; финиш в логитах —
 # разброс 0,54, изменение за сезон 0,24 (шум 2 — линейное приближение логистической модели).
@@ -233,7 +233,7 @@ def _overall(z: pd.DataFrame, pool: pd.Series, weights: dict, extra: pd.DataFram
 def build(archive: Path) -> dict:
     """Сезонные рейтинги 1950–2026 и рейтинг всех времён (по пилотам F1DB)."""
     all_facts = career_facts(f1db.read_table(archive, "races-race-results"),
-                             f1db.read_table(archive, "seasons-driver-standings"))
+                             f1db.read_table(archive, "seasons-driver-standings"), f1db.read_table(archive, "races"))
     seasons, starts = season_table(archive)
     counts_cols = ["starts", "quali_n", "gap_n", "mate_q_n", "mate_r_n"]
 
@@ -356,6 +356,7 @@ def payload(out: dict, archive: Path, check: dict, cards: dict | None = None) ->
     people = f1db.read_table(archive, "drivers").set_index("id")
     totals = stats.groupby("driverId").agg(wins=("wins", "sum"), podiums=("podiums", "sum"), poles=("poles", "sum"),
                                            first=("year", "min"), last=("year", "max"))
+    main_team = out["starts"].groupby("driverId")["constructorId"].agg(lambda s: s.mode().iat[0])  # для цветной метки
     best = (sc[sc["eligible"]].sort_values("rating", ascending=False).groupby("driverId").head(3)
             .sort_values(["driverId", "year"]))
     season_rank = sc[sc["eligible"]].assign(rank=lambda d: d.groupby("year")["rating"].rank(ascending=False, method="min"))
@@ -378,9 +379,11 @@ def payload(out: dict, archive: Path, check: dict, cards: dict | None = None) ->
             "wins": int(total["wins"]), "podiums": int(total["podiums"]), "poles": int(total["poles"]),
             "titles": [int(y) for y in str(fact["title_years"]).split()] if isinstance(fact["title_years"], str) else [],
             "seasons": float(fact["seasons"]), "ahead": int(fact["ahead"]), "compared": int(fact["compared"]),
+            "records": float(fact["records"]),
             "s": {g: float(np.clip(RATING_CENTER + RATING_SCALE * row[f"g_{g}"], 0, 100)) for g in WEIGHTS_ALLTIME},
             "best": best_by.get(driver, []),
             "card": cards.get(driver),
+            "team": main_team.get(driver),
         })
     return {
         "period": [FIRST_YEAR, int(stats["year"].max())],

@@ -122,6 +122,11 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
             if team not in period_teams[rec["driver_id"]]:
                 period_teams[rec["driver_id"]].append(team)
 
+    # Основная команда (больше всего гонок) — для цветной метки в таблице.
+    starts = tables["results"][tables["results"]["session"] == "R"]
+    main_season = starts.groupby(["season", "driver_id"])["constructor_id"].agg(lambda s: s.mode().iat[0])
+    main_period = starts.groupby("driver_id")["constructor_id"].agg(lambda s: s.mode().iat[0])
+
     tm = teammate.merge(raw, on=["driver_id", "season"], how="left").merge(
         context[["driver_id", "season", "teammates"]], on=["driver_id", "season"], how="left")
     scope_json = {}
@@ -135,11 +140,13 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
             for d in table.index:
                 c = careers.loc[d] if d in careers.index else None
                 extra[d] = {
+                    "team": main_period.get(d),
                     "seasons": seasons_of.get(d, []), "best_standing": _num(best.get(d)),
                     "titles": [int(y) for y in c["title_years"].split()] if c is not None else [],
                     "career": None if c is None else {
                         "debut": int(c["debut"]), "seasons": float(c["seasons"]),
-                        "ahead": int(c["ahead"]), "compared": int(c["compared"])},
+                        "ahead": int(c["ahead"]), "compared": int(c["compared"]),
+                        "records": float(c["records"]) if "records" in c else 0.0},
                 }
             scope_json[key] = _entries(table, period_teams, extra)
         else:
@@ -148,7 +155,8 @@ def export_web(tables, scopes: dict, teammate: pd.DataFrame, raw: pd.DataFrame, 
             tm_season = tm[tm["season"] == season].set_index("driver_id")
             extra = {}
             for d in table.index:
-                item = {"standing": _num(st["position"].get(d)) if d in st.index else None,
+                item = {"team": main_season.get((season, d)),
+                        "standing": _num(st["position"].get(d)) if d in st.index else None,
                         "champion": bool(st["champion"].get(d, False)) if d in st.index else False,
                         "incidents": incidents.get((d, season), []),
                         "wet_races": cond_season.get((d, season), [])}
