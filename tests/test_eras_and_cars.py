@@ -79,3 +79,22 @@ def test_dotd_is_season_only():
     relative = pd.DataFrame({"ppr": [0.5], "dotd_rate": [1.0]}, index=["a"])
     assert "dotd_rate" in _graded(raw, None)               # сезон: признак есть
     assert "dotd_rate" not in _graded(raw, relative)       # общая сводка: признака нет
+
+
+def test_short_season_is_shrunk_to_typical_driver():
+    # Пилот с 6 гонками без очков не должен выглядеть как полный сезон с очками в середине пелотона
+    import numpy as np
+    import pandas as pd
+
+    from rating_f1.composite import _grade
+
+    ppr = [16.0, 14.0, 12.0, 9.0, 6.0] + [3.0] * 10 + [1.0] * 4 + [0.0]
+    starts = [24] * 19 + [6]
+    raw = pd.DataFrame({"ppr": ppr, "win_rate": [0.4, 0.3, 0.2] + [0.0] * 17}, index=[f"d{i}" for i in range(20)])
+    counts = pd.DataFrame({"starts": starts}, index=raw.index)
+    feats, _, z, _, _, parts = _grade(raw, counts, np.ones(20, bool), {"results": 1.0})
+    i = [f.id for f in feats]
+    short, midfield = z[19], z[5]
+    assert short[i.index("win_rate")] <= midfield[i.index("win_rate")] + 1e-9   # без воображаемых побед
+    assert short[i.index("ppr")] < midfield[i.index("ppr")]
+    assert parts["prior"][i.index("win_rate")] == 0.0 and parts["shrink_to"][i.index("win_rate")] > 0

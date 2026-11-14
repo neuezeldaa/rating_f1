@@ -80,6 +80,9 @@ FEATURES = [
     Feature("ppr", "results", "Очки за гонку", "num1", +1, "starts"),
     Feature("win_rate", "results", "Победы", "pct", +1, "starts"),
     Feature("podium_rate", "results", "Подиумы", "pct", +1, "starts"),
+    # Очковые финиши: победы и подиумы есть только у верха поля, а середину различает то,
+    # как часто пилот привозит очки (Албон 2025 — 11 гонок из 24, Дуэн — ни одной).
+    Feature("top10_rate", "results", "Очковые финиши", "pct", +1, "starts"),
     Feature("champ", "results", "Место в чемпионате (очки за место)", "num1", +1),
     Feature("points_above_car", "above_car", "Очки сверх уровня машины, за гонку", "signed1", +1, "pac_n"),
     Feature("pos_above_car", "above_car", "Места сверх уровня машины", "signed1", +1, "posac_n"),
@@ -128,7 +131,8 @@ class Ruler:
     в пересчёте добавляется случайная, и разброс по пулу растёт.
     """
     pool: pd.Series             # индекс — все пилоты охвата, значение — входит ли в пул
-    shrink_to: np.ndarray       # среднее сырого признака по пулу: к нему сжимаются доли
+    shrink_to: np.ndarray       # среднее сырого признака по пулу: центр для сравнения эпох
+    prior: np.ndarray           # медиана сырого признака по пулу: к ней сжимаются доли («типичный пилот»)
     raw_sd: np.ndarray          # разброс сырого признака по пулу: единица для сравнения эпох
     center: np.ndarray          # среднее признака после сжатия
     sd: np.ndarray              # разброс признака после сжатия
@@ -148,6 +152,7 @@ def _features(summary: pd.DataFrame, champ: pd.Series, car: pd.DataFrame,
     raw["ppr"] = s["points"] / n
     raw["win_rate"] = s["wins"] / n
     raw["podium_rate"] = s["podiums"] / n
+    raw["top10_rate"] = s["top10"] / n
     raw["champ"] = champ.reindex(s.index).fillna(0.0)
     raw["pole_rate"] = s["poles"] / s["quali_n"]
     raw["q3_rate"] = s["q3"] / s["quali_n"]
@@ -208,9 +213,12 @@ def _grade(raw: pd.DataFrame, counts: pd.DataFrame, pool: np.ndarray, weights: d
            ruler: Ruler | None = None, donors: np.ndarray | None = None):
     """z признаков, z групп и итоговое z. Без ruler средние и разбросы берутся по этому пулу.
 
-    donors (только в пересчётах) — для каждого пилота номер случайного пилота пула. Сжатие —
-    это SHRINK_RACES воображаемых гонок среднего пилота; в пересчёте их «проезжает» этот
-    пилот пула. Иначе балл пилота с 1–2 гонками почти не менялся бы между пересчётами:
+    Сжатие — это SHRINK_RACES воображаемых гонок типичного пилота пула (медиана, а не среднее:
+    у побед, подиумов и очков среднее тянут вверх несколько лидеров, и у пилота с 6 гонками без
+    очков воображаемые гонки давали бы очки уровня 6–7 места — Дуэн 2025 выглядел как Албон).
+
+    donors (только в пересчётах) — для каждого пилота номер случайного пилота пула: в пересчёте
+    воображаемые гонки «проезжает» этот пилот. Иначе балл пилота с 1–2 гонками почти не менялся бы между пересчётами:
     он почти целиком из воображаемых гонок, хотя о его уровне мы почти ничего не знаем.
 
     Возвращает (признаки, группы, z признаков, z групп, итог, части линейки).
@@ -220,13 +228,16 @@ def _grade(raw: pd.DataFrame, counts: pd.DataFrame, pool: np.ndarray, weights: d
     x = raw[[f.id for f in feats]].to_numpy(dtype=float)
     if ruler is None:
         shrink_to, raw_sd = _moments(x, pool)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)  # столбец без единого значения
+            prior = np.nanmedian(x[pool], axis=0)
     else:
-        shrink_to, raw_sd = ruler.shrink_to, ruler.raw_sd
+        shrink_to, raw_sd, prior = ruler.shrink_to, ruler.raw_sd, ruler.prior
     n = np.column_stack([counts[f.count].to_numpy(dtype=float) if f.count else np.zeros(len(x))
                          for f in feats])
     n = np.nan_to_num(n, nan=0.0)
-    filled = np.where(np.isnan(x), shrink_to, x)
-    shrunk = (filled * n + shrink_to * SHRINK_RACES) / (n + SHRINK_RACES)
+    filled = np.where(np.isnan(x), prior, x)
+    shrunk = (filled * n + prior * SHRINK_RACES) / (n + SHRINK_RACES)
     has_count = np.array([f.count is not None for f in feats])
     x = np.where(has_count, shrunk, filled)
 
@@ -235,8 +246,12 @@ def _grade(raw: pd.DataFrame, counts: pd.DataFrame, pool: np.ndarray, weights: d
     z = better * _scaled(x, center, sd)
     pool_z = z[pool]
     if donors is not None:
-        # Воображаемые гонки на уровне пилота пула вместо среднего: + доля сжатия × его z.
-        z = z + has_count * SHRINK_RACES / (n + SHRINK_RACES) * ruler.pool_z[donors]
+        # Воображаемые гонки на уровне пилота пула вместо типичного: + доля сжатия × его отличие
+        # от медианы (иначе вилка пилота с малым числом гонок съезжала бы выше его балла).
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            offset = ruler.pool_z - np.nanmedian(ruler.pool_z, axis=0)
+        z = z + has_count * SHRINK_RACES / (n + SHRINK_RACES) * np.nan_to_num(offset)[donors]
     z = np.nan_to_num(np.clip(z, -3, 3), nan=0.0)
 
     members = [[i for i, f in enumerate(feats) if f.group == g.id] for g in groups]
@@ -248,7 +263,7 @@ def _grade(raw: pd.DataFrame, counts: pd.DataFrame, pool: np.ndarray, weights: d
     total = gz @ w / w.sum()
     oc, os_ = _moments(total, pool) if ruler is None else (ruler.overall_center, ruler.overall_sd)
     overall = _scaled(total, oc, os_)
-    parts = dict(shrink_to=shrink_to, raw_sd=raw_sd, center=center, sd=sd, group_center=gc, group_sd=gs,
+    parts = dict(shrink_to=shrink_to, prior=prior, raw_sd=raw_sd, center=center, sd=sd, group_center=gc, group_sd=gs,
                  overall_center=float(oc), overall_sd=float(os_), pool_z=pool_z)
     return feats, groups, z, gz, overall, parts
 

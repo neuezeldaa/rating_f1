@@ -66,7 +66,7 @@
       "ahead of the teammate in the championship, titles; over our seasons — margin above average."],
   };
   const FEATURE_EN = {
-    ppr: "Points per race", win_rate: "Wins", podium_rate: "Podiums", champ: "Championship position (points for it)",
+    ppr: "Points per race", win_rate: "Wins", podium_rate: "Podiums", top10_rate: "Points finishes", champ: "Championship position (points for it)",
     points_above_car: "Points above the car level, per race", pos_above_car: "Places above the car level",
     standout_rate: "Standout races", pole_rate: "Poles", q3_rate: "Reached Q3 (before 2006 — top 10)",
     quali_gap: "Gap to the best in qualifying", quali_pos: "Average qualifying position",
@@ -2711,8 +2711,10 @@
         <li><strong>Шкала.</strong> Каждый признак переводится в z-оценку среди пилотов охвата
           (в сводке — от ${meta.min_starts.period} гонок, в сезоне — от ${meta.min_starts.season}).
           Балл группы и итог — 50 + 15·z: 50 — средний пилот, 80 — на два стандартных отклонения лучше.</li>
-        <li><strong>Мало гонок — меньше доверия.</strong> Доли и средние сжимаются к среднему по пулу так,
-          будто к реальным гонкам добавили ${meta.shrink_races} гонок среднего пилота.</li>
+        <li><strong>Мало гонок — меньше доверия.</strong> Доли и средние сжимаются к типичному пилоту пула (медиане)
+          так, будто к реальным гонкам добавили ${meta.shrink_races} его гонок. Медиана, а не среднее: среднее по очкам,
+          победам и подиумам тянут вверх несколько лидеров, и пилоту с 6 гонками без очков воображаемые гонки давали бы
+          очки уровня 6–7 места.</li>
         <li><strong>Очки</strong> считаются по единой шкале 25-18-15-…-1 только за гонки, без спринтов и бонуса
           за лучший круг, чтобы сезоны ${meta.period[0]}–${meta.period[1]} были сравнимы.</li>
         <li><strong>Эпохи.</strong> Гонки менялись: до 2009 года были дозаправки, обгонов до DRS было вдвое меньше,
@@ -2905,8 +2907,10 @@
         <li><strong>Scale.</strong> Each feature becomes a z-score among the drivers of the scope (all seasons:
           ${meta.min_starts.period}+ races; a season: ${meta.min_starts.season}+). Group scores and the total are
           50 + 15·z: 50 is average, 80 is two standard deviations better.</li>
-        <li><strong>Few races, less trust.</strong> Shares and averages are shrunk towards the pool average as if
-          ${meta.shrink_races} races of an average driver were added.</li>
+        <li><strong>Few races, less trust.</strong> Shares and averages are shrunk towards the pool's typical driver
+          (the median) as if ${meta.shrink_races} of their races were added. The median, not the mean: a few leaders pull
+          the mean of points, wins and podiums up, and a driver with 6 pointless races would otherwise get imaginary
+          races worth a 6th–7th place.</li>
         <li><strong>Points</strong> use one scale, 25-18-15-…-1, for races only, without sprints or the fastest-lap bonus,
           so that ${p0}–${p1} are comparable.</li>
         <li><strong>Eras.</strong> Racing changed: refuelling until 2009, half as many overtakes before DRS, hardly any
